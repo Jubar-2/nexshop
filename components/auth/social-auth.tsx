@@ -3,9 +3,9 @@ import { Button } from "@/components/ui/button";
 export const SocialAuth = ({ text }: { text: string }) => (
     <div className="space-y-4 w-full">
         <div className="relative flex items-center py-2">
-            <div className="flex-grow border-t border-slate-200"></div>
-            <span className="flex-shrink mx-4 text-slate-400 font-bold text-xs">OR</span>
-            <div className="flex-grow border-t border-slate-200"></div>
+            <div className="grow border-t border-slate-200"></div>
+            <span className="shrink mx-4 text-slate-400 font-bold text-xs">OR</span>
+            <div className="grow border-t border-slate-200"></div>
         </div>
         <Button variant="outline" className="w-full h-14 rounded-full border-2 border-slate-200 font-bold text-slate-600 flex items-center justify-center gap-3 text-lg shadow-sm">
             <svg className="w-6 h-6" viewBox="0 0 24 24">
