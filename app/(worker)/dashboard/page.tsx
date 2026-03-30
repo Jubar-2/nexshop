@@ -9,10 +9,10 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const Dashboard = () => {
   return (
-    <div className="p-6 bg-slate-50 min-h-screen font-poppins">
+    <div className="p-6 bg-slate-50 min-h-screen font-poppins mt-17">
       
       {/* --- TOP SECTION: Earnings Header --- */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center flex-col gap-3.5 md:gap-0 md:flex-row justify-between mb-6">
         <h1 className="text-2xl font-bold text-slate-800">Earnings</h1>
         <div className="flex gap-3">
           <Button variant="outline" className="text-emerald-600 border-emerald-200 hover:bg-emerald-50 h-10 px-4">
@@ -28,12 +28,12 @@ const Dashboard = () => {
       {/* --- MIDDLE SECTION: Balance Cards --- */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {/* Available Balance */}
-        <Card className="border-none shadow-sm">
+        <Card className="border-none shadow-sm ring-primary-500">
           <CardContent className="pt-6">
             <div className="flex justify-between items-start mb-4">
-              <p className="text-slate-500 font-medium">Available Balance</p>
+              <p className="text-primary-500 font-medium">Available Balance</p>
               <div className="p-2 bg-emerald-50 rounded-lg">
-                <Wallet className="text-emerald-500" size={20} />
+                <Wallet className="text-emerald-500" size={30} />
               </div>
             </div>
             <h2 className="text-3xl font-bold text-emerald-600">$0.00</h2>
@@ -41,10 +41,10 @@ const Dashboard = () => {
         </Card>
 
         {/* Pending Earnings */}
-        <Card className="border-none shadow-sm">
+        <Card className="border-none shadow-sm ring-primary-500">
           <CardContent className="pt-6">
             <div className="flex justify-between items-start mb-4">
-              <p className="text-slate-500 font-medium">Pending Earnings</p>
+              <p className="text-primary-500 font-medium">Pending Earnings</p>
               <div className="p-2 bg-amber-50 rounded-lg">
                 <Clock className="text-amber-500" size={20} />
               </div>
@@ -54,10 +54,10 @@ const Dashboard = () => {
         </Card>
 
         {/* Total Earned */}
-        <Card className="border-none shadow-sm">
+        <Card className="border-none shadow-sm ring-primary-500">
           <CardContent className="pt-6">
             <div className="flex justify-between items-start mb-4">
-              <p className="text-slate-500 font-medium">Total Earned</p>
+              <p className="text-primary-500 font-medium">Total Earned</p>
               <div className="p-2 bg-blue-50 rounded-lg">
                 <TrendingUp className="text-blue-500" size={20} />
               </div>
@@ -71,7 +71,7 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* My Submissions */}
-        <Card className="border-none shadow-sm flex flex-col">
+        <Card className="border-none shadow-sm flex flex-col ring-primary-500">
           <CardHeader>
             <CardTitle className="text-xl font-bold text-slate-700">My Submissions</CardTitle>
           </CardHeader>
@@ -106,7 +106,7 @@ const Dashboard = () => {
         </Card>
 
         {/* Available Jobs */}
-        <Card className="border-none shadow-sm text-center">
+        <Card className="border-none shadow-sm text-center ring-primary-500">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xl font-bold text-slate-700">Available Jobs</CardTitle>
             <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-100">16 Active</Badge>
@@ -123,7 +123,7 @@ const Dashboard = () => {
         </Card>
 
         {/* Top Referrers */}
-        <Card className="border-none shadow-sm">
+        <Card className="border-none shadow-sm ring-primary-500">
           <CardHeader className="flex flex-row items-center justify-between pb-4">
             <CardTitle className="text-xl font-bold text-slate-700">Top Referrers</CardTitle>
             <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-100">Last 1 year</Badge>
