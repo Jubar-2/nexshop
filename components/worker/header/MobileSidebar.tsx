@@ -69,9 +69,7 @@ export default function MobileSidebar() {
                     <section className="space-y-3">
                         <h3 className="text-[13px] font-bold text-slate-800 uppercase tracking-tight">Help & Support</h3>
                         <div className="space-y-1">
-                            <NavItem icon={<Smartphone size={20} />} label="Download App" />
                             <NavItem icon={<HelpCircle size={20} />} label="FAQ" />
-                            <NavItem icon={<ShieldCheck size={20} />} label="Safety Tips" />
                             <NavItem icon={<Headphones size={20} />} label="Contact Support" />
                         </div>
                     </section>

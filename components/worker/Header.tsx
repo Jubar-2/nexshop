@@ -26,14 +26,14 @@ export default function Header() {
             {/* LEFT SECTION: Logo & Main Nav */}
             <div className="flex items-center gap-8">
                 {/* Logo */}
-                <div className="flex items-center gap-1 cursor-pointer">
+                <Link href="/dashboard" className="flex items-center gap-1 cursor-pointer">
                     <div className="bg-white rounded-full p-1.5 flex items-center justify-center w-10.5 h-10.5">
                         <Image src={Logo} alt="Logo" width={24} height={24} />
                     </div>
                     <div className="flex flex-col leading-none">
                         <span className="text-xl font-bold text-white tracking-tight font-poppins italic lowercase">NEXSHOP</span>
                     </div>
-                </div>
+                </Link>
 
                 {/* Navigation */}
                 <nav className="md:flex items-center gap-2 hidden">
