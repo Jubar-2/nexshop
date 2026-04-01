@@ -8,16 +8,17 @@ import {
   Menu, HelpCircle, User, SwitchCamera,
   ChartSpline,
   Briefcase,
-  ChevronsRight
+  ChevronsRight,
+  PersonStanding
 } from 'lucide-react';
 import { cn } from "@/lib/utils"; // Standard Shadcn utility
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { title } from 'process';
 import Link from 'next/link';
+import Image from 'next/image';
+import logo from '../../public/image/logo.png';
 
 export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -65,12 +66,12 @@ const SidebarContent = ({ isCollapsed, toggleCollapse }: { isCollapsed: boolean,
         isCollapsed ? "justify-center" : ""
       )}>
         <div className="flex items-center gap-3">
-          <div className="bg-blue-600 p-2 rounded-2xl shadow-lg shadow-blue-200 shrink-0">
-            <GraduationCap className="text-white" size={24} />
+          <div className="bg-white p-2 rounded-2xl shadow-lg shadow-blue-200 shrink-0">
+            <Image src={logo} alt="Nexshop Logo" width={24} height={24} />
           </div>
           {!isCollapsed && (
             <div className="flex flex-col leading-none">
-              <span className="text-sm font-bold text-slate-800">Sidebar & mini-sidebar</span>
+              <span className="text-sm font-bold text-slate-800">NEXSHOP</span>
               <span className="text-[11px] font-bold text-slate-400 uppercase tracking-tighter">Brand Header 🚀</span>
             </div>
           )}
@@ -108,9 +109,33 @@ const SidebarContent = ({ isCollapsed, toggleCollapse }: { isCollapsed: boolean,
         "[&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent",
         "[&::-webkit-scrollbar-thumb]:bg-transparent hover:[&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-thumb]:rounded-full"
       )}>
-        <NavItem isCollapsed={isCollapsed} icon={<ChartSpline size={20} />} label="Overview" active />
-        <NavItem isCollapsed={isCollapsed} icon={<Briefcase size={20} />}
-          subItems={[{ label: "Create Jobs" }, { label: "Job List" }, { label: "Submitted Jobs" }]} label="Jobs" hasSubmenu />
+        {/* Single Link (No Submenu) */}
+        <NavItem
+          isCollapsed={isCollapsed}
+          icon={<ChartSpline size={20} />}
+          label="Overview"
+          active
+          href="/admin/"
+        />
+
+        {/* Trigger (Has Submenu) */}
+        <NavItem
+          isCollapsed={isCollapsed}
+          icon={<Briefcase size={20} />}
+          label="Jobs"
+          subItems={[
+            { label: "Create Jobs", href: "/admin/jobs/create" },
+            { label: "Job List", href: "/admin/jobs" },
+            { label: "Submitted Jobs", href: "/admin/jobs/submitted-jobs" }
+          ]}
+        />
+
+        <NavItem
+          isCollapsed={isCollapsed}
+          icon={<PersonStanding size={20} />}
+          label="Freelancers"
+          href="/admin/freelancers"
+        />
 
         {/* ... other nav items ... */}
 
@@ -178,11 +203,12 @@ const SidebarContent = ({ isCollapsed, toggleCollapse }: { isCollapsed: boolean,
 // }
 
 // --- NAVIGATION ITEM COMPONENT WITH SUB-MENU ---
-function NavItem({ icon, label, isCollapsed, active = false, subItems = [] }: any) {
+// --- NAVIGATION ITEM COMPONENT WITH CONDITIONAL LINKING ---
+function NavItem({ icon, label, isCollapsed, active = false, subItems = [], href = "#" }: any) {
   const [isOpen, setIsOpen] = useState(false);
   const hasSubmenu = subItems.length > 0;
 
-  // Automatically close sub-menus when sidebar collapses
+  // Close sub-menus when sidebar collapses
   React.useEffect(() => {
     if (isCollapsed) setIsOpen(false);
   }, [isCollapsed]);
@@ -193,51 +219,63 @@ function NavItem({ icon, label, isCollapsed, active = false, subItems = [] }: an
     }
   };
 
-  return (
-    <div className="flex flex-col gap-1">
-      {/* Main Item */}
-      <div
-        onClick={handleToggle}
-        className={cn(
-          "flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all group",
-          active ? "bg-blue-50 text-blue-600" : "text-slate-500 hover:bg-slate-50",
-          isCollapsed ? "justify-center" : ""
-        )}
-      >
-        <div className="flex items-center gap-4 overflow-hidden">
-          <span className={cn("shrink-0 transition-colors", active ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600")}>
-            {icon}
+  // Reusable UI for the row content to avoid duplication
+  const ItemContent = (
+    <div
+      className={cn(
+        "flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all group",
+        active ? "bg-blue-50 text-blue-600" : "text-slate-500 hover:bg-slate-50",
+        isCollapsed ? "justify-center" : ""
+      )}
+    >
+      <div className="flex items-center gap-4 overflow-hidden">
+        <span className={cn("shrink-0 transition-colors", active ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600")}>
+          {icon}
+        </span>
+        {!isCollapsed && (
+          <span className={cn("text-sm font-bold whitespace-nowrap", active ? "text-blue-600" : "text-slate-500 group-hover:text-slate-800")}>
+            {label}
           </span>
-          {!isCollapsed && (
-            <span className={cn("text-sm font-bold whitespace-nowrap", active ? "text-blue-600" : "text-slate-500 group-hover:text-slate-800")}>
-              {label}
-            </span>
-          )}
-        </div>
-
-        {!isCollapsed && hasSubmenu && (
-          <ChevronRight
-            size={14}
-            className={cn("text-slate-300 transition-transform duration-200", isOpen ? "rotate-90" : "")}
-          />
         )}
       </div>
 
-      {/* Sub-menu Container (Animated Height) */}
+      {!isCollapsed && hasSubmenu && (
+        <ChevronRight
+          size={14}
+          className={cn("text-slate-300 transition-transform duration-200", isOpen ? "rotate-90" : "")}
+        />
+      )}
+    </div>
+  );
+
+  return (
+    <div className="flex flex-col gap-1">
+      {/* 
+         LOGIC: If it has a submenu, it's a <div> trigger. 
+         If no submenu, it's a Next.js <Link>.
+      */}
+      {hasSubmenu ? (
+        <div onClick={handleToggle}>{ItemContent}</div>
+      ) : (
+        <Link href={href}>{ItemContent}</Link>
+      )}
+
+      {/* Sub-menu Container */}
       {!isCollapsed && hasSubmenu && (
         <div className={cn(
           "grid transition-all duration-300 ease-in-out",
           isOpen ? "grid-rows-[1fr] opacity-100 mt-1" : "grid-rows-[0fr] opacity-0 mt-0"
         )}>
-          <div className="overflow-hidden flex flex-col gap-1 pl-5 border-l border-slate-100 ml-6">
+          <div className="overflow-hidden flex flex-col gap-1 pl-1 border-l border-slate-100 ml-6">
             {subItems.map((item: any, idx: number) => (
-              <div
+              <Link
                 key={idx}
-                className="p-2 text-xs font-bold text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all cursor-pointer flex items-center gap-1"
+                href={item.href || "#"}
+                className="p-2 text-xs font-bold text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all flex items-center gap-1"
               >
-                <ChevronsRight size={14}/>
+                <ChevronsRight size={14} />
                 {item.label}
-              </div>
+              </Link>
             ))}
           </div>
         </div>

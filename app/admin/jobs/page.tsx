@@ -86,7 +86,7 @@ export default function AdminJobList() {
                     ))}
                 </div>
                 <div className="flex items-center gap-3 w-full lg:w-auto">
-                    <div className="relative flex-grow lg:w-80">
+                    <div className="relative grow lg:w-80">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                         <Input placeholder="Search job title or ID..." className="h-11 pl-10 rounded-xl bg-slate-50 border-none focus-visible:ring-emerald-500" />
                     </div>
