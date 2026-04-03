@@ -9,7 +9,9 @@ import {
   ChartSpline,
   Briefcase,
   ChevronsRight,
-  PersonStanding
+  PersonStanding,
+  Zap,
+  ArrowDownLeft
 } from 'lucide-react';
 import { cn } from "@/lib/utils"; // Standard Shadcn utility
 import { Button } from "@/components/ui/button";
@@ -135,6 +137,17 @@ const SidebarContent = ({ isCollapsed, toggleCollapse }: { isCollapsed: boolean,
           icon={<PersonStanding size={20} />}
           label="Freelancers"
           href="/admin/freelancers"
+        />
+
+        {/* Add this under your Jobs NavItem */}
+        <NavItem
+          isCollapsed={isCollapsed}
+          icon={<Zap size={20} />}
+          label="Memberships"
+          subItems={[
+            { label: "Package List", href: "/admin/packages" },
+            { label: "Create Package", href: "/admin/packages/create" }
+          ]}
         />
 
         {/* ... other nav items ... */}

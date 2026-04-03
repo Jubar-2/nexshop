@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Sidebar from '@/components/admin/Sidebar';
+import Link from 'next/link';
 
 // --- MOCK DATA FOR GRAPHS ---
 const userGrowthData = [
@@ -48,16 +49,16 @@ export default function Overview() {
                 <SidebarContent />
             </aside> */}
 
-            
+
 
             {/* --- MAIN CONTENT AREA --- */}
-            <main className="flex-grow p-4 md:p-8 overflow-y-auto">
+            <main className="grow p-4 md:p-8 overflow-y-auto">
 
                 {/* TOP HEADER */}
                 <div className="flex items-center justify-between mb-8 gap-4">
                     {/* <div className="flex items-center gap-4"> */}
-                        {/* MOBILE DRAWER TRIGGER */}
-                        {/* <div className="lg:hidden">
+                    {/* MOBILE DRAWER TRIGGER */}
+                    {/* <div className="lg:hidden">
                             <Sheet>
                                 <SheetTrigger asChild>
                                     <Button variant="ghost" size="icon" className="bg-white shadow-sm rounded-xl">
@@ -107,7 +108,7 @@ export default function Overview() {
                             </CardTitle>
                             <Badge className="bg-emerald-50 text-emerald-600 border-none font-bold">+24%</Badge>
                         </div>
-                        <div className="h-[300px] w-full">
+                        <div className="h-75 w-full">
                             <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart data={userGrowthData}>
                                     <defs>
@@ -128,7 +129,7 @@ export default function Overview() {
                     {/* Success Rate (Donut) */}
                     <Card className="bg-white border-none shadow-sm rounded-[32px] overflow-hidden p-6 relative flex flex-col items-center">
                         <CardTitle className="text-lg font-bold text-slate-800 self-start mb-2">Success Rate</CardTitle>
-                        <div className="h-[280px] w-full relative">
+                        <div className="h-70 w-full relative">
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                     <Pie data={successData} innerRadius={70} outerRadius={100} paddingAngle={5} dataKey="value" stroke="none">
@@ -154,7 +155,7 @@ export default function Overview() {
                                 <BarChart3 size={20} className="text-blue-500" /> Job Performance (Posted vs Failed)
                             </CardTitle>
                         </div>
-                        <div className="h-[300px] w-full">
+                        <div className="h-75 w-full">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={jobActivityData} barGap={12}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
@@ -173,7 +174,9 @@ export default function Overview() {
                     <Card className="xl:col-span-2 bg-white border-none shadow-sm rounded-[32px] overflow-hidden">
                         <CardHeader className="p-8 pb-4 flex flex-row items-center justify-between">
                             <CardTitle className="text-xl font-black text-slate-800">Withdrawal Requests</CardTitle>
-                            <Button variant="ghost" className="text-blue-500 font-bold hover:bg-blue-50">View All</Button>
+                            <Link href="/admin/withdrawal-requests">
+                                <Button variant="ghost" className="text-blue-500 font-bold hover:bg-blue-50">View All</Button>
+                            </Link>
                         </CardHeader>
                         <div className="divide-y divide-slate-50">
                             <WithdrawRow name="mdjubairrahman" amount="1,200.00" method="bKash" date="2m ago" />
@@ -201,7 +204,7 @@ const SidebarContent = () => (
             <div className="bg-white p-2 rounded-xl"><Briefcase className="text-slate-900" size={24} /></div>
             <h1 className="text-xl font-black tracking-widest uppercase">Admin Panel</h1>
         </div>
-        <nav className="flex-grow space-y-2">
+        <nav className="grow space-y-2">
             <AdminNavItem icon={<TrendingUp size={20} />} label="Overview" active />
             <AdminNavItem icon={<Briefcase size={20} />} label="Manage Jobs" />
             <AdminNavItem icon={<Users size={20} />} label="User Directory" />
