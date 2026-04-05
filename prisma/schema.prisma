@@ -1,0 +1,163 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --- User & Authentication ---
+model User {
+  id           Int        @id @default(autoincrement())
+  fullName     String
+  email        String     @unique
+  phoneNumber  String     @unique
+  password     String
+  refreshToken String?
+  role         Role       @default(FREELANCER)
+  status       UserStatus @default(ACTIVE)
+  createdAt    DateTime   @default(now())
+
+  // Relations
+  freelancer Freelancer?
+  address    Address?
+  jobsPosted Job[]
+}
+
+enum Role {
+  ADMIN
+  FREELANCER
+}
+
+enum UserStatus {
+  ACTIVE
+  BANNED
+}
+
+// --- Freelancer Profile & Performance ---
+model Freelancer {
+  id             Int            @id @default(autoincrement())
+  userId         Int            @unique
+  user           User           @relation(fields: [userId], references: [id])
+  referKey       String?        @unique
+  memberPlanId   Int
+  membershipPlan MembershipPlan @relation(fields: [memberPlanId], references: [id])
+
+  // Statistics for Logic
+  totalSuccessRate Float @default(0) // Overall Success %
+  currentBalance   Float @default(0)
+  totalApprove     Int   @default(0)
+  totalReject      Int   @default(0)
+  totalSubmit      Int   @default(0)
+
+  // Relations
+  skills Skill[]
+}
+
+model MembershipPlan {
+  id              Int     @id @default(autoincrement())
+  membershipName  String // e.g., Free, Gold, Diamond
+  jobsSubmitLimit Int
+  description     String? @db.VarChar(100)
+  planOrder       Int     @unique // 1 for Diamond, 2 for Gold, etc.
+
+  freelancers Freelancer[]
+}
+
+model Skill {
+  id            Int         @id @default(autoincrement())
+  freelancerId  Int
+  freelancer    Freelancer  @relation(fields: [freelancerId], references: [id])
+  categoryId    Int
+  category      Category    @relation(fields: [categoryId], references: [id])
+  subCategoryId Int
+  subCategory   SubCategory @relation(fields: [subCategoryId], references: [id])
+
+  successRate Float @default(0) // Specific Sub-category Success %
+
+  @@unique([freelancerId, subCategoryId]) // এক ফ্রিল্যান্সারের এক সাব-ক্যাটাগরিতে একটাই এন্ট্রি হবে
+}
+
+// --- Jobs & Categories ---
+model Category {
+  id            Int           @id @default(autoincrement())
+  name          String        @unique
+  subCategories SubCategory[]
+  jobs          Job[]
+  skills        Skill[]
+}
+
+model SubCategory {
+  id         Int      @id @default(autoincrement())
+  name       String
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  jobs       Job[]
+  skills     Skill[]
+}
+
+model Job {
+  id            Int         @id @default(autoincrement())
+  userId        Int // Admin who posted the job
+  postedBy      User        @relation(fields: [userId], references: [id])
+  requirements  String      @db.Text
+  limit         Int // How many freelancers can do this
+  categoryId    Int
+  category      Category    @relation(fields: [categoryId], references: [id])
+  subCategoryId Int
+  subCategory   SubCategory @relation(fields: [subCategoryId], references: [id])
+  price         Float
+  createdAt     DateTime    @default(now())
+}
+
+// --- Location & Address ---
+model Country {
+  id          Int        @id @default(autoincrement())
+  countryName String     @unique
+  divisions   Division[]
+  addresses   Address[]
+}
+
+model Division {
+  id           Int        @id @default(autoincrement())
+  divisionName String
+  countryId    Int
+  country      Country    @relation(fields: [countryId], references: [id])
+  districts    District[]
+  addresses    Address[]
+}
+
+model District {
+  id           Int           @id @default(autoincrement())
+  districtName String
+  divisionId   Int
+  division     Division      @relation(fields: [divisionId], references: [id])
+  subDistricts SubDistrict[]
+  addresses    Address[]
+}
+
+model SubDistrict {
+  id              Int       @id @default(autoincrement())
+  subDistrictName String
+  districtId      Int
+  district        District  @relation(fields: [districtId], references: [id])
+  addresses       Address[]
+}
+
+model Address {
+  id            Int         @id @default(autoincrement())
+  userId        Int         @unique
+  user          User        @relation(fields: [userId], references: [id])
+  countryId     Int
+  country       Country     @relation(fields: [countryId], references: [id])
+  divisionId    Int
+  division      Division    @relation(fields: [divisionId], references: [id])
+  districtId    Int
+  district      District    @relation(fields: [districtId], references: [id])
+  subDistrictId Int
+  subDistrict   SubDistrict @relation(fields: [subDistrictId], references: [id])
+  postalCode    Int
+}
