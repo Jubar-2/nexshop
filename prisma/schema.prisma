@@ -24,7 +24,7 @@ model User {
   // Relations
   freelancer Freelancer?
   address    Address?
-  jobsPosted Job[]
+  jobsPosted Jobs[]
 }
 
 enum Role {
@@ -35,6 +35,11 @@ enum Role {
 enum UserStatus {
   ACTIVE
   BANNED
+}
+
+enum JobStatus {
+  ACTIVE
+  INACTIVE
 }
 
 // --- Freelancer Profile & Performance ---
@@ -78,7 +83,7 @@ model Skill {
 
   successRate Float @default(0) // Specific Sub-category Success %
 
-  @@unique([freelancerId, subCategoryId]) // এক ফ্রিল্যান্সারের এক সাব-ক্যাটাগরিতে একটাই এন্ট্রি হবে
+  @@unique([freelancerId, subCategoryId])
 }
 
 // --- Jobs & Categories ---
@@ -86,7 +91,7 @@ model Category {
   id            Int           @id @default(autoincrement())
   name          String        @unique
   subCategories SubCategory[]
-  jobs          Job[]
+  jobs          Jobs[]
   skills        Skill[]
 }
 
@@ -95,22 +100,32 @@ model SubCategory {
   name       String
   categoryId Int
   category   Category @relation(fields: [categoryId], references: [id])
-  jobs       Job[]
+  jobs       Jobs[]
   skills     Skill[]
 }
 
-model Job {
-  id            Int         @id @default(autoincrement())
-  userId        Int // Admin who posted the job
-  postedBy      User        @relation(fields: [userId], references: [id])
-  requirements  String      @db.Text
-  limit         Int // How many freelancers can do this
+model Jobs {
+  id Int @id @default(autoincrement())
+
+  userId Int // Admin who posted the job
+
+  // Job Details
+  jobTitle      String
+  targetLink    String    @db.VarChar(100)
+  description   String    @db.Text
+  totalSlots    Int // How many freelancers can do this
   categoryId    Int
-  category      Category    @relation(fields: [categoryId], references: [id])
   subCategoryId Int
-  subCategory   SubCategory @relation(fields: [subCategoryId], references: [id])
-  price         Float
-  createdAt     DateTime    @default(now())
+  reward        Float // price per job
+  status        JobStatus @default(ACTIVE)
+
+  // Relations
+  category    Category    @relation(fields: [categoryId], references: [id])
+  subCategory SubCategory @relation(fields: [subCategoryId], references: [id])
+  postedBy    User        @relation(fields: [userId], references: [id])
+
+  // Timestamps
+  createdAt DateTime @default(now())
 }
 
 // --- Location & Address ---

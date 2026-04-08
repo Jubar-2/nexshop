@@ -6,6 +6,7 @@ interface IValidation {
     phoneNumberConflict(phoneNumber: string): Promise<void>;
     hasError(): boolean;
     getErrorMessage(): Record<string, string[]>;
+    existsCategoryAndSubCategory(categoryId: number, subCategoryId: number): Promise<void>;
 }
 
 
@@ -46,6 +47,25 @@ export default class Validation implements IValidation {
 
         if (existingUser) {
             this.errorMessage.phoneNumber = ["This phone number already exists"];
+        }
+    }
+
+    public async existsCategoryAndSubCategory(categoryId: number, subCategoryId: number): Promise<void> {
+        const category = await prisma.category.findFirst({
+            where: {
+                id: categoryId
+            },
+            include: {
+                subCategories: true
+            }
+        });
+
+        if (!category) {
+            this.errorMessage.categoryId = ["Invalid category"];
+        }
+
+        if (!category?.subCategories.some(sub => sub.id === subCategoryId)) {
+            this.errorMessage.subCategoryId = ["Invalid sub-category"];
         }
     }
 

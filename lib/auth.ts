@@ -3,11 +3,12 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import { prisma } from "@/lib/prisma";
 import { signAccessToken, signRefreshToken } from "@/lib/tokens";
+import { refreshAccessToken } from "@/lib/helper";
 
 export const authOptions: NextAuthOptions = {
     providers: [
         Credentials({
-            // ✅ 1. You MUST define the credentials object
+            // You MUST define the credentials object
             credentials: {
                 email: { label: "Email", type: "email" },
                 password: { label: "Password", type: "password" }
@@ -38,6 +39,7 @@ export const authOptions: NextAuthOptions = {
                     id: user.id.toString(),
                     email: user.email,
                     name: user.fullName,
+                    role: user.role,
                     accessToken,
                     refreshToken,
                     accessTokenExpires: Date.now() + 15 * 60 * 1000, // 15 mins from now
@@ -47,6 +49,7 @@ export const authOptions: NextAuthOptions = {
     ],
     callbacks: {
         async jwt({ token, user }) {
+            console.log("JWT Callback Triggered:", token);
             // Initial sign in
             if (user) {
                 return { ...token, ...user };
@@ -60,39 +63,26 @@ export const authOptions: NextAuthOptions = {
             // Access token has expired, try to update it
             return refreshAccessToken(token);
         },
+
         async session({ session, token }) {
-            session.user.id = token.id as string;
-            session.accessToken = token.accessToken as string;
-            session.error = token.error as string;
+            // Pass data from JWT to the client-side session
+            if (token && session.user) {
+                session.user.id = token.id as string;
+                session.user.role = token.role as string;
+                session.accessToken = token.accessToken as string;
+                session.error = token.error as string;
+            }
             return session;
         },
     },
-    session: { strategy: "jwt" },
+
+    session: {
+        strategy: "jwt",
+        maxAge: 7 * 24 * 60 * 60, // 7 Days
+    },
+    pages: {
+        signIn: "/login", // Redirect to your custom login page
+    },
+    secret: process.env.NEXTAUTH_SECRET,
+
 };
-
-/**
- * Helper to refresh the access token automatically
- */
-async function refreshAccessToken(token: any) {
-    try {
-        const user = await prisma.user.findUnique({
-            where: { customerId: parseInt(token.id) },
-        });
-
-        // Verify if the refresh token in the JWT matches the one in DB
-        if (!user || user.refreshToken !== token.refreshToken) {
-            throw new Error("Refresh token invalid");
-        }
-
-        // Sign new access token
-        const newAccessToken = signAccessToken({ id: user.customerId });
-
-        return {
-            ...token,
-            accessToken: newAccessToken,
-            accessTokenExpires: Date.now() + 15 * 60 * 1000,
-        };
-    } catch (error) {
-        return { ...token, error: "RefreshAccessTokenError" };
-    }
-}
