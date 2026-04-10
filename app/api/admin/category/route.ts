@@ -7,17 +7,12 @@ export async function GET() {
 
         // Optimized Database Query
         const category = await prisma.category.findMany({
-            include: {
+            select: {
+                id: true,
+                name: true,
                 subCategories: {
                     select: {
-                        id: true,
-                        name: true,
-                        subcategories: {
-                            select: {
-                                id: true,
-                                name: true
-                            }
-                        }
+                        name: true
                     }
                 }
             }
@@ -29,7 +24,7 @@ export async function GET() {
         }
 
         // Success Response
-        return ApiResponse.success(category, "Category fetched successfully");
+        return ApiResponse.success(category, "Category fetched successfully", 201);
 
     } catch (error) {
         // Professional Logging (helps in production tracking)

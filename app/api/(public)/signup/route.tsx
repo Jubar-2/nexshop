@@ -45,24 +45,44 @@ export async function POST(request: Request) {
         // Hash the password (Professional Salt Rounds: 12)
         const hashedPassword = await bcrypt.hash(password, 12);
 
-        // Create the User in Database
-        const user = await prisma.user.create({
-            data: {
-                fullName,
-                phoneNumber: phoneNumber.trim(),
-                email: email.trim().toLowerCase(),
-                password: hashedPassword
-            },
-            // Select only the fields we want to return (exclude password)
-            select: {
-                id: true,
-                fullName: true,
-                email: true,
-                createdAt: true,
-            }
-        });
+        const result = await prisma.$transaction(async tx => {
 
-        return ApiResponse.success(user, "User created successfully", 201);
+            const defaultPlan = await tx.membershipPlan.findFirst({
+                where: { isDefault: true }
+            });
+
+            if(!defaultPlan){
+                 throw new Error("default membership plan is not found")
+            }
+
+            // Create the User in Database
+            const user = await tx.user.create({
+                data: {
+                    fullName,
+                    phoneNumber: phoneNumber.trim(),
+                    email: email.trim().toLowerCase(),
+                    password: hashedPassword
+                },
+                // Select only the fields we want to return (exclude password)
+                select: {
+                    id: true,
+                    fullName: true,
+                    email: true,
+                    createdAt: true,
+                }
+            });
+
+            const freelancer = await tx.freelancer.create({
+                data: {
+                    userId: user.id,
+                    memberPlanId: defaultPlan.id
+                }
+            })
+
+            return { user, freelancer }
+        })
+
+        return ApiResponse.success(result, "User created successfully", 201);
 
     } catch (error: unknown) {
         console.error("SIGNUP_ERROR:", error);

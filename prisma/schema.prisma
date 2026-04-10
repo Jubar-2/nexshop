@@ -63,13 +63,29 @@ model Freelancer {
 }
 
 model MembershipPlan {
-  id              Int     @id @default(autoincrement())
-  membershipName  String // e.g., Free, Gold, Diamond
+  id              Int           @id @default(autoincrement())
+  membershipName  String        @unique
   jobsSubmitLimit Int
-  description     String? @db.VarChar(100)
-  planOrder       Int     @unique // 1 for Diamond, 2 for Gold, etc.
+  description     String?       @db.VarChar(100)
+  planOrder       Int           @unique // 1 for Diamond, 2 for Gold, etc.
+  isDefault       Boolean       @default(false)
+  offers          MemberOffer[]
+  freelancers     Freelancer[]
+}
 
-  freelancers Freelancer[]
+model MemberOffer {
+  id               Int @id @default(autoincrement())
+  membershipPlanId Int
+  offerId          Int
+
+  offer          Offers         @relation(fields: [offerId], references: [id])
+  membershipPlan MembershipPlan @relation(fields: [membershipPlanId], references: [id])
+}
+
+model Offers {
+  id          Int           @id @default(autoincrement())
+  offerTitle  String
+  memberOffer MemberOffer[]
 }
 
 model Skill {
