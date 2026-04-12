@@ -1,5 +1,5 @@
 import { ApiResponse } from "@/lib/apiResponse";
-import { prisma } from "@/lib/prisma";
+import db from "@/lib/db";
 // import { getServerSession } from "next-auth";
 // import { authOptions } from "@/lib/auth";
 import { OffersInSchema } from "@/lib/validations/offers";
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
         const { offerTitle } = validation.data;
 
         // Create the offer in the database
-        const offers = await prisma.offers.create({
+        const offers = await db.offers.create({
             data: {
                 offerTitle: offerTitle.trim()
             },

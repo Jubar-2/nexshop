@@ -1,11 +1,11 @@
 import { ApiResponse } from "@/lib/apiResponse";
-import {prisma} from "@/lib/prisma"; // Professional singleton
+import db from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
 // Updated for CUID strings
 interface DeleteRequestBody {
-    ids: number[]; 
+    ids: string[]; 
 }
 
 export async function DELETE(request: Request) {
@@ -25,7 +25,7 @@ export async function DELETE(request: Request) {
 
         // 3. Batch Delete Operation
         // Optimized: One database trip to delete multiple records
-        const deleted = await prisma.subCategory.deleteMany({
+        const deleted = await db.subCategory.deleteMany({
             where: {
                 id: { in: body.ids },
             },

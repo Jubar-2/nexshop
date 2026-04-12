@@ -3,7 +3,7 @@ import * as z from "zod";
 export const subCategorySchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters")
         .max(100, "Name must be at most 100 characters"),
-    categoryId: z.number("Invalid category ID")
+    categoryId: z.string("Invalid category ID").cuid("Invalid ID formate")
 });
 
 // Type inference for TypeScript

@@ -1,5 +1,5 @@
 import { ApiResponse } from "@/lib/apiResponse";
-import { prisma } from "@/lib/prisma"; // Professional singleton
+import db from "@/lib/db";
 
 export async function GET(
     request: Request,
@@ -9,8 +9,8 @@ export async function GET(
         const { id } = await ctx.params;
 
         // 3. Optimized Database Query
-        const category = await prisma.category.findUnique({
-            where: { id: parseInt(id) }, // Ensure ID is an integer
+        const category = await db.category.findUnique({
+            where: { id }, // Ensure ID is an integer
             // Optimization: Fetch sub-categories with only necessary fields
             include: {
                 subCategories: { // This matches the relation name in our professional schema

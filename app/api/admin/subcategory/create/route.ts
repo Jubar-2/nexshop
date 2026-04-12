@@ -1,5 +1,5 @@
 import { ApiResponse } from "@/lib/apiResponse";
-import { prisma } from "@/lib/prisma";
+import db from "@/lib/db";
 import { subCategorySchema } from "@/lib/validations/subCategory";
 
 export async function POST(request: Request) {
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
         const normalizedName = name.trim();
 
         // Category Existence Check (reuse)
-        const category = await prisma.category.findUnique({
+        const category = await db.category.findUnique({
             where: { id: categoryId },  // No parseInt (CUID)
         });
 
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
         }
         
         // 5. Duplicate SubCategory Check
-        const existingSubCategory = await prisma.subCategory.findFirst({
+        const existingSubCategory = await db.subCategory.findFirst({
             where: {
                 name: normalizedName,
                 categoryId: categoryId, // Ensures uniqueness within the category
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
         }
 
         // Database Operation
-        const subCategory = await prisma.subCategory.create({
+        const subCategory = await db.subCategory.create({
             data: {
                 name: normalizedName,
                 categoryId: categoryId

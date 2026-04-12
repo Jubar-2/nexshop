@@ -14,7 +14,7 @@ export type OffersInput = z.infer<typeof OffersInSchema>;
 
 export const OffersUpdateInSchema = z.object({
     ...offersFiled,
-    id: z.number("Offer id must be need"),
+    id: z.string("Offer id must be need").cuid("Invalid id format"),
 });
 
 // Type inference for TypeScript

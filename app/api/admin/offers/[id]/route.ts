@@ -1,5 +1,5 @@
 import { ApiResponse } from "@/lib/apiResponse";
-import { prisma } from "@/lib/prisma"; // Professional singleton
+import db from "@/lib/db";
 
 export async function GET(
     request: Request,
@@ -10,8 +10,8 @@ export async function GET(
         const { id } = await ctx.params;
 
         // Optimized Database Query
-        const offers = await prisma.offers.findUnique({
-            where: { id: parseInt(id) },
+        const offers = await db.offers.findUnique({
+            where: { id },
             select: {
                 id: true,
                 offerTitle: true

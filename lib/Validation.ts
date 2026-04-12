@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import db from "@/lib/db";
 
 
 interface IValidation {
@@ -6,7 +6,7 @@ interface IValidation {
     phoneNumberConflict(phoneNumber: string): Promise<void>;
     hasError(): boolean;
     getErrorMessage(): Record<string, string[]>;
-    existsCategoryAndSubCategory(categoryId: number, subCategoryId: number): Promise<void>;
+    existsCategoryAndSubCategory(categoryId: string, subCategoryId: string): Promise<void>;
 }
 
 
@@ -23,7 +23,7 @@ export default class Validation implements IValidation {
      * @param email 
      */
     public async emailConflict(email: string): Promise<void> {
-        const existingUser = await prisma.user.findUnique({
+        const existingUser = await db.user.findUnique({
             where: { email: email.toLowerCase() },
             select: { email: true }
         });
@@ -40,7 +40,7 @@ export default class Validation implements IValidation {
      * @param phoneNumber 
      */
     public async phoneNumberConflict(phoneNumber: string): Promise<void> {
-        const existingUser = await prisma.user.findUnique({
+        const existingUser = await db.user.findUnique({
             where: { phoneNumber },
             select: { phoneNumber: true }
         });
@@ -50,8 +50,8 @@ export default class Validation implements IValidation {
         }
     }
 
-    public async existsCategoryAndSubCategory(categoryId: number, subCategoryId: number): Promise<void> {
-        const category = await prisma.category.findFirst({
+    public async existsCategoryAndSubCategory(categoryId: string, subCategoryId: string): Promise<void> {
+        const category = await db.category.findFirst({
             where: {
                 id: categoryId
             },

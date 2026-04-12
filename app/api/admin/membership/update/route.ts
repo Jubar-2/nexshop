@@ -1,5 +1,5 @@
 import { ApiResponse } from "@/lib/apiResponse";
-import { prisma } from "@/lib/prisma";
+import db from "@/lib/db";
 import { MemberShipUpdateInSchema } from "@/lib/validations/membership";
 // import { getServerSession } from "next-auth";
 // import { authOptions } from "@/lib/auth";
@@ -39,7 +39,7 @@ export async function PATCH(request: Request) {
         } = validation.data;
 
         // find the job
-        const membershipFind = await prisma.membershipPlan.findUnique({
+        const membershipFind = await db.membershipPlan.findUnique({
             where: { id }
         });
 
@@ -48,7 +48,7 @@ export async function PATCH(request: Request) {
         }
 
         // Create the membership plan in the database
-        const result = await prisma.$transaction(async (tx) => {
+        const result = await db.$transaction(async (tx) => {
             // Create the job in the database
             const createMembership = await tx.membershipPlan.update({
                 where: { id },

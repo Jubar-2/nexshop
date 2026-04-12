@@ -1,5 +1,5 @@
 import { ApiResponse } from "@/lib/apiResponse";
-import {prisma} from "@/lib/prisma"; 
+import db from "@/lib/db";
 
 export async function PATCH(request: Request) {
     try {
@@ -11,13 +11,13 @@ export async function PATCH(request: Request) {
         // If name or category is being changed, check if the new name already exists in that category
         if (name || categoryId) {
             // Fetch current record to get existing categoryId if not provided in request
-            const current = await prisma.subCategory.findUnique({ where: { id } });
+            const current = await db.subCategory.findUnique({ where: { id } });
             if (!current) return ApiResponse.error("SubCategory not found", 404);
 
             const targetCategoryId = categoryId || current.categoryId;
             const targetName = name || current.name;
 
-            const duplicate = await prisma.subCategory.findFirst({
+            const duplicate = await db.subCategory.findFirst({
                 where: {
                     name: targetName.trim(),
                     categoryId: targetCategoryId,
@@ -31,7 +31,7 @@ export async function PATCH(request: Request) {
         }
 
         // 5. Perform Update
-        const updatedSubCategory = await prisma.subCategory.update({
+        const updatedSubCategory = await db.subCategory.update({
             where: { id },
             data: {
                 ...(name && { name: name.trim() }),

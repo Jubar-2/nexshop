@@ -1,5 +1,5 @@
 import { ApiResponse } from "@/lib/apiResponse";
-import { prisma } from "@/lib/prisma";
+import db from "@/lib/db";
 // import { getServerSession } from "next-auth";
 // import { authOptions } from "@/lib/auth";
 import { OffersUpdateInSchema } from "@/lib/validations/offers";
@@ -32,7 +32,7 @@ export async function PATCH(request: Request) {
         const { offerTitle, id } = validation.data;
 
         // find the job
-        const findOffer = await prisma.offers.findUnique({
+        const findOffer = await db.offers.findUnique({
             where: { id }
         })
 
@@ -41,7 +41,7 @@ export async function PATCH(request: Request) {
         }
 
         // Create the job in the database
-        const offer = await prisma.offers.update({
+        const offer = await db.offers.update({
             where: { id },
             data: {
                 offerTitle: offerTitle.trim()

@@ -24,7 +24,7 @@ const membershipFiled = {
         .int()
         .positive("Order must be a positive integer"),
 
-    offers: z.array(z.number("Ids are must be number")).optional()
+    offers: z.array(z.string("Ids are must be string")).optional()
 }
 
 export const MemberShipInSchema = z.object({ ...membershipFiled });
@@ -35,7 +35,7 @@ export type MemberShipInput = z.infer<typeof MemberShipInSchema>;
 
 export const MemberShipUpdateInSchema = z.object({
     ...membershipFiled,
-    id: z.number("Offer id must be need"),
+    id: z.string("Offer id must be need"),
 });
 
 // Type inference for TypeScript

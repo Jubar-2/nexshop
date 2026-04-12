@@ -1,5 +1,5 @@
 import { ApiResponse } from "@/lib/apiResponse";
-import { prisma } from "@/lib/prisma";
+import db from "@/lib/db";
 // import { getServerSession } from "next-auth";
 // import { authOptions } from "@/lib/auth";
 import { Prisma } from "@prisma/client";
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
             offers
         } = validation.data;
 
-        const result = await prisma.$transaction(async (tx) => {
+        const result = await db.$transaction(async (tx) => {
             // Create the job in the database
             const createMembership = await tx.membershipPlan.create({
                 data: {

@@ -1,8 +1,8 @@
 import { ApiResponse } from "@/lib/apiResponse";
-import { prisma } from "@/lib/prisma";
+import db from "@/lib/db";
 
 interface DeleteRequestBody {
-    ids: number[]; // Array of IDs to delete
+    ids: string[]; // Array of IDs to delete
 }
 
 export async function DELETE(request: Request) {
@@ -14,7 +14,7 @@ export async function DELETE(request: Request) {
         }
 
         // Delete multiple records at once
-        const deleted = await prisma.category.deleteMany({
+        const deleted = await db.category.deleteMany({
             where: {
                 id: { in: body.ids },
             },

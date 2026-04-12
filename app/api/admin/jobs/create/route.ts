@@ -1,6 +1,6 @@
 import { ApiResponse } from "@/lib/apiResponse";
 import { JobsInSchema } from "@/lib/validations/jobs";
-import { prisma } from "@/lib/prisma";
+import db from "@/lib/db";
 // import { getServerSession } from "next-auth";
 // import { authOptions } from "@/lib/auth";
 import { Prisma } from "@prisma/client";
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
         }
 
         // Create the job in the database
-        const job = await prisma.jobs.create({
+        const job = await db.jobs.create({
             data: {
                 jobTitle: jobTitle.trim(),
                 totalSlots,
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
                 categoryId: category,
                 subCategoryId: subCategory,
                 targetLink:targetLink.trim(),
-                userId: 1,//Number(session.user.id),
+                userId: "1",//Number(session.user.id),
             },
         });
 

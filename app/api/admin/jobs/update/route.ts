@@ -1,6 +1,6 @@
 import { ApiResponse } from "@/lib/apiResponse";
 import { JobsUpdateInSchema } from "@/lib/validations/jobs";
-import { prisma } from "@/lib/prisma";
+import db from "@/lib/db";
 // import { getServerSession } from "next-auth";
 // import { authOptions } from "@/lib/auth";
 import { Prisma } from "@prisma/client";
@@ -43,7 +43,7 @@ export async function PATCH(request: Request) {
         } = validation.data;
 
         // find the job
-        const findJob = await prisma.jobs.findUnique({
+        const findJob = await db.jobs.findUnique({
             where: { id }
         })
 
@@ -65,7 +65,7 @@ export async function PATCH(request: Request) {
         }
 
         // Create the job in the database
-        const job = await prisma.jobs.update({
+        const job = await db.jobs.update({
             where: {
                 id
             },

@@ -1,5 +1,5 @@
 import { ApiResponse } from "@/lib/apiResponse";
-import { prisma } from "@/lib/prisma";
+import db from "@/lib/db";
 // import { getServerSession } from "next-auth";
 
 export async function DELETE(request: Request) {
@@ -23,7 +23,7 @@ export async function DELETE(request: Request) {
         }
 
         // Create the job in the database
-        const deleted = await prisma.jobs.deleteMany({
+        const deleted = await db.jobs.deleteMany({
             where: {
                 id: { in: ids }
             }

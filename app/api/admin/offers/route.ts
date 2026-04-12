@@ -1,11 +1,11 @@
 import { ApiResponse } from "@/lib/apiResponse";
-import { prisma } from "@/lib/prisma"; // Professional singleton
+import db from "@/lib/db";
 
 export async function GET() {
     try {
 
         // Optimized Database Query
-        const offers = await prisma.offers.findMany({
+        const offers = await db.offers.findMany({
             select: {
                 id: true,
                 offerTitle: true

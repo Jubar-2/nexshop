@@ -1,5 +1,5 @@
 import { ApiResponse } from "@/lib/apiResponse";
-import { prisma } from "@/lib/prisma";
+import db from "@/lib/db";
 // import { getServerSession } from "next-auth";
 // import { authOptions } from "@/lib/auth";
 
@@ -21,7 +21,7 @@ export async function PATCH(request: Request) {
         const { planOrder } = body;
 
         // find the job
-        const membershipFind = await prisma.membershipPlan.findUnique({
+        const membershipFind = await db.membershipPlan.findUnique({
             where: { planOrder }
         });
 
@@ -30,7 +30,7 @@ export async function PATCH(request: Request) {
         }
 
         // Create the membership plan in the database
-        const result = await prisma.$transaction(async (tx) => {
+        const result = await db.$transaction(async (tx) => {
 
             const findDefault = await tx.membershipPlan.findFirst({
                 where: { isDefault: true }

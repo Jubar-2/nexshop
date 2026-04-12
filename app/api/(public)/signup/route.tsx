@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { prisma } from "@/lib/prisma";
+import  db  from "@/lib/db";
 import { SignUpSchema } from "@/lib/validations/signup";
 import Validation from "@/lib/Validation";
 import { ApiResponse } from "@/lib/apiResponse";
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
         // Hash the password (Professional Salt Rounds: 12)
         const hashedPassword = await bcrypt.hash(password, 12);
 
-        const result = await prisma.$transaction(async tx => {
+        const result = await db.$transaction(async tx => {
 
             const defaultPlan = await tx.membershipPlan.findFirst({
                 where: { isDefault: true }

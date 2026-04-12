@@ -11,7 +11,7 @@ datasource db {
 
 // --- User & Authentication ---
 model User {
-  id           Int        @id @default(autoincrement())
+  id           String     @id @default(cuid())
   fullName     String
   email        String     @unique
   phoneNumber  String     @unique
@@ -44,11 +44,11 @@ enum JobStatus {
 
 // --- Freelancer Profile & Performance ---
 model Freelancer {
-  id             Int            @id @default(autoincrement())
-  userId         Int            @unique
+  id             String         @id @default(cuid())
+  userId         String         @unique
   user           User           @relation(fields: [userId], references: [id])
   referKey       String?        @unique
-  memberPlanId   Int
+  memberPlanId   String
   membershipPlan MembershipPlan @relation(fields: [memberPlanId], references: [id])
 
   // Statistics for Logic
@@ -63,7 +63,7 @@ model Freelancer {
 }
 
 model MembershipPlan {
-  id              Int           @id @default(autoincrement())
+  id              String        @id @default(cuid())
   membershipName  String        @unique
   jobsSubmitLimit Int
   description     String?       @db.VarChar(100)
@@ -74,27 +74,27 @@ model MembershipPlan {
 }
 
 model MemberOffer {
-  id               Int @id @default(autoincrement())
-  membershipPlanId Int
-  offerId          Int
+  id               String @id @default(cuid())
+  membershipPlanId String
+  offerId          String
 
   offer          Offers         @relation(fields: [offerId], references: [id])
   membershipPlan MembershipPlan @relation(fields: [membershipPlanId], references: [id])
 }
 
 model Offers {
-  id          Int           @id @default(autoincrement())
+  id          String        @id @default(cuid())
   offerTitle  String
   memberOffer MemberOffer[]
 }
 
 model Skill {
-  id            Int         @id @default(autoincrement())
-  freelancerId  Int
+  id            String      @id @default(cuid())
+  freelancerId  String
   freelancer    Freelancer  @relation(fields: [freelancerId], references: [id])
-  categoryId    Int
+  categoryId    String
   category      Category    @relation(fields: [categoryId], references: [id])
-  subCategoryId Int
+  subCategoryId String
   subCategory   SubCategory @relation(fields: [subCategoryId], references: [id])
 
   successRate Float @default(0) // Specific Sub-category Success %
@@ -104,7 +104,7 @@ model Skill {
 
 // --- Jobs & Categories ---
 model Category {
-  id            Int           @id @default(autoincrement())
+  id            String        @id @default(cuid())
   name          String        @unique
   subCategories SubCategory[]
   jobs          Jobs[]
@@ -112,26 +112,26 @@ model Category {
 }
 
 model SubCategory {
-  id         Int      @id @default(autoincrement())
+  id         String   @id @default(cuid())
   name       String
-  categoryId Int
+  categoryId String
   category   Category @relation(fields: [categoryId], references: [id])
   jobs       Jobs[]
   skills     Skill[]
 }
 
 model Jobs {
-  id Int @id @default(autoincrement())
+  id String @id @default(cuid())
 
-  userId Int // Admin who posted the job
+  userId String // Admin who posted the job
 
   // Job Details
   jobTitle      String
   targetLink    String    @db.VarChar(100)
   description   String    @db.Text
   totalSlots    Int // How many freelancers can do this
-  categoryId    Int
-  subCategoryId Int
+  categoryId    String
+  subCategoryId String
   reward        Float // price per job
   status        JobStatus @default(ACTIVE)
 
@@ -146,49 +146,49 @@ model Jobs {
 
 // --- Location & Address ---
 model Country {
-  id          Int        @id @default(autoincrement())
+  id          String     @id @default(cuid())
   countryName String     @unique
   divisions   Division[]
   addresses   Address[]
 }
 
 model Division {
-  id           Int        @id @default(autoincrement())
+  id           String     @id @default(cuid())
   divisionName String
-  countryId    Int
+  countryId    String
   country      Country    @relation(fields: [countryId], references: [id])
   districts    District[]
   addresses    Address[]
 }
 
 model District {
-  id           Int           @id @default(autoincrement())
+  id           String        @id @default(cuid())
   districtName String
-  divisionId   Int
+  divisionId   String
   division     Division      @relation(fields: [divisionId], references: [id])
   subDistricts SubDistrict[]
   addresses    Address[]
 }
 
 model SubDistrict {
-  id              Int       @id @default(autoincrement())
+  id              String    @id @default(cuid())
   subDistrictName String
-  districtId      Int
+  districtId      String
   district        District  @relation(fields: [districtId], references: [id])
   addresses       Address[]
 }
 
 model Address {
-  id            Int         @id @default(autoincrement())
-  userId        Int         @unique
+  id            String      @id @default(cuid())
+  userId        String      @unique
   user          User        @relation(fields: [userId], references: [id])
-  countryId     Int
+  countryId     String
   country       Country     @relation(fields: [countryId], references: [id])
-  divisionId    Int
+  divisionId    String
   division      Division    @relation(fields: [divisionId], references: [id])
-  districtId    Int
+  districtId    String
   district      District    @relation(fields: [districtId], references: [id])
-  subDistrictId Int
+  subDistrictId String
   subDistrict   SubDistrict @relation(fields: [subDistrictId], references: [id])
   postalCode    Int
 }
