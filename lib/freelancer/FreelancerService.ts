@@ -106,7 +106,14 @@ export default class FreelancerService {
         const reward = lowestPrice <= 0 ? { gt: lowestPrice } : { ls: lowestPrice }
 
         const jobs = await db.jobs.findMany({
-            where: { reward },
+            where: {
+                reward,
+                NOT: {
+                    submissionCount: {
+                        gte: db.jobs.fields.workerRequired
+                    }
+                }
+            },
             take: 5,
             orderBy: {
                 reward: "desc"
@@ -146,7 +153,7 @@ export default class FreelancerService {
 
             return new Date(B.createdAt).getTime() - new Date(A.createdAt).getTime();
         }).slice(0, 5)
-        
+
         return subCategoryJob;
 
     }

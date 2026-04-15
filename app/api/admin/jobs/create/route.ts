@@ -33,7 +33,7 @@ export async function POST(request: Request) {
         // Extract validated data
         const {
             jobTitle,
-            totalSlots,
+            workerRequired,
             reward,
             description,
             category,
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
         const job = await db.jobs.create({
             data: {
                 jobTitle: jobTitle.trim(),
-                totalSlots,
+                workerRequired,
                 reward,
                 description:description.trim(),
                 categoryId: category,

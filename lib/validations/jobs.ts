@@ -6,7 +6,7 @@ const jobsFiled = {
         .min(1, "Job title is required")
         .min(2, "Job title must be at least 2 characters")
         .max(100, "Job title cannot exceed 100 characters"),
-    totalSlots: z
+    workerRequired: z
         .number()
         .int("Slots must be a whole number")
         .min(1, "At least 1 slot is required"),

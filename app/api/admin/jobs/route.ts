@@ -1,5 +1,5 @@
 import { ApiResponse } from "@/lib/apiResponse";
-import db from "@/lib/db"; 
+import db from "@/lib/db";
 
 export async function GET() {
     try {
@@ -26,12 +26,12 @@ export async function GET() {
             }
         });
 
-        // 4. Handle Not Found
+        // Handle Not Found
         if (!jobs) {
             return ApiResponse.error("Jobs are not found", 404);
         }
 
-        // 5. Professional Success Response
+        // Professional Success Response
         return ApiResponse.success(jobs, "Jobs data retrieved");
 
     } catch (error) {

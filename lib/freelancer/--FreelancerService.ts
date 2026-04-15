@@ -1,13 +1,13 @@
 import db from "@/lib/db";
 import { Prisma } from "@prisma/client";
 
-// --- Types for Autocomplete ---
+// Use the Prisma-generated types for perfect autocomplete
 type FreelancerWithPlan = Prisma.FreelancerGetPayload<{
     include: { membershipPlan: true; skills: true }
 }>;
 
 export default class FreelancerService {
-    private readonly freelancerId: string; // Use string for CUID
+    private readonly freelancerId: string;
     private cachedProfile: FreelancerWithPlan | null = null;
 
     constructor(freelancerId: string) {
@@ -15,8 +15,7 @@ export default class FreelancerService {
     }
 
     /**
-     * Optimization: Memoized Profile Fetcher
-     * Ensures we only hit the DB once per request for the profile.
+     * Optimization: One database trip for profile & dependencies.
      */
     private async getProfile(): Promise<FreelancerWithPlan> {
         if (this.cachedProfile) return this.cachedProfile;
@@ -26,41 +25,40 @@ export default class FreelancerService {
             include: { membershipPlan: true, skills: true }
         });
 
-        if (!profile) throw new Error("Freelancer not found");
+        if (!profile) throw new Error("Freelancer account not found");
         this.cachedProfile = profile;
         return profile;
     }
 
     /**
-     * Logic: Calculate the "Price Floor" based on membership tier.
-     * This ensures high-tier members see the highest-paying jobs first.
+     * Logic: Calculate the "Earnings Ceiling" for this tier.
+     * Prevents lower tiers from exhausting premium job budgets immediately.
      */
     private async getPriceThreshold(planOrder: number): Promise<number> {
-        // Find how many people are 'above' this freelancer in rank
         const higherTierCount = await db.freelancer.count({
             where: { membershipPlan: { planOrder: { gt: planOrder } } }
         });
 
-        const fetchLimit = Math.max(higherTierCount * 5, 10);
+        // Limit the pool based on competition in higher tiers
+        const fetchLimit = higherTierCount * 5;
+
+        if (fetchLimit <= 0) return 0;
 
         const topJobs = await db.jobs.findMany({
+            where: { status: "ACTIVE" },
             take: fetchLimit,
             orderBy: { reward: "desc" },
             select: { reward: true }
         });
 
         if (topJobs.length === 0) return 0;
-        
-        // Return the lowest price from the 'top' bucket
+
+        // Return the bottom price of the current 'Premium' bucket
         return Number(topJobs[topJobs.length - 1].reward);
     }
 
     /**
-     * Core Algorithm: findJobs
-     * 1. Fetches profile & skills in one trip.
-     * 2. Calculates price threshold.
-     * 3. Fetches jobs near that threshold.
-     * 4. Ranks them by freelancer skill success rate.
+     *  Job Discovery Algorithm
      */
     public async findJobs() {
         const profile = await this.getProfile();
@@ -76,9 +74,19 @@ export default class FreelancerService {
         const jobs = await db.jobs.findMany({
             where: {
                 reward: { gte: threshold },
-                status: "ACTIVE"
+                status: "ACTIVE",
+                submissionCount: {
+                    lt: db.jobs.fields.workerRequired
+                },
+                NOT: {
+                    submissions: {
+                        some: {
+                            freelancerId: this.freelancerId
+                        }
+                    }
+                }
             },
-            take: 20, 
+            take: 20,
             orderBy: { reward: "desc" },
             include: { category: true, subCategory: true }
         });
@@ -87,9 +95,18 @@ export default class FreelancerService {
         let pool = jobs;
         if (pool.length < 5) {
             const fallback = await db.jobs.findMany({
-                where: { status: "ACTIVE" },
+                where: {
+                    status: "ACTIVE",
+                    NOT: {
+                        submissions: {
+                            some: {
+                                freelancerId: this.freelancerId
+                            }
+                        }
+                    }
+                },
                 take: 10,
-                orderBy: { createdAt: "desc" },
+                orderBy: { createdAt: "asc" },
                 include: { category: true, subCategory: true }
             });
             pool = [...pool, ...fallback];
@@ -106,15 +123,10 @@ export default class FreelancerService {
             const skillA = skills.find(s => s.subCategoryId === a.subCategoryId)?.successRate || 0;
             const skillB = skills.find(s => s.subCategoryId === b.subCategoryId)?.successRate || 0;
 
-            // 1. If user is better at one type of job, show that first
+            // If user is better at one type of job, show that first
             if (skillA !== skillB) return skillB - skillA;
 
-            // 2. If skills are equal, show higher reward
-            const rewardA = Number(a.reward);
-            const rewardB = Number(b.reward);
-            if (rewardA !== rewardB) return rewardB - rewardA;
-
-            // 3. Finally, show newest
+            // Finally, show newest
             return b.createdAt.getTime() - a.createdAt.getTime();
         }).slice(0, 5); // Return top 5 best matches for the user
     }

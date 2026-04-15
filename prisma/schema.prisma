@@ -42,6 +42,12 @@ enum JobStatus {
   INACTIVE
 }
 
+enum SubmittedJobStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 // --- Freelancer Profile & Performance ---
 model Freelancer {
   id             String         @id @default(cuid())
@@ -51,15 +57,16 @@ model Freelancer {
   memberPlanId   String
   membershipPlan MembershipPlan @relation(fields: [memberPlanId], references: [id])
 
-  // Statistics for Logic
-  totalSuccessRate Float @default(0) // Overall Success %
-  currentBalance   Float @default(0)
-  totalApprove     Int   @default(0)
-  totalReject      Int   @default(0)
-  totalSubmit      Int   @default(0)
+  // Statistics
+  totalSuccessRate Float   @default(0)
+  currentBalance   Decimal @default(0.00) @db.Decimal(10, 2) 
+  totalApproved    Int     @default(0)
+  totalRejected    Int     @default(0)
+  totalSubmitted   Int     @default(0)
 
   // Relations
-  skills Skill[]
+  skills      Skill[]
+  submissions SubmittedJob[] 
 }
 
 model MembershipPlan {
@@ -121,27 +128,37 @@ model SubCategory {
 }
 
 model Jobs {
-  id String @id @default(cuid())
-
-  userId String // Admin who posted the job
-
-  // Job Details
-  jobTitle      String
-  targetLink    String    @db.VarChar(100)
-  description   String    @db.Text
-  totalSlots    Int // How many freelancers can do this
-  categoryId    String
-  subCategoryId String
-  reward        Float // price per job
-  status        JobStatus @default(ACTIVE)
+  id              String    @id @default(cuid())
+  userId          String
+  jobTitle        String
+  targetLink      String    @db.VarChar(100)
+  description     String    @db.Text
+  workerRequired  Int
+  submissionCount Int       @default(0)
+  categoryId      String
+  subCategoryId   String
+  reward          Decimal   @db.Decimal(10, 2)
+  status          JobStatus @default(ACTIVE)
 
   // Relations
-  category    Category    @relation(fields: [categoryId], references: [id])
-  subCategory SubCategory @relation(fields: [subCategoryId], references: [id])
-  postedBy    User        @relation(fields: [userId], references: [id])
+  category    Category       @relation(fields: [categoryId], references: [id])
+  subCategory SubCategory    @relation(fields: [subCategoryId], references: [id])
+  postedBy    User           @relation(fields: [userId], references: [id])
+  submissions SubmittedJob[] 
 
-  // Timestamps
   createdAt DateTime @default(now())
+}
+
+model SubmittedJob {
+  id           String             @id @default(cuid())
+  jobId        String
+  freelancerId String
+  status       SubmittedJobStatus @default(PENDING)
+  createdAt    DateTime           @default(now())
+
+  // Relations
+  job        Jobs       @relation(fields: [jobId], references: [id])
+  freelancer Freelancer @relation(fields: [freelancerId], references: [id])
 }
 
 // --- Location & Address ---
