@@ -1,162 +1,136 @@
-import db from "../db";
+import db from "@/lib/db";
 import { Prisma } from "@prisma/client";
 
+// Use the Prisma-generated types for perfect autocomplete
 type FreelancerWithPlan = Prisma.FreelancerGetPayload<{
-    include: {
-        membershipPlan: true,
-        skills: true
-    }
-}>
+    include: { membershipPlan: true; skills: true }
+}>;
 
 export default class FreelancerService {
     private readonly freelancerId: string;
+    private cachedProfile: FreelancerWithPlan | null = null;
 
     constructor(freelancerId: string) {
         this.freelancerId = freelancerId;
     }
 
     /**
-     * Fetches the complete profile including membership details.
-     * Throws an error if not found to be handled by the global error handler.
+     * Optimization: One database trip for profile & dependencies.
      */
-    public async getFullProfile(): Promise<FreelancerWithPlan> {
-        try {
-            const profile = await db.freelancer.findUnique({
-                where: { id: this.freelancerId },
-                include: {
-                    membershipPlan: true,
-                    skills: true
-                }
-            });
+    private async getProfile(): Promise<FreelancerWithPlan> {
+        if (this.cachedProfile) return this.cachedProfile;
 
-            if (!profile) {
-                throw new Error(`Freelancer with ID ${this.freelancerId} not found`);
-            }
-
-            return profile;
-        } catch (error) {
-            console.error("[FREELANCER_SERVICE_PROFILE_ERROR]:", error);
-            throw error;
-        }
-    }
-
-
-    public async getActivePlan(): Promise<Prisma.MembershipPlanGetPayload<object> | null> {
-
-        const getFullProfile = await this.getFullProfile();
-
-        return getFullProfile.membershipPlan || null;
-    }
-
-    public async getSkill(): Promise<Prisma.SkillGetPayload<object>[] | null | []> {
-        const getFullProfile = await this.getFullProfile();
-        return getFullProfile.skills || null;
-    }
-
-    public async lowestPrice() {
-        const getActivePlan = await this.getActivePlan();
-
-        if (!getActivePlan) {
-            throw new Error("Active plan not found");
-        }
-
-        // get upper membership 
-        const totalFreelancers = await db.freelancer.count({
-            where: {
-                membershipPlan: {
-                    planOrder: {
-                        gt: getActivePlan.planOrder
-                    }
-                }
-            }
+        const profile = await db.freelancer.findUnique({
+            where: { id: this.freelancerId },
+            include: { membershipPlan: true, skills: true }
         });
 
-        const limit = totalFreelancers * 5;
+        if (!profile) throw new Error("Freelancer account not found");
+        this.cachedProfile = profile;
+        return profile;
+    }
 
-        // get last jobs price
+    /**
+     * Logic: Calculate the "Earnings Ceiling" for this tier.
+     * Prevents lower tiers from exhausting premium job budgets immediately.
+     */
+    private async getPriceThreshold(planOrder: number): Promise<number> {
+        const higherTierCount = await db.freelancer.count({
+            where: { membershipPlan: { planOrder: { gt: planOrder } } }
+        });
+
+        /**
+        * Take vale will come to setting table
+        */
+        // Limit the pool based on competition in higher tiers
+        const fetchLimit = higherTierCount * 5;
+
+        if (fetchLimit <= 0) return 0;
+
         const topJobs = await db.jobs.findMany({
-            take: limit,
-            orderBy: {
-                reward: "desc"
-            },
-            select: {
-                reward: true
-            }
+            where: { status: "ACTIVE" },
+            take: fetchLimit,
+            orderBy: { reward: "desc" },
+            select: { reward: true }
         });
 
+        if (topJobs.length === 0) return 0;
 
-        if (topJobs.length <= 0) {
-            return 0;
-        }
-
-        // lowest price from top 3
-        const lowestPrice = Math.min(...topJobs.map(job => job.reward));
-
-        // get lowest price
-        return lowestPrice;
+        // Return the bottom price of the current 'Premium' bucket
+        return Number(topJobs[topJobs.length - 1].reward);
     }
 
-
-
+    /**
+     *  Job Discovery Algorithm
+     */
     public async findJobs() {
+        const profile = await this.getProfile();
+        const skills = profile.skills;
+        const plan = profile.membershipPlan;
 
-        const lowestPrice = await this.lowestPrice()
-        const skill = await this.getSkill();
+        if (!plan) throw new Error("No active membership plan found");
 
-        const reward = lowestPrice <= 0 ? { gt: lowestPrice } : { ls: lowestPrice }
+        const threshold = await this.getPriceThreshold(plan.planOrder);
 
+        // Fetch jobs around the threshold
+        // We fetch slightly more than we need (take: 20) to allow for better ranking
         const jobs = await db.jobs.findMany({
             where: {
-                reward,
+                reward: { gte: threshold },
+                status: "ACTIVE",
+                submissionCount: {
+                    lt: db.jobs.fields.workerRequired
+                },
                 NOT: {
-                    submissionCount: {
-                        gte: db.jobs.fields.workerRequired
+                    submissions: {
+                        some: {
+                            freelancerId: this.freelancerId
+                        }
                     }
                 }
             },
-            take: 5,
-            orderBy: {
-                reward: "desc"
-            },
-            include: {
-                category: true,
-                subCategory: true,
-            }
+            take: 20,
+            orderBy: { reward: "desc" },
+            include: { category: true, subCategory: true }
         });
 
-        if (jobs.length <= 0) {
-            const lowerJobs = await db.jobs.findMany({
-                take: 5,
-                orderBy: {
-                    reward: "asc"
+        // If no high-paying jobs, fallback to general available jobs
+        let pool = jobs;
+        if (pool.length < 5) {
+            const fallback = await db.jobs.findMany({
+                where: {
+                    status: "ACTIVE",
+                    NOT: {
+                        submissions: {
+                            some: {
+                                freelancerId: this.freelancerId
+                            }
+                        }
+                    }
                 },
-                include: {
-                    category: true,
-                    subCategory: true,
-                }
+                take: 10,
+                orderBy: { createdAt: "asc" },
+                include: { category: true, subCategory: true }
             });
-
-            jobs.push(...lowerJobs)
+            pool = [...pool, ...fallback];
         }
 
+        /**
+         * PROFESSIONAL RANKING ALGORITHM
+         * Sort Priority: 
+         * 1. Success Rate in that specific subcategory (weighted)
+         * 2. Reward Amount
+         * 3. Recency (Newest first)
+         */
+        return pool.sort((a, b) => {
+            const skillA = skills.find(s => s.subCategoryId === a.subCategoryId)?.successRate || 0;
+            const skillB = skills.find(s => s.subCategoryId === b.subCategoryId)?.successRate || 0;
 
-        const subCategoryJob = jobs.sort((A, B) => {
-            const skillA = skill?.find((sk) => A.subCategoryId === sk.subCategoryId)
-            const skillB = skill?.find((sk) => B.subCategoryId === sk.subCategoryId)
+            // If user is better at one type of job, show that first
+            if (skillA !== skillB) return skillB - skillA;
 
-            const scoreA = skillA?.successRate || 0
-            const scoreB = skillB?.successRate || 0
-
-            if (scoreA !== scoreB) {
-                return scoreB - scoreA;
-            }
-
-            return new Date(B.createdAt).getTime() - new Date(A.createdAt).getTime();
-        }).slice(0, 5)
-
-        return subCategoryJob;
-
+            // Finally, show newest
+            return b.createdAt.getTime() - a.createdAt.getTime();
+        }).slice(0, 5); // Return top 5 best matches for the user
     }
-
-
 }

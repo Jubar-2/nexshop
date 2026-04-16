@@ -59,14 +59,14 @@ model Freelancer {
 
   // Statistics
   totalSuccessRate Float   @default(0)
-  currentBalance   Decimal @default(0.00) @db.Decimal(10, 2) 
+  currentBalance   Decimal @default(0.00) @db.Decimal(10, 2)
   totalApproved    Int     @default(0)
   totalRejected    Int     @default(0)
   totalSubmitted   Int     @default(0)
 
   // Relations
   skills      Skill[]
-  submissions SubmittedJob[] 
+  submissions SubmittedJob[]
 }
 
 model MembershipPlan {
@@ -144,17 +144,19 @@ model Jobs {
   category    Category       @relation(fields: [categoryId], references: [id])
   subCategory SubCategory    @relation(fields: [subCategoryId], references: [id])
   postedBy    User           @relation(fields: [userId], references: [id])
-  submissions SubmittedJob[] 
+  submissions SubmittedJob[]
 
   createdAt DateTime @default(now())
 }
 
 model SubmittedJob {
-  id           String             @id @default(cuid())
-  jobId        String
-  freelancerId String
-  status       SubmittedJobStatus @default(PENDING)
-  createdAt    DateTime           @default(now())
+  id              String             @id @default(cuid())
+  jobId           String
+  freelancerId    String
+  submissionNotes String             @db.VarChar(255)
+  proofAttachment String
+  status          SubmittedJobStatus @default(PENDING)
+  submittedAt     DateTime           @default(now())
 
   // Relations
   job        Jobs       @relation(fields: [jobId], references: [id])

@@ -34,7 +34,7 @@ export async function PATCH(request: Request) {
         const {
             id,
             jobTitle,
-            totalSlots,
+            workerRequired,
             reward,
             description,
             category,
@@ -71,7 +71,7 @@ export async function PATCH(request: Request) {
             },
             data: {
                 jobTitle: jobTitle.trim(),
-                totalSlots,
+                workerRequired,
                 reward,
                 description: description.trim(),
                 categoryId: category,

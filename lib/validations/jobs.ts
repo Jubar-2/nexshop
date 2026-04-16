@@ -40,3 +40,14 @@ export const JobsUpdateInSchema = z.object({
 
 // Type inference for TypeScript
 export type JobsUpdateInput = z.infer<typeof JobsUpdateInSchema>;
+
+export const SubmitJobSchema = z.object({
+    jobId: z
+        .string("Job Id is must be string")
+        .cuid("Job Id type is must be cuid"),
+    submissionNotes: z.string("Submission Notes is must be string")
+        .trim()
+        .max(225, "Use maximum 225 letters")
+})
+
+export type SubmitJobInput = z.infer<typeof SubmitJobSchema>;

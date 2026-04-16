@@ -5,7 +5,10 @@ import FreelancerService from "@/lib/freelancer/FreelancerService";
 export async function GET() {
     try {
 
-        const freelancerService = new FreelancerService(1)
+        /**
+         * get login data 
+        */
+        const freelancerService = new FreelancerService("dff")
         const jobs = await freelancerService.findJobs();
 
         // Success Response
