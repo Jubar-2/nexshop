@@ -155,6 +155,7 @@ model SubmittedJob {
   freelancerId    String
   submissionNotes String             @db.VarChar(255)
   proofAttachment String
+  profileLink     String?
   status          SubmittedJobStatus @default(PENDING)
   submittedAt     DateTime           @default(now())
 
