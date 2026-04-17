@@ -3,7 +3,7 @@ import { ImgBBResponse } from "@/types/imgbb";
 export class ImageUploadService {
   private static instance: ImageUploadService;
   private readonly apiKey: string;
-  private readonly apiUrl: string = "https://api.imgbb.com/1/upload";
+  private readonly apiUrl: string = process.env.IMGBB_API_URL as string;
 
   private constructor() {
     const key = process.env.IMGBB_API_KEY;

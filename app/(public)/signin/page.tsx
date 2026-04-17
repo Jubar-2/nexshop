@@ -24,7 +24,7 @@ export default function LoginPage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
 
-    // 2. Initialize the Form
+    // Initialize the Form
     const {
         register,
         handleSubmit,
@@ -60,7 +60,7 @@ export default function LoginPage() {
                 router.push("/dashboard");
                 router.refresh();
             }
-        } catch (error) {
+        } catch (error: unknown) {
             toast.error("An error occurred", {
                 description: "Something went wrong. Please try again later."
             });

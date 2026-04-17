@@ -188,7 +188,7 @@ export default function AdminPostJob() {
                         <Textarea 
                             required 
                             placeholder="Step 1: Open the link... Step 2: Like & Comment..." 
-                            className="min-h-[150px] rounded-2xl border-slate-200 focus:border-blue-500 font-medium" 
+                            className="min-h-37.5 rounded-2xl border-slate-200 focus:border-blue-500 font-medium" 
                         />
                         <p className="text-[10px] text-slate-400 font-bold uppercase mt-3 italic tracking-tight">Admin Tip: Be clear about proof requirements to reduce rejection.</p>
                     </CardContent>

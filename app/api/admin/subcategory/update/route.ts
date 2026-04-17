@@ -3,7 +3,6 @@ import db from "@/lib/db";
 
 export async function PATCH(request: Request) {
     try {
-      
 
         const { id, name, categoryId } = await request.json();
 

@@ -1,7 +1,7 @@
 import { NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
-import { prisma } from "@/lib/prisma";
+import db from "@/lib/db";
 import { signAccessToken, signRefreshToken } from "@/lib/tokens";
 import { refreshAccessToken } from "@/lib/helper";
 
@@ -17,7 +17,7 @@ export const authOptions: NextAuthOptions = {
             async authorize(credentials) {
                 if (!credentials?.email || !credentials?.password) return null;
 
-                const user = await prisma.user.findUnique({
+                const user = await db.user.findUnique({
                     where: { email: credentials.email as string },
                 });
 
@@ -30,7 +30,7 @@ export const authOptions: NextAuthOptions = {
                 const refreshToken = signRefreshToken({ userId: user.id });
 
                 // Professional Step: Save Refresh Token to DB
-                await prisma.user.update({
+                await db.user.update({
                     where: { id: user.id },
                     data: { refreshToken },
                 });
@@ -49,7 +49,6 @@ export const authOptions: NextAuthOptions = {
     ],
     callbacks: {
         async jwt({ token, user }) {
-            console.log("JWT Callback Triggered:", token);
             // Initial sign in
             if (user) {
                 return { ...token, ...user };

@@ -51,3 +51,46 @@ export const SubmitJobSchema = z.object({
 })
 
 export type SubmitJobInput = z.infer<typeof SubmitJobSchema>;
+
+
+// Shared constants for NexShop standards
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
+
+/**
+ * SCHEMA: Job Submission (For Workers)
+ * Used in Server Actions to validate form data before ImgBB upload.
+ */
+export const JobSubmissionSchema = z.object({
+    jobId: z
+        .string("Job reference is missing")
+        .cuid("Invalid Job ID format"),
+
+    submissionNotes: z
+        .string()
+        .trim()
+        .min(10, "Please provide at least 10 characters describing your work.")
+        .max(255, "Notes must be under 255 characters."),
+
+    // Validate the File object before sending to ImgBB
+    proofAttachment: z
+        .any()
+        .refine((file) => file instanceof File, "Please upload a screenshot of your work.")
+        .refine((file) => file?.size <= MAX_FILE_SIZE, "Screenshot must be smaller than 5MB.")
+        .refine(
+            (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
+            "Only .jpg, .jpeg, and .png formats are accepted."
+        ),
+
+    // Profile link is optional but must be a valid URL if provided
+    profileLink: z
+        .string()
+        .trim()
+        .url("Please enter a valid social profile URL (e.g., https://facebook.com/...)")
+        .optional()
+        .or(z.literal("")), // Allows empty string to be valid
+});
+
+
+// TypeScript Types for safety across the app
+export type JobSubmissionInput = z.infer<typeof JobSubmissionSchema>;

@@ -1,5 +1,5 @@
 import { JWT } from "next-auth/jwt";
-import { prisma } from "./prisma";
+import db from "./db";
 import { signAccessToken } from "./tokens";
 
 /**
@@ -7,8 +7,8 @@ import { signAccessToken } from "./tokens";
  */
 export async function refreshAccessToken(token: JWT) {
     try {
-        const user = await prisma.user.findUnique({
-            where: { id: parseInt((token as { id: string }).id) },
+        const user = await db.user.findUnique({
+            where: { id: (token as { id: string }).id },
         });
 
         // Verify if the refresh token in the JWT matches the one in DB
@@ -25,6 +25,7 @@ export async function refreshAccessToken(token: JWT) {
             accessTokenExpires: Date.now() + 15 * 60 * 1000,
         };
     } catch (error: unknown) {
+        console.log(error)
         return { ...token, error: "RefreshAccessTokenError" };
     }
 }

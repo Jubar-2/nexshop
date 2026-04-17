@@ -8,7 +8,7 @@ const ACCESS_TOKEN_EXPIRATION = (process.env.JWT_ACCESS_EXPIRATION || "15m") as 
 const REFRESH_TOKEN_EXPIRATION = (process.env.JWT_REFRESH_EXPIRATION || "7d") as SignOptions['expiresIn'];
 
 interface signInData {
-    userId: number;
+    userId: string;
 }
 
 export const signAccessToken = (payload: signInData) => {
