@@ -7,11 +7,12 @@ type FreelancerWithPlan = Prisma.FreelancerGetPayload<{
 }>;
 
 export default class FreelancerService {
-    private readonly freelancerId: string;
+    private readonly userId: string;
+    // private readonly freelancerId: string;
     private cachedProfile: FreelancerWithPlan | null = null;
 
-    constructor(freelancerId: string) {
-        this.freelancerId = freelancerId;
+    constructor(userId: string) {
+        this.userId = userId;
     }
 
     /**
@@ -21,7 +22,7 @@ export default class FreelancerService {
         if (this.cachedProfile) return this.cachedProfile;
 
         const profile = await db.freelancer.findUnique({
-            where: { id: this.freelancerId },
+            where: { userId: this.userId },
             include: { membershipPlan: true, skills: true }
         });
 
@@ -84,7 +85,7 @@ export default class FreelancerService {
                 NOT: {
                     submissions: {
                         some: {
-                            freelancerId: this.freelancerId
+                            freelancerId: profile.id
                         }
                     }
                 }
@@ -103,7 +104,7 @@ export default class FreelancerService {
                     NOT: {
                         submissions: {
                             some: {
-                                freelancerId: this.freelancerId
+                                freelancerId: profile.id
                             }
                         }
                     }
@@ -132,5 +133,98 @@ export default class FreelancerService {
             // Finally, show newest
             return b.createdAt.getTime() - a.createdAt.getTime();
         }).slice(0, 5); // Return top 5 best matches for the user
+    }
+
+    /**
+    * Highly Professional Paginated Submissions
+    * @param page - Current page number (starts at 1)
+    * @param limit - Number of items per page
+    */
+    public async getSubmittedJobs(page: number = 1, limit: number = 10) {
+        const profile = await this.getProfile();
+
+        // 1. Calculate the offset (how many records to skip)
+        const skip = (page - 1) * limit;
+
+        // 2. Run both queries in PARALLEL for maximum performance (Senior Dev trick)
+        // We need the COUNT to calculate total pages for the UI
+        const [totalCount, jobs] = await Promise.all([
+            db.submittedJob.count({
+                where: { freelancerId: profile.id }
+            }),
+            db.submittedJob.findMany({
+                where: { freelancerId: profile.id },
+                select: {
+                    id: true,
+                    submissionNotes: true,
+                    proofAttachment: true,
+                    profileLink: true,
+                    status: true,
+                    submittedAt: true,
+                    job: {
+                        select: {
+                            id: true,
+                            jobTitle: true,
+                            targetLink: true,
+                            description: true,
+                            workerRequired: true,
+                            submissionCount: true,
+                            categoryId: true,
+                            subCategoryId: true,
+                            reward: true,
+                            status: true,
+                        }
+                    }
+                },
+                skip: skip,
+                take: limit,
+                orderBy: { submittedAt: "desc" }
+            })
+        ]);
+
+        // 3. Return structured data with Metadata
+        return {
+            jobs,
+            meta: {
+                total: totalCount,
+                page: page,
+                limit: limit,
+                totalPages: Math.ceil(totalCount / limit),
+                hasNextPage: skip + limit < totalCount,
+                hasPreviousPage: page > 1
+            }
+        };
+    }
+
+    public async getSubmittedJob(id: string) {
+        const profile = await this.getProfile();
+        const job = await db.submittedJob.findFirst({
+            where: { freelancerId: profile.id, jobId: id },
+            select: {
+                id: false,
+                submissionNotes: true,
+                proofAttachment: true,
+                profileLink: true,
+                status: true,
+                submittedAt: true,
+                job: {
+                    select: {
+                        id: true,
+                        jobTitle: true,
+                        targetLink: true,
+                        description: true,
+                        workerRequired: true,
+                        submissionCount: true,
+                        categoryId: true,
+                        subCategoryId: true,
+                        reward: true,
+                        status: true,
+                    }
+
+                }
+            },
+        });
+
+        return job;
     }
 }

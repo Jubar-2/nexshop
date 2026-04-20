@@ -1,8 +1,9 @@
 import { ApiResponse } from "@/lib/apiResponse";
-
 import FreelancerService from "@/lib/freelancer/FreelancerService";
 
-export async function GET(request: Request) {
+
+export async function GET(request: Request,
+    ctx: { params: Promise<{ id: string }> }) {
     try {
 
         const userId = request.headers.get('x-user-id');
@@ -11,11 +12,15 @@ export async function GET(request: Request) {
             return ApiResponse.error("User Id is missing", 409);
         }
 
-        const freelancerService = new FreelancerService(userId)
-        const jobs = await freelancerService.findJobs();
+        const { id } = await ctx.params;
 
+        // Get jobs
+        const freelancerService = new FreelancerService(userId);
+        const jobs = await freelancerService.getSubmittedJob(id)
+
+        // Not Found Handling
         if (!jobs) {
-            return ApiResponse.error("jobs not found", 409);
+            return ApiResponse.error("Jobs not found", 404);
         }
 
         // Success Response

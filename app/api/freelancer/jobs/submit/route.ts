@@ -1,16 +1,15 @@
 import { ApiResponse } from "@/lib/apiResponse";
-import { authOptions } from "@/lib/auth";
 import db from "@/lib/db";
 import { imageUploader } from "@/lib/services/image-upload";
 import { JobSubmissionSchema } from "@/lib/validations/jobs";
-import { getServerSession } from "next-auth";
 
 export async function POST(request: Request) {
     try {
-        // IDENTITY & AUTHORIZATION
-        const session = await getServerSession(authOptions);
-        if (!session?.user?.id || session.user.role !== "FREELANCER") {
-            return ApiResponse.error("Unauthorized: Freelancer session required", 401);
+
+        const userId = request.headers.get('x-user-id');
+
+        if (!userId) {
+            return ApiResponse.error("User Id is missing", 409);
         }
 
         // DATA EXTRACTION
@@ -33,7 +32,7 @@ export async function POST(request: Request) {
         // BUSINESS LOGIC GUARDS (THE "PRO" STEP)
         // Fetch User and Job simultaneously to save time (Optimization)
         const [freelancer, job] = await Promise.all([
-            db.freelancer.findUnique({ where: { userId: session.user.id } }),
+            db.freelancer.findUnique({ where: { userId } }),
             db.jobs.findUnique({ where: { id: jobId } })
         ]);
 

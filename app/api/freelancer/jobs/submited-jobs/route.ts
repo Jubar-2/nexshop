@@ -1,6 +1,6 @@
 import { ApiResponse } from "@/lib/apiResponse";
-
 import FreelancerService from "@/lib/freelancer/FreelancerService";
+
 
 export async function GET(request: Request) {
     try {
@@ -11,8 +11,15 @@ export async function GET(request: Request) {
             return ApiResponse.error("User Id is missing", 409);
         }
 
-        const freelancerService = new FreelancerService(userId)
-        const jobs = await freelancerService.findJobs();
+        const { searchParams } = new URL(request.url);
+
+        // Sanitization of query params
+        const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
+        const limit = Math.min(50, parseInt(searchParams.get("limit") || "10"))
+
+        // Get jobs
+        const freelancerService = new FreelancerService(userId);
+        const jobs = await freelancerService.getSubmittedJobs(page, limit)
 
         if (!jobs) {
             return ApiResponse.error("jobs not found", 409);
