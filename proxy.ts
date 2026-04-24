@@ -27,7 +27,7 @@ export async function proxy(request: NextRequest) {
     if (!token) {
       return ApiResponse.error("Session expired: Please log in again", 401);
     }
-
+    console.log(token)
     // Check Role Authorization
     if (token.role !== activeRoute.role) {
       console.warn(`[SECURITY_WARN]: Unauthorized ${pathname} access by ${token.email}`);
