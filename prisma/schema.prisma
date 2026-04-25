@@ -99,21 +99,60 @@ model Freelancer {
   totalSubmitted   Int     @default(0)
 
   // Relations
-  skills          Skill[]
-  submissions     SubmittedJob[]
-  withdrawRequest WithdrawRequest[]
-  transactions    Transaction[]
+  skills                   Skill[]
+  submissions              SubmittedJob[]
+  withdrawRequest          WithdrawRequest[]
+  transactions             Transaction[]
+  membershipUpgradeRequest MembershipUpgradeRequest[]
+  membershipHistories      MembershipHistory[]
 }
 
 model MembershipPlan {
-  id              String        @id @default(cuid())
-  membershipName  String        @unique
-  jobsSubmitLimit Int
-  description     String?       @db.VarChar(100)
-  planOrder       Int           @unique // 1 for Diamond, 2 for Gold, etc.
-  isDefault       Boolean       @default(false)
-  offers          MemberOffer[]
-  freelancers     Freelancer[]
+  id                       String                     @id @default(cuid())
+  membershipName           String                     @unique
+  jobsSubmitLimit          Int
+  price                    Decimal                    @db.Decimal(10, 2)
+  description              String?                    @db.VarChar(100)
+  planOrder                Int                        @unique // 1 for Diamond, 2 for Gold, etc.
+  period                   Int                        @default(0)
+  isDefault                Boolean                    @default(false)
+  offers                   MemberOffer[]
+  freelancers              Freelancer[]
+  membershipUpgradeRequest MembershipUpgradeRequest[]
+  membershipHistories      MembershipHistory[]
+}
+
+model MembershipUpgradeRequest {
+  id              String               @id @default(cuid())
+  freelancerId    String
+  requestedPlanId String
+  phoneNumber     String
+  accountType     AccountType
+  paymentMethod   PaymentMethod
+  paymentProof    String
+  status          PaymentRequestStatus @default(PENDING)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  freelancer        Freelancer         @relation(fields: [freelancerId], references: [id])
+  requestedPlan     MembershipPlan     @relation(fields: [requestedPlanId], references: [id])
+  membershipHistory MembershipHistory?
+}
+
+model MembershipHistory {
+  id                  String               @id @default(cuid())
+  freelancerId        String
+  membershipRequestId String               @unique
+  membershipPlanId    String               @unique
+  invoiceId           String               @unique
+  startDate           DateTime?
+  endDate             DateTime?
+  status              PaymentRequestStatus @default(PENDING)
+
+  invoice                  Invoice                  @relation(fields: [invoiceId], references: [id])
+  freelancer               Freelancer               @relation(fields: [freelancerId], references: [id])
+  membershipPlan           MembershipPlan           @relation(fields: [membershipPlanId], references: [id])
+  membershipUpgradeRequest MembershipUpgradeRequest @relation(fields: [membershipRequestId], references: [id])
 }
 
 model MemberOffer {
@@ -148,7 +187,8 @@ model Invoice {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
-  transaction Transaction?
+  transaction         Transaction?
+  membershipHistories MembershipHistory[]
 }
 
 model Transaction {

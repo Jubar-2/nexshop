@@ -49,18 +49,26 @@ export const authOptions: NextAuthOptions = {
     ],
     callbacks: {
         async jwt({ token, user }) {
+
+            console.log("refreshed Token")
+
             // Initial sign in
             if (user) {
                 return { ...token, ...user };
             }
+
+
 
             // Return previous token if the access token has not expired yet
             if (Date.now() < (token.accessTokenExpires as number)) {
                 return token;
             }
 
+            const refreshedToken = await refreshAccessToken(token);
+
+
             // Access token has expired, try to update it
-            return refreshAccessToken(token);
+            return refreshedToken;
         },
 
         async session({ session, token }) {
