@@ -1,6 +1,6 @@
 import { ApiResponse } from "@/lib/apiResponse";
 import db from "@/lib/db";
-import { imageUploader } from "@/lib/services/image-upload";
+import { imageUploader } from "@/services/image-upload";
 import { JobSubmissionSchema } from "@/lib/validations/jobs";
 
 export async function POST(request: Request) {

@@ -1,7 +1,7 @@
 import { ApiResponse } from "@/lib/apiResponse";
 import db from "@/lib/db";
 import { checkUserId } from "@/lib/helper";
-import { imageUploader } from "@/lib/services/image-upload";
+import { imageUploader } from "@/services/image-upload";
 import { MemberShipUpgradeInSchema } from "@/lib/validations/membership";
 
 /**

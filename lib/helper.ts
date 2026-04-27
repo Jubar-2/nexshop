@@ -2,6 +2,7 @@ import { JWT } from "next-auth/jwt";
 import db from "./db";
 import { signAccessToken, signRefreshToken } from "./tokens";
 import { ApiResponse } from "./apiResponse";
+import { Prisma } from "@prisma/client";
 
 /**
  * Helper to refresh the access token automatically
@@ -49,3 +50,57 @@ export function checkUserId(request: Request) {
     return userId;
 }
 
+
+/**
+ * Distributes referral rewards recursively up to a specified generation.
+ *
+ * @param {Prisma.TransactionClient} tx The active database transaction.
+ * @param {string} referralId The ID of the root referral event.
+ * @param {string} referrerId The ID of the freelancer receiving the reward.
+ * @param {number} gen The current generation depth (starts at 1).
+ * @param {number} maxGen The maximum depth for rewards (usually 3).
+ */
+export async function giveReferralReward(
+    tx: Prisma.TransactionClient,
+    referralId: string,
+    referrerId: string,
+    gen: number,
+    maxGen: number = 3
+): Promise<void> {
+    // Base case: Stop if we exceed the maximum allowed generation.
+    if (gen > maxGen) return;
+
+    // Define tiered rewards (e.g., Gen 1 gets 10, Gen 2 gets 5, Gen 3 gets 2)
+    const rewards: Record<number, number> = { 1: 10.0, 2: 5.0, 3: 2.0 };
+    const currentReward = rewards[gen] || 1.0;
+
+    // Atomically increment the referrer's balance.
+    await tx.freelancer.update({
+        where: { id: referrerId },
+        data: {
+            currentBalance: { increment: currentReward },
+            totalEarned: { increment: currentReward }
+        },
+    });
+
+    // 2. Create an audit log for this specific income generation.
+    await tx.referralIncome.create({
+        data: {
+            freelancerId: referrerId,
+            ReferralId: referralId,
+            reward: currentReward,
+            gen: gen,
+        },
+    });
+
+    // 3. Recursive Step: Find if the current referrer was also referred by someone else.
+    const parent = await tx.referral.findUnique({
+        where: { receiverId: referrerId },
+        select: { senderId: true }
+    });
+
+    // If a parent exists, move up to the next generation.
+    if (parent?.senderId) {
+        await giveReferralReward(tx, referralId, parent.senderId, gen + 1, maxGen);
+    }
+}

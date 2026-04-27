@@ -105,6 +105,32 @@ model Freelancer {
   transactions             Transaction[]
   membershipUpgradeRequest MembershipUpgradeRequest[]
   membershipHistories      MembershipHistory[]
+  referralIncomes          ReferralIncome[]
+  referralSender           Referral[]                 @relation("Receiver")
+  referralReceiver         Referral[]                 @relation("Sender")
+}
+
+model Referral {
+  id         String   @id @default(cuid())
+  senderId   String
+  receiverId String   @unique
+  createdAt  DateTime @default(now())
+
+  referralIncomes ReferralIncome[]
+  sender          Freelancer       @relation("Sender", fields: [senderId], references: [id])
+  receiver        Freelancer       @relation("Receiver", fields: [receiverId], references: [id])
+}
+
+model ReferralIncome {
+  id           String   @id @default(cuid())
+  freelancerId String
+  ReferralId   String   @unique
+  gen          Int
+  reward       Decimal  @default(0.00) @db.Decimal(10, 2)
+  createdAt    DateTime @default(now())
+
+  Freelancer Freelancer @relation(fields: [freelancerId], references: [id])
+  Referral   Referral   @relation(fields: [ReferralId], references: [id])
 }
 
 model MembershipPlan {

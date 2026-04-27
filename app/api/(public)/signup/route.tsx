@@ -1,61 +1,40 @@
 import bcrypt from "bcrypt";
-import  db  from "@/lib/db";
+import db from "@/lib/db";
 import { SignUpSchema } from "@/lib/validations/signup";
 import Validation from "@/lib/Validation";
 import { ApiResponse } from "@/lib/apiResponse";
+import { AuthService } from "@/services/auth.service";
+import { giveReferralReward } from "@/lib/helper";
 
+/**
+ * Handles multi-step user registration including MLM referral processing.
+ */
 export async function POST(request: Request) {
     try {
-
-        // Attempt to parse
         const body = await request.json().catch(() => null);
+        if (!body) return ApiResponse.error("Invalid JSON payload", 400);
 
-        if (!body) {
-            return ApiResponse.error("Request body is empty or invalid JSON", 400);
-        }
-
-        // Validate Input using Zod
         const validation = SignUpSchema.safeParse(body);
         if (!validation.success) {
-            const errors = validation.error.flatten().fieldErrors;;
-            return ApiResponse.error("Validation failed", 400, errors);
+            return ApiResponse.error("Validation failed", 400, validation.error.flatten().fieldErrors);
         }
 
-        // Extract validated data
-        const { fullName, email, password, phoneNumber } = validation.data;
+        const { fullName, email, password, phoneNumber, referCode } = validation.data;
 
-        const validationObject = new Validation();
+        // Perform async conflict checks (Email/Phone)
+        const v = new Validation();
+        await Promise.all([v.emailConflict(email), v.phoneNumberConflict(phoneNumber)]);
+        if (v.hasError()) return ApiResponse.error("Conflict detected", 409, v.getErrorMessage());
 
-        // Check if email and phone number already exists
-        await Promise.all([
-            validationObject.emailConflict(email),
-            validationObject.phoneNumberConflict(phoneNumber)
-        ]);
-
-
-        // If there are any conflicts, return a 409 Conflict response with details
-        if (validationObject.hasError()) {
-            return ApiResponse.error(
-                "Conflict error",
-                409,
-                validationObject.getErrorMessage()
-            );
-        }
-
-        // Hash the password (Professional Salt Rounds: 12)
         const hashedPassword = await bcrypt.hash(password, 12);
 
-        const result = await db.$transaction(async tx => {
+        // --- EXECUTE ATOMIC WORKFLOW ---
+        const result = await db.$transaction(async (tx) => {
+            // Get Default Plan
+            const defaultPlan = await tx.membershipPlan.findFirst({ where: { isDefault: true } });
+            if (!defaultPlan) throw new Error("SYSTEM_CONFIG_ERROR: Default plan missing");
 
-            const defaultPlan = await tx.membershipPlan.findFirst({
-                where: { isDefault: true }
-            });
-
-            if(!defaultPlan){
-                 throw new Error("default membership plan is not found")
-            }
-
-            // Create the User in Database
+            // Create Base User
             const user = await tx.user.create({
                 data: {
                     fullName,
@@ -63,29 +42,44 @@ export async function POST(request: Request) {
                     email: email.trim().toLowerCase(),
                     password: hashedPassword
                 },
-                // Select only the fields we want to return (exclude password)
-                select: {
-                    id: true,
-                    fullName: true,
-                    email: true,
-                    createdAt: true,
-                }
+                select: { id: true, fullName: true, email: true }
             });
 
-            const freelancer = await tx.freelancer.create({
-                data: {
-                    userId: user.id,
-                    memberPlanId: defaultPlan.id
-                }
-            })
+            // Process Referral Code if provided
+            let referrer = null;
+            if (referCode) {
+                referrer = await tx.freelancer.findUnique({ where: { referKey: referCode } });
+                if (!referrer) throw new Error("INVALID_REFERRAL_CODE");
+            }
 
-            return { user, freelancer }
-        })
+            // Create Freelancer Profile (Shared Transaction)
+            const freelancer = await AuthService.registerFreelancer(tx, user.id, defaultPlan.id);
 
-        return ApiResponse.success(result, "User created successfully", 201);
+            // Trigger Referral MLM Logic
+            if (referrer) {
+                const referral = await tx.referral.create({
+                    data: {
+                        senderId: referrer.id,
+                        receiverId: freelancer.id,
+                    }
+                });
+
+                // Distribute 3 generations of rewards
+                await giveReferralReward(tx, referral.id, referrer.id, 1, 3);
+            }
+
+            return { user, freelancer };
+        });
+
+        return ApiResponse.success(result, "Account created successfully", 201);
 
     } catch (error: unknown) {
-        console.error("SIGNUP_ERROR:", error);
-        return ApiResponse.fatal("Internal Server Error");
+        console.error("[SIGNUP_CRITICAL_FAILURE]:", (error as Error).message);
+
+        if ((error as Error).message === "INVALID_REFERRAL_CODE") {
+            return ApiResponse.error("The referral code provided is invalid.", 400);
+        }
+
+        return ApiResponse.fatal("An internal error occurred during account creation.");
     }
 }
