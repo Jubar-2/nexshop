@@ -37,7 +37,7 @@ export default function LoginPage() {
         }
     });
 
-    // 3. The Login Submission Logic
+    // The Login Submission Logic
     const onSubmit = async (data: LoginFormValues) => {
         setIsLoading(true);
 
@@ -61,6 +61,7 @@ export default function LoginPage() {
                 router.refresh();
             }
         } catch (error: unknown) {
+            console.error("Login error:", error);
             toast.error("An error occurred", {
                 description: "Something went wrong. Please try again later."
             });

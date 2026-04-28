@@ -26,6 +26,8 @@ const membershipFiled = {
         .int()
         .positive("Order must be a positive integer"),
 
+    price: z.number("Price is required").nonnegative("Price cannot be negative"),
+
     offers: z.array(z.string("Ids are must be string")).optional()
 }
 

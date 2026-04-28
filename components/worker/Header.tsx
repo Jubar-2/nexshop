@@ -1,23 +1,12 @@
-"use client"
-
-import {
-    Briefcase,
-    ChevronDown,
-    Bell,
-    Smile
-} from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { Bell } from 'lucide-react'
 import Image from 'next/image';
 import Logo from '@/public/image/logo.png';
 import NotificationBell from './header/NotificationBell';
 import Link from 'next/link';
 import MobileSidebar from './header/MobileSidebar';
+import JobMenu from './header/JobMenu';
+import Balance from './header/Balance';
+import Menu from './header/Menu';
 
 export default function Header() {
     return (
@@ -41,40 +30,14 @@ export default function Header() {
                         <LayoutGrid size={18} />
                         Dash
                     </Button> */}
-
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="text-gray-500 hover:bg-primary-500 gap-2 font-medium data-[state=open]:bg-primary-500
-                            data-[state=open]:text-white">
-                                <Briefcase size={20} className="text-white" />
-                                <span className="text-white font-poppins font-medium text-[14px]">Jobs</span>
-                                <ChevronDown size={14} className="text-white" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start">
-                            <DropdownMenuItem>Available Jobs</DropdownMenuItem>
-                            <DropdownMenuItem>My Applications</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    <JobMenu />
                 </nav>
             </div>
 
             {/* RIGHT SECTION: User Actions */}
             <div className="flex items-center gap-4 md:gap-5">
 
-                {/* Wallet Dropdown */}
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <div className="flex items-center gap-1 md:gap-2 cursor-pointer group">
-                            <span className="font-bold text-white font-poppins">৳0.00</span>
-                            <ChevronDown size={14} className="text-white" />
-                        </div>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Deposit</DropdownMenuItem>
-                        <DropdownMenuItem>Withdraw</DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <Balance />
 
                 {/* Notification Icon */}
                 <div className="relative cursor-pointer text-gray-400 hover:text-gray-600 hidden md:flex">
@@ -94,31 +57,14 @@ export default function Header() {
                     </Link>
                 </div>
 
-
                 {/* User Profile Dropdown */}
                 <div className="hidden md:flex">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <div className="flex items-center gap-2 cursor-pointer group">
-                                <div className="bg-[#4D5E66] p-1 rounded-full">
-                                    <Smile size={20} className="text-white" />
-                                </div>
-                                <span className="text-white font-medium text-sm max-w-25 truncate">mdjubairra...</span>
-                                <ChevronDown size={14} className="text-white" />
-                            </div>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                            <DropdownMenuItem>My Profile</DropdownMenuItem>
-                            <DropdownMenuItem>Account Settings</DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600">Logout</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    <Menu />
                 </div>
 
                 <div className="flex md:hidden">
                     <MobileSidebar />
                 </div>
-
             </div>
         </header>
     )

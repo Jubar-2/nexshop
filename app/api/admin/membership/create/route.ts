@@ -35,7 +35,8 @@ export async function POST(request: Request) {
             jobsSubmitLimit,
             description,
             planOrder,
-            offers
+            offers,
+            price
         } = validation.data;
 
         const result = await db.$transaction(async (tx) => {
@@ -45,7 +46,8 @@ export async function POST(request: Request) {
                     membershipName: membershipName.trim(),
                     jobsSubmitLimit,
                     description: description?.trim(),
-                    planOrder
+                    planOrder,
+                    price: price.toFixed(2)
                 },
             });
 

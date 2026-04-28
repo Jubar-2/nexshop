@@ -14,6 +14,8 @@ import z from "zod";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { signIn } from "next-auth/react";
+import axios from "axios";
 
 type SignUpFormValues = z.infer<typeof SignUpSchema>;
 
@@ -50,24 +52,31 @@ export default function SignUp() {
     const onSubmit = async (data: SignUpFormValues) => {
         setIsLoading(true);
         try {
-            const response = await fetch("/api/auth/signup", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data),
+            const response = await axios.post("/api/signup", data);
+
+            const result = response.data();
+
+            if (!result.data.ok) {
+                // Handle 409 Conflict or 400 Bad Request
+                throw new Error(result.data.message || "Signup failed");
+            }
+
+            // AUTO LOGIN
+            const loginRes = await signIn("credentials", {
+                email: data.email,
+                password: data.password,
+                redirect: false, // important
             });
 
-            const result = await response.json();
-
-            if (!response.ok) {
-                // Handle 409 Conflict or 400 Bad Request
-                throw new Error(result.message || "Signup failed");
+            if (loginRes?.error) {
+                throw new Error(loginRes.error);
             }
 
             toast.success("Account Created!", {
-                description: "Redirecting you to login page...",
+                description: "Redirecting you to dashboard page...",
             });
 
-            router.push("/signin");
+            router.push("/dashboard");
         } catch (error: unknown) {
             toast.error("Registration Error", {
                 description: (error as Error).message,
@@ -80,7 +89,7 @@ export default function SignUp() {
     return (
         <div className="min-h-screen bg-slate-100 flex items-center justify-center md:p-6 font-poppins">
             {/* Main Container: Increased desktop height slightly to fit more fields */}
-            <div className="relative w-full h-screen md:h-211.75 md:max-w-5xl bg-white shadow-2xl flex flex-col md:flex-row md:rounded-[40px] md:overflow-hidden">
+            <div className="relative w-full h-screen md:h-235 md:max-w-5xl bg-white shadow-2xl flex flex-col md:flex-row md:rounded-[40px] md:overflow-hidden">
 
                 {/* --- BRANDING SECTION --- */}
                 <AuthBranding
@@ -92,52 +101,70 @@ export default function SignUp() {
                     <AuthHeader title="Create Account" subtitle="Register to get started" />
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 md:space-y-4 max-w-md mx-auto w-full">
                         {/* Full Name Field */}
-                        <Input
-                            {...register("fullName")}
-                            type="text"
-                            placeholder="Full Name"
-                            className="h-14 rounded-full border-2 border-slate-200 px-8 font-semibold focus-visible:ring-accent-500"
-                        />
+                        <div className="space-y-1">
+                            <Input
+                                {...register("fullName")}
+                                type="text"
+                                placeholder="Full Name"
+                                className="h-14 rounded-full border-2 border-slate-200 px-8 font-semibold focus-visible:ring-accent-500"
+                            />
+                            {errors.fullName && <p className="text-[10px] text-red-500 font-bold ml-5 uppercase">{errors.fullName.message}</p>}
+                        </div>
 
                         {/* Email Field */}
-                        <Input
-                            {...register("email")}
-                            type="email"
-                            placeholder="Email"
-                            className="h-14 rounded-full border-2 border-slate-200 px-8 font-semibold focus-visible:ring-accent-500"
-                        />
+                        <div className="space-y-1">
+                            <Input
+                                {...register("email")}
+                                type="email"
+                                placeholder="Email"
+                                className="h-14 rounded-full border-2 border-slate-200 px-8 font-semibold focus-visible:ring-accent-500"
+                            />
+                            {errors.email && <p className="text-[10px] text-red-500 font-bold ml-5 uppercase">{errors.email.message}</p>}
+                        </div>
 
                         {/* Mobile Number Field */}
-                        <Input
-                            {...register("phoneNumber")}
-                            type="tel"
-                            placeholder="Mobile Number"
-                            className="h-14 rounded-full border-2 border-slate-200 px-8 font-semibold focus-visible:ring-accent-500"
-                        />
+                        <div className="space-y-1">
+                            <Input
+                                {...register("phoneNumber")}
+                                type="tel"
+                                placeholder="Mobile Number"
+                                className="h-14 rounded-full border-2 border-slate-200 px-8 font-semibold focus-visible:ring-accent-500"
+                            />
+                            {errors.phoneNumber && <p className="text-[10px] text-red-500 font-bold ml-5 uppercase">{errors.phoneNumber.message}</p>}
+                        </div>
 
-                          {/* Mobile Number Field */}
-                        <Input
-                            {...register("referCode")}
-                            type="tel"
-                            placeholder="Refer Code"
-                            className="h-14 rounded-full border-2 border-slate-200 px-8 font-semibold focus-visible:ring-accent-500"
-                        />
+                        {/* Refer Code Field */}
+                        <div className="space-y-1">
+                            <Input
+                                {...register("referCode")}
+                                type="text"
+                                placeholder="Refer Code (optional)"
+                                className="h-14 rounded-full border-2 border-slate-200 px-8 font-semibold focus-visible:ring-accent-500"
+                            />
+                            {errors.referCode && <p className="text-[10px] text-red-500 font-bold ml-5 uppercase">{errors.referCode.message}</p>}
+                        </div>
 
                         {/* Password Field */}
-                        <Input
-                            {...register("password")}
-                            type="password"
-                            placeholder="Password"
-                            className="h-14 rounded-full border-2 border-slate-200 px-8 font-semibold focus-visible:ring-accent-500"
-                        />
+                        <div className="space-y-1">
+                            <Input
+                                {...register("password")}
+                                type="password"
+                                placeholder="Password"
+                                className="h-14 rounded-full border-2 border-slate-200 px-8 font-semibold focus-visible:ring-accent-500"
+                            />
+                            {errors.password && <p className="text-[10px] text-red-500 font-bold ml-5 uppercase">{errors.password.message}</p>}
+                        </div>
 
                         {/* Confirm Password Field */}
-                        <Input
-                            {...register("confirmPassword")}
-                            type="password"
-                            placeholder="Confirm Password"
-                            className="h-14 rounded-full border-2 border-slate-200 px-8 font-semibold focus-visible:ring-accent-500"
-                        />
+                        <div className="space-y-1">
+                            <Input
+                                {...register("confirmPassword")}
+                                type="password"
+                                placeholder="Confirm Password"
+                                className="h-14 rounded-full border-2 border-slate-200 px-8 font-semibold focus-visible:ring-accent-500"
+                            />
+                            {errors.confirmPassword && <p className="text-[10px] text-red-500 font-bold ml-5 uppercase">{errors.confirmPassword.message}</p>}
+                        </div>
 
                         {/* Register Button */}
                         <Button
