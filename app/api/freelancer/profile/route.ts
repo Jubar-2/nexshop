@@ -12,13 +12,13 @@ export async function GET(request: Request) {
                 fullName: true,
                 email: true,
                 phoneNumber: true,
-                refreshToken: true,
                 role: true,
                 status: true,
                 freelancer: {
                     select: {
                         membershipPlan: {
                             select: {
+                                id: true,
                                 membershipName: true,
                                 jobsSubmitLimit: true,
                                 description: true,

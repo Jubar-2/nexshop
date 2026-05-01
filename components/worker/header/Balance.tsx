@@ -1,23 +1,41 @@
 "use client"
 
+import { useMemo } from "react";
+import { useFreelancerProfile } from "@/hooks/use-freelancer";
+import { AlertCircle } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ChevronDown } from "lucide-react";
-
+/**
+ * Highly Professional Balance Component
+ * Uses TanStack Query for state management and direct data consumption.
+ */
 export default function Balance() {
-    
+    const { data, isLoading, isError } = useFreelancerProfile();
+
+    // Logic: Memoize the formatted value to prevent recalculation on every render
+    const formattedBalance = useMemo(() => {
+        const value = data?.balance ?? 0;
+        return new Intl.NumberFormat('en-BD', {
+            style: 'currency',
+            currency: 'BDT',
+            minimumFractionDigits: 2,
+        }).format(value).replace("BDT", "৳"); // Clean custom currency symbol
+    }, [data?.balance]);
+
+    // LLD Principle: Return specific UI states early
+    if (isLoading) return <Spinner />;
+
+    if (isError) {
+        return (
+            <span className="text-red-400 flex items-center gap-1 text-xs">
+                <AlertCircle size={12} /> --.--
+            </span>
+        );
+    }
+
     return (
-        < DropdownMenu >
-            <DropdownMenuTrigger asChild>
-                <div className="flex items-center gap-1 md:gap-2 cursor-pointer group">
-                    <span className="font-bold text-white font-poppins">৳0.00</span>
-                    <ChevronDown size={14} className="text-white" />
-                </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuItem>Deposit</DropdownMenuItem>
-                <DropdownMenuItem>Withdraw</DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu >
-    )
+        <>
+            {formattedBalance}
+        </>
+    );
 }

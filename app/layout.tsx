@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 import "./styles/globals.css";
+import QueryProvider from "@/providers/QueryProvider";
 
 // Configure Poppins
 const poppins = Poppins({
@@ -16,8 +17,15 @@ const poppins = Poppins({
 //   themeColor: "#1abc9c",
 // };
 
+// export const viewport: Viewport = {
+//   themeColor: "#1abc9c",
+// };
+
 export const viewport: Viewport = {
-  themeColor: "#1abc9c",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
+  ],
 };
 
 export default function RootLayout({
@@ -30,7 +38,11 @@ export default function RootLayout({
       lang="en"
       className={`${poppins.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <QueryProvider>
+          {children}
+        </QueryProvider>
+      </body>
     </html>
   );
 }

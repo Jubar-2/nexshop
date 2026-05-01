@@ -67,6 +67,7 @@ export async function POST(request: Request) {
                     submissionNotes,
                     proofAttachment: imageLink,
                     profileLink,
+                    reward: job.reward
                 }
             });
 

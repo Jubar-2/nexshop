@@ -5,8 +5,8 @@ import NotificationBell from './header/NotificationBell';
 import Link from 'next/link';
 import MobileSidebar from './header/MobileSidebar';
 import JobMenu from './header/JobMenu';
-import Balance from './header/Balance';
 import Menu from './header/Menu';
+import BalanceMenu from './header/BalanceMenu';
 
 export default function Header() {
     return (
@@ -37,7 +37,7 @@ export default function Header() {
             {/* RIGHT SECTION: User Actions */}
             <div className="flex items-center gap-4 md:gap-5">
 
-                <Balance />
+                <BalanceMenu />
 
                 {/* Notification Icon */}
                 <div className="relative cursor-pointer text-gray-400 hover:text-gray-600 hidden md:flex">
