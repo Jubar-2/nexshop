@@ -1,17 +1,17 @@
 "use client";
 
-import React, { useMemo, ReactElement } from "react";
+import { ReactElement } from "react";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle, ArrowUpRight } from "lucide-react";
 
-// 🎯 Strict color type
+// Strict color type
 type ColorType = "emerald" | "amber" | "blue" | "red";
 
-// 🎯 Props type
+// Props type
 interface Props {
   title: string;
-  value: number;
+  value: string;
   icon: ReactElement;
   color: ColorType;
   trend: string;
@@ -19,7 +19,7 @@ interface Props {
   isError?: boolean;
 }
 
-// 🎯 Color map (type-safe)
+// Color map (type-safe)
 const colorMap: Record<ColorType, { bg: string; text: string }> = {
   emerald: { bg: "bg-emerald-50", text: "text-emerald-600" },
   amber: { bg: "bg-amber-50", text: "text-amber-600" },
@@ -38,22 +38,11 @@ export default function StatCard({
 }: Props) {
   const { bg, text } = colorMap[color];
 
-  // 💰 Format currency (BDT)
-  const formattedBalance = useMemo(() => {
-    return new Intl.NumberFormat("en-BD", {
-      style: "currency",
-      currency: "BDT",
-      minimumFractionDigits: 2,
-    })
-      .format(value ?? 0)
-      .replace("BDT", "৳");
-  }, [value]);
-
-  // 🔥 Better icon handling (no cloneElement needed)
+  // Better icon handling (no cloneElement needed)
   const Icon = icon.type;
 
   // =====================
-  // ⏳ LOADING STATE
+  // LOADING STATE
   // =====================
   if (isLoading) {
     return (
@@ -83,7 +72,7 @@ export default function StatCard({
   }
 
   // =====================
-  // ❌ ERROR STATE
+  //  ERROR STATE
   // =====================
   if (isError) {
     return (
@@ -117,7 +106,7 @@ export default function StatCard({
   }
 
   // =====================
-  // ✅ SUCCESS STATE
+  // SUCCESS STATE
   // =====================
   return (
     <Card className="bg-white border-slate-100 shadow-sm rounded-2xl p-6 hover:shadow-md transition-all">
@@ -128,7 +117,7 @@ export default function StatCard({
           </p>
 
           <h2 className={`text-3xl font-black ${text}`}>
-            {formattedBalance}
+            {value}
           </h2>
         </div>
 

@@ -1,16 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
-// Define strict interfaces for the API response
-export interface FreelancerProfile {
-    balance: number;
-    // ... other fields
-}
-
 export const useFreelancerProfile = () => {
     return useQuery({
         queryKey: ["freelancer"],
-        queryFn: async (): Promise<FreelancerProfile> => {
+        queryFn: async () => {
             const { data } = await axios.get("/api/freelancer");
             // Assuming your ApiResponse class wraps the data in a 'data' property
             return data.data;
@@ -49,6 +43,30 @@ export const useGetTotalEarnings = () => {
         queryKey: ["totalEarned"],
         queryFn: async () => {
             const { data } = await axios.get("/api/freelancer/total-earned");
+            return data.data;
+        },
+        staleTime: 1000 * 60,
+        refetchOnWindowFocus: true,
+    });
+}
+
+export const useGetTotalReview = () => {
+    return useQuery({
+        queryKey: ["totalReview"],
+        queryFn: async () => {
+            const { data } = await axios.get("/api/freelancer/jobs/submited-jobs/review");
+            return data.data;
+        },
+        staleTime: 1000 * 60,
+        refetchOnWindowFocus: true,
+    });
+}
+
+export const useGetTotalJobsNumber = () => {
+    return useQuery({
+        queryKey: ["totalJobsNumber"],
+        queryFn: async () => {
+            const { data } = await axios.get("/api/freelancer/jobs/jobs-count");
             return data.data;
         },
         staleTime: 1000 * 60,

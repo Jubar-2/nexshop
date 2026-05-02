@@ -186,6 +186,7 @@ model MemberOffer {
   id               String @id @default(cuid())
   membershipPlanId String
   offerId          String
+  icon             String
 
   offer          Offers         @relation(fields: [offerId], references: [id])
   membershipPlan MembershipPlan @relation(fields: [membershipPlanId], references: [id])

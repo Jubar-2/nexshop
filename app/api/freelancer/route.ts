@@ -5,7 +5,7 @@ import { checkUserId } from "@/lib/helper"
 export async function GET(request: Request) {
     try {
         const userId = checkUserId(request);
-        
+
         const userData = await db.freelancer.findUnique({
             where: { userId: userId as string },
             select: {
@@ -16,6 +16,7 @@ export async function GET(request: Request) {
                         jobsSubmitLimit: true,
                         description: true,
                         planOrder: true,
+                        offers: true,
                     }
                 },
                 referKey: true,

@@ -143,10 +143,10 @@ export default class FreelancerService {
     public async getSubmittedJobs(page: number = 1, limit: number = 10) {
         const profile = await this.getProfile();
 
-        // 1. Calculate the offset (how many records to skip)
+        // Calculate the offset (how many records to skip)
         const skip = (page - 1) * limit;
 
-        // 2. Run both queries in PARALLEL for maximum performance (Senior Dev trick)
+        // Run both queries in PARALLEL for maximum performance (Senior Dev trick)
         // We need the COUNT to calculate total pages for the UI
         const [totalCount, jobs] = await Promise.all([
             db.submittedJob.count({
@@ -182,7 +182,7 @@ export default class FreelancerService {
             })
         ]);
 
-        // 3. Return structured data with Metadata
+        // Return structured data with Metadata
         return {
             jobs,
             meta: {
@@ -226,5 +226,81 @@ export default class FreelancerService {
         });
 
         return job;
+    }
+
+    public async countOfPendingJobs() {
+        const profile = await this.getProfile();
+
+        const jobs = await db.submittedJob.count({
+            where: {
+                freelancerId: profile.id,
+                status: "PENDING"
+            }
+        });
+
+        // Return structured data with Metadata
+        return {
+            total: jobs
+        };
+    }
+
+    public async countOfApprovedJobs() {
+        const profile = await this.getProfile();
+
+        const jobs = await db.submittedJob.count({
+            where: {
+                freelancerId: profile.id,
+                status: "APPROVED"
+            }
+        });
+
+        // Return structured data with Metadata
+        return {
+            total: jobs
+        };
+    }
+
+    public async countOfRejectedJobs() {
+        const profile = await this.getProfile();
+
+        const jobs = await db.submittedJob.count({
+            where: {
+                freelancerId: profile.id,
+                status: "REJECTED"
+            }
+        });
+
+        // Return structured data with Metadata
+        return {
+            total: jobs
+        };
+    }
+
+    public async totalJobs() {
+
+        const profile = await this.getProfile();
+        const plan = profile.membershipPlan;
+
+        if (!plan) throw new Error("No active membership plan found");
+
+        // Fetch jobs around the threshold
+        // We fetch slightly more than we need (take: 20) to allow for better ranking
+        const jobsCount = await db.jobs.count({
+            where: {
+                status: "ACTIVE",
+                submissionCount: {
+                    lt: db.jobs.fields.workerRequired
+                },
+                NOT: {
+                    submissions: {
+                        some: {
+                            freelancerId: profile.id
+                        }
+                    }
+                }
+            },
+        });
+
+        return jobsCount;
     }
 }

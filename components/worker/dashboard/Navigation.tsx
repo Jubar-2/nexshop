@@ -5,7 +5,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-
+import Link from 'next/link';
 
 const Navigation = () => {
     return (
@@ -20,13 +20,19 @@ const Navigation = () => {
                 <p className="text-slate-500 text-sm font-medium">Manage your balance and track performance</p>
             </div>
             <div className="flex gap-3">
-                <Button variant="outline" className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl h-11 px-6 font-bold shadow-sm">
-                    View Statement
-                </Button>
-                <Button className="bg-[#10B981] hover:bg-[#0da06f] text-white rounded-xl h-11 px-6 font-bold shadow-md flex gap-2 transition-all active:scale-95">
-                    <ExternalLink size={18} />
-                    Withdraw
-                </Button>
+                <Link href="/dashboard/statement">
+                    <Button variant="outline" className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl h-11 px-6 font-bold shadow-sm">
+                        View Statement
+                    </Button>
+                </Link>
+
+                <Link href="/dashboard/withdraw">
+                    <Button className="bg-[#10B981] hover:bg-[#0da06f] text-white rounded-xl h-11 px-6 font-bold shadow-md flex gap-2 transition-all active:scale-95">
+                        <ExternalLink size={18} />
+                        Withdraw
+                    </Button>
+                </Link>
+
             </div>
         </div>
     );
