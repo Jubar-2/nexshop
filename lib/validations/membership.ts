@@ -21,12 +21,26 @@ const membershipFiled = {
         .optional()
         .nullable(),
 
+    title: z
+        .string()
+        .min(10, "Title must be at least 10 characters")
+        .trim(),
+
     planOrder: z
         .number("Plan order is required")
-        .int()
-        .positive("Order must be a positive integer"),
+        .int(),
 
     price: z.number("Price is required").nonnegative("Price cannot be negative"),
+
+    badgeText: z.string()
+        .max(100, "Description cannot exceed 100 characters")
+        .trim(),
+
+    icon: z.string().min(1, "Need svg logo"),
+
+    period: z.number("Inter period number"),
+
+    color: z.string().min(1, "Need color code."),
 
     offers: z.array(z.string("Ids are must be string")).optional()
 }

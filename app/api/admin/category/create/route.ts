@@ -28,7 +28,7 @@ export async function POST(request: Request) {
             );
         }
 
-        const { name } = validation.data;
+        const { name, icon } = validation.data;
         const normalizedName = name.trim();
 
         // Duplicate Check (Optimization: Check before Create)
@@ -43,11 +43,15 @@ export async function POST(request: Request) {
 
         // Database Operation
         const category = await db.category.create({
-            data: { name: normalizedName },
+            data: {
+                name: normalizedName,
+                icon
+            },
             // Select only necessary fields for the response
             select: {
                 id: true,
                 name: true,
+                icon: true
             }
         });
 

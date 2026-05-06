@@ -36,7 +36,11 @@ export async function POST(request: Request) {
             description,
             planOrder,
             offers,
-            price
+            price,
+            color,
+            icon,
+            title,
+            badgeText
         } = validation.data;
 
         const result = await db.$transaction(async (tx) => {
@@ -47,7 +51,12 @@ export async function POST(request: Request) {
                     jobsSubmitLimit,
                     description: description?.trim(),
                     planOrder,
-                    price: price.toFixed(2)
+                    price: price.toFixed(2),
+                    color,
+                    icon,
+                    title,
+                    badgeText
+
                 },
             });
 
@@ -55,9 +64,9 @@ export async function POST(request: Request) {
             let offer = {}
             if (Array.isArray(offers) && offers.length > 0) {
                 const memberOffer = await tx.memberOffer.createManyAndReturn({
-                    data: offers?.map((offerId) => ({
+                    data: offers?.map((offerId: string) => ({
                         membershipPlanId: createMembership.id,
-                        offerId: offerId
+                        offerId: offerId,
                     })),
                     select: {
                         offer: {

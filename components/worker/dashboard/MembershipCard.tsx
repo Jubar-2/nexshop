@@ -4,6 +4,7 @@ import PerkItem from "./PerkItem";
 import { Button } from "@/components/ui/button";
 import { useFreelancerProfile } from "@/hooks/use-freelancer";
 import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
 
 
 function MembershipCard() {
@@ -94,9 +95,12 @@ function MembershipCard() {
                 </div>
             </CardContent>
             <CardFooter className="mt-auto pt-0">
-                <Button variant="ghost" className="w-full text-indigo-600 font-bold hover:bg-indigo-50 transition-colors">
-                    View All Plans
-                </Button>
+                <Link href="/dashboard/plans">
+                    <Button variant="ghost" className="w-full text-indigo-600 font-bold hover:bg-indigo-50 transition-colors">
+                        View All Plans
+                    </Button>
+                </Link>
+
             </CardFooter>
         </Card>
     )

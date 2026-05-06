@@ -5,7 +5,7 @@ import { isValidPhoneNumber } from 'libphonenumber-js';
 
 export const WithdrawSchema = z.object({
 
-    amount: z.coerce
+    amount: z
         .number("Amount must be a number")
         .min(50, "Minimum withdrawal amount is 50 BDT")
         .positive("Amount must be positive"),

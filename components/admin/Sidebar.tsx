@@ -126,6 +126,7 @@ const SidebarContent = ({ isCollapsed, toggleCollapse }: { isCollapsed: boolean,
           icon={<Briefcase size={20} />}
           label="Jobs"
           subItems={[
+            { label: "Category", href: "/admin/jobs/category" },
             { label: "Create Jobs", href: "/admin/jobs/create" },
             { label: "Job List", href: "/admin/jobs" },
             { label: "Submitted Jobs", href: "/admin/jobs/submitted-jobs" }
@@ -146,7 +147,7 @@ const SidebarContent = ({ isCollapsed, toggleCollapse }: { isCollapsed: boolean,
           label="Memberships"
           subItems={[
             { label: "Package List", href: "/admin/packages" },
-            { label: "Create Package", href: "/admin/packages/create" }
+            { label: "Create Package", href: "/admin/packages/create" },
           ]}
         />
 

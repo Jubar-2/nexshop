@@ -95,6 +95,7 @@ model Freelancer {
   // Statistics
   totalSuccessRate Float   @default(0)
   currentBalance   Decimal @default(0.00) @db.Decimal(10, 2)
+  referralBalance  Decimal @default(0.00) @db.Decimal(10, 2)
   totalApproved    Int     @default(0)
   totalRejected    Int     @default(0)
   totalSubmitted   Int     @default(0)
@@ -140,6 +141,10 @@ model MembershipPlan {
   jobsSubmitLimit          Int
   price                    Decimal                    @db.Decimal(10, 2)
   description              String?                    @db.VarChar(100)
+  title                    String
+  badgeText                String?
+  icon                     String
+  color                    String
   planOrder                Int                        @unique // 1 for Diamond, 2 for Gold, etc.
   period                   Int                        @default(0)
   isDefault                Boolean                    @default(false)
@@ -186,7 +191,6 @@ model MemberOffer {
   id               String @id @default(cuid())
   membershipPlanId String
   offerId          String
-  icon             String
 
   offer          Offers         @relation(fields: [offerId], references: [id])
   membershipPlan MembershipPlan @relation(fields: [membershipPlanId], references: [id])
@@ -261,6 +265,7 @@ model Skill {
 model Category {
   id            String        @id @default(cuid())
   name          String        @unique
+  icon          String
   subCategories SubCategory[]
   jobs          Jobs[]
   skills        Skill[]

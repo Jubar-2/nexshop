@@ -2,16 +2,27 @@ import { ApiResponse } from "@/lib/apiResponse";
 import db from "@/lib/db";
 
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
+
+        const { searchParams } = new URL(request.url);
+        const name = searchParams.get("name") || "";
 
         // Optimized Database Query
         const category = await db.category.findMany({
+            where: {
+                name: {
+                    contains: name,
+                    mode: 'insensitive'
+                }
+            },
             select: {
                 id: true,
                 name: true,
+                icon: true,
                 subCategories: {
                     select: {
+                        id: true,
                         name: true
                     }
                 }

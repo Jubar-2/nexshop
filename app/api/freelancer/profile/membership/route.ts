@@ -31,21 +31,24 @@ export async function GET(request: Request): Promise<Response> {
       select: {
         id: true,
         membershipName: true,
-        price: true,
-        badgeText: true,
-        icon: true,
         jobsSubmitLimit: true,
-        title: true,
-        color: true,
-        period: true,
         description: true,
         planOrder: true,
         isDefault: true,
+        freelancers: {
+          where: {
+            userId: userId as string
+          },
+          select: {
+            id: true
+          }
+        },
         // Include the features/offers for each plan
         offers: {
           select: {
             id: true,
-            offer: true
+            offerTitle: true,
+            description: true,
           }
         },
         // Meta-data optimization: count how many users are in this plan

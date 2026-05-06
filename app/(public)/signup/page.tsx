@@ -8,16 +8,13 @@ import { AuthHeader } from '@/components/auth/auth-header';
 import { SocialAuth } from '@/components/auth/social-auth';
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { SignUpSchema } from "@/lib/validations/signup";
+import { SignUpInput, SignUpSchema } from "@/lib/validations/signup";
 import { zodResolver } from "@hookform/resolvers/zod";
-import z from "zod";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
 import axios from "axios";
-
-type SignUpFormValues = z.infer<typeof SignUpSchema>;
 
 export default function SignUp() {
     const [isLoading, setIsLoading] = useState(false);
@@ -30,7 +27,7 @@ export default function SignUp() {
         handleSubmit,
         setValue,
         formState: { errors },
-    } = useForm<SignUpFormValues>({
+    } = useForm<SignUpInput>({
         resolver: zodResolver(SignUpSchema),
         defaultValues: {
             fullName: "",
@@ -49,7 +46,7 @@ export default function SignUp() {
     }, [searchParams, setValue]);
 
     // Submission Logic
-    const onSubmit = async (data: SignUpFormValues) => {
+    const onSubmit = async (data: SignUpInput) => {
         setIsLoading(true);
         try {
             const response = await axios.post("/api/signup", data);
