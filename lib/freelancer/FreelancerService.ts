@@ -95,6 +95,7 @@ export default class FreelancerService {
             include: { category: true, subCategory: true }
         });
 
+
         // If no high-paying jobs, fallback to general available jobs
         let pool = jobs;
         if (pool.length < 5) {
@@ -113,7 +114,8 @@ export default class FreelancerService {
                 orderBy: { createdAt: "asc" },
                 include: { category: true, subCategory: true }
             });
-            pool = [...pool, ...fallback];
+            // pool = [...pool, ...fallback];
+            pool = fallback;
         }
 
         /**

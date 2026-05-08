@@ -51,7 +51,7 @@ export default class Validation implements IValidation {
     }
 
     public async existsCategoryAndSubCategory(categoryId: string, subCategoryId: string): Promise<void> {
-        const category = await db.category.findFirst({
+        const category = await db.category.findUnique({
             where: {
                 id: categoryId
             },

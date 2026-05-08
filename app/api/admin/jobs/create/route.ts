@@ -64,7 +64,7 @@ export async function POST(request: Request) {
                 categoryId: category,
                 subCategoryId: subCategory,
                 targetLink:targetLink.trim(),
-                userId: "1",//Number(session.user.id),
+                userId: "cmosml12s0003y8qcair8ug4d",//Number(session.user.id),
             },
         });
 
