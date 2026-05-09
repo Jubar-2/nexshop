@@ -7,10 +7,13 @@ import { Badge } from "@/components/ui/badge";
 import { useGetTotalJobsNumber } from '@/hooks/use-freelancer';
 import { Spinner } from '@/components/ui/spinner';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useRouter } from "next/navigation";
+
 
 function JobFinderCard() {
     const { data, isLoading, isError, refetch } = useGetTotalJobsNumber();
-
+    const router = useRouter();
+    
     // =====================
     // LOADING STATE
     // =====================
@@ -95,6 +98,7 @@ function JobFinderCard() {
             {/* CTA Button */}
             <Button
                 disabled={!hasJobs}
+                onClick={() => (router.push("/dashboard/jobs"))}
                 className={`w-full rounded-xl h-14 font-black text-lg gap-3 shadow-lg transition-all active:scale-95 ${hasJobs
                     ? "bg-[#10B981] hover:bg-[#0da06f] text-white"
                     : "bg-slate-100 text-slate-400 cursor-not-allowed shadow-none"

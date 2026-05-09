@@ -1,61 +1,84 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
-import { ApiResponse } from "./lib/apiResponse";
 
 export async function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+    const { pathname } = request.nextUrl;
 
-  // Decrypt the JWT token directly from the cookie (Fast & Edge-compatible)
-  const token = await getToken({
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET
-  });
+    const token = await getToken({
+        req: request,
+        secret: process.env.NEXTAUTH_SECRET,
+    });
 
-  // Define Protection Map (Easy to maintain)
-  const protections = [
-    { path: "/api/freelancer", role: "FREELANCER" },
-    { path: "/api/admin", role: "ADMIN" },
-  ];
+    const isApiRoute = pathname.startsWith("/api");
 
-  // Find if the current request path matches any protected route
-  const activeRoute = protections.find(p => pathname.startsWith(p.path));
-  const requestHeaders = new Headers(request.headers);
+    const protections = [
+        { path: "/api/admin", role: "ADMIN" },
+        { path: "/api/freelancer", role: "FREELANCER" },
+        { path: "/dashboard", role: "FREELANCER" },
+        { path: "/admin", role: "ADMIN" },
+    ];
 
-  if (activeRoute) {
+    const activeRoute = protections.find(p =>
+        pathname.startsWith(p.path)
+    );
 
-    // Check if Session exists
-    if (!token) {
-      return ApiResponse.error("Session expired: Please log in again", 401);
+    const requestHeaders = new Headers(request.headers);
+
+    // 🔴 NOT AUTHENTICATED
+    if (activeRoute && !token) {
+        if (isApiRoute) {
+            return new NextResponse(
+                JSON.stringify({
+                    success: false,
+                    message: "Session expired"
+                }),
+                { status: 401 }
+            );
+        }
+
+        return NextResponse.redirect(new URL("/signin", request.url));
     }
-    console.log(token)
-    // Check Role Authorization
-    if (token.role !== activeRoute.role) {
-      console.warn(`[SECURITY_WARN]: Unauthorized ${pathname} access by ${token.email}`);
-      return ApiResponse.error(`Forbidden: ${activeRoute.role} access required`, 403);
+
+    // 🔴 ROLE CHECK FAILED
+    if (activeRoute && token?.role !== activeRoute.role) {
+
+        if (isApiRoute) {
+            return new NextResponse(
+                JSON.stringify({
+                    success: false,
+                    message: "Forbidden"
+                }),
+                { status: 403 }
+            );
+        }
+
+        // page redirect
+        if (token?.role === "ADMIN") {
+            return NextResponse.redirect(new URL("/admin", request.url));
+        }
+
+        return NextResponse.redirect(new URL("/dashboard", request.url));
     }
 
-    // Check Account Integrity (Example: isBanned)
-    if (token.isBanned) {
-      return ApiResponse.error("Account suspended: Contact support", 403);
+    // inject headers
+    if (token) {
+        requestHeaders.set("x-user-id", token.id as string);
+        requestHeaders.set("x-user-role", token.role as string);
     }
 
-    // Inject pre-verified data into headers
-    requestHeaders.set('x-user-id', token.id as string);
-    requestHeaders.set('x-user-role', token.role as string);
-  }
-
-  // Authorized: Continue to the API route
-  return NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    }
-  });
+    return NextResponse.next({
+        request: {
+            headers: requestHeaders,
+        },
+    });
 }
 
-// MATCHERS: Tells Next.js exactly which routes trigger this middleware
 export const config = {
-  matcher: [
-    "/api/freelancer/:path*",
-    "/api/admin/:path*"
-  ],
+    matcher: [
+        "/api/:path*",
+        "/dashboard/:path*",
+        "/admin/:path*",
+        "/signin",
+        "/signup",
+    ],
 };

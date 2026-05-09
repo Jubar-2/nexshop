@@ -166,7 +166,8 @@ export default function SignUp() {
                         {/* Register Button */}
                         <Button
                             disabled={isLoading}
-                            className="w-full bg-primary-500 hover:bg-primary-600 text-white font-bold h-14 rounded-full text-lg md:text-xl shadow-lg transition-transform active:scale-95 mt-2">
+                            className="w-full bg-primary-500 hover:bg-primary-600 text-white font-bold h-14 rounded-full text-lg md:text-xl shadow-lg transition-transform active:scale-95 mt-2"
+                        >
                             {isLoading ? <Loader2 className="animate-spin" /> : "Sign Up"}
 
                         </Button>

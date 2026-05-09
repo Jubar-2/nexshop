@@ -6,8 +6,7 @@ const jobsFiled = {
         .min(1, "Job title is required")
         .min(2, "Job title must be at least 2 characters")
         .max(100, "Job title cannot exceed 100 characters"),
-    workerRequired: z
-        .number()
+    workerRequired: z.coerce.number()
         .int("Slots must be a whole number")
         .min(1, "At least 1 slot is required"),
     reward: z.coerce
@@ -30,7 +29,7 @@ const jobsFiled = {
 export const JobsInSchema = z.object({ ...jobsFiled });
 
 // Type inference for TypeScript
-export type JobsInput = z.infer<typeof JobsInSchema>;
+export type JobsInput = z.input<typeof JobsInSchema>;
 
 
 export const JobsUpdateInSchema = z.object({

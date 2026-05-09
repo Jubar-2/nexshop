@@ -50,7 +50,7 @@ export default function JobApplyPage() {
         
         {/* --- TOP NAVIGATION --- */}
         <div className="flex items-center justify-between px-1">
-            <Link href="/jobs" className="flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-colors font-bold text-sm group">
+            <Link href="/dashboard/jobs" className="flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-colors font-bold text-sm group">
                 <div className="bg-white p-2 rounded-full shadow-sm group-hover:bg-emerald-50 transition-colors"><ArrowLeft size={18} /></div>
                 Back to All Jobs
             </Link>
