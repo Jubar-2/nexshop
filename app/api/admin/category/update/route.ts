@@ -5,7 +5,7 @@ export async function PATCH(request: Request) {
   try {
     const { id, name } = await request.json();
 
-    const updated = await db.user.update({
+    const updated = await db.category.update({
       where: { id },
       data: { name },
     });
