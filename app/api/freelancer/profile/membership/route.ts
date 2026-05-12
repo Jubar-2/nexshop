@@ -44,13 +44,18 @@ export async function GET(request: Request): Promise<Response> {
           }
         },
         // Include the features/offers for each plan
-        offers: {
+        MemberOffer: {
           select: {
-            id: true,
-            offerTitle: true,
-            description: true,
+            offer: {
+              select: {
+                id: true,
+                offerTitle: true,
+                description: true,
+              }
+            },
           }
         },
+
         // Meta-data optimization: count how many users are in this plan
         _count: {
           select: { freelancers: true }
