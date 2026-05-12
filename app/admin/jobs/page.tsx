@@ -79,7 +79,7 @@ export default function AdminJobList() {
 
                             <MetricCard
                                 label="Success Index"
-                                val="94.8%"
+                                val={94.8}
                                 icon={<CheckCircle2 className="text-amber-500" />}
                             />
                         </>
