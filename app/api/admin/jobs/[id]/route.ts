@@ -20,7 +20,7 @@ export async function GET(
                 jobTitle: true,
                 targetLink: true,
                 description: true,
-                totalSlots: true,
+                workerRequired: true,
                 reward: true,
                 status: true,
                 category: {
