@@ -16,8 +16,7 @@ export async function GET(
                 subCategories: { // This matches the relation name in our professional schema
                     select: {
                         id: true,
-                        name: true,
-                        createdAt: true
+                        name: true
                     },
                     orderBy: {
                         name: 'asc' // Nice professional touch: keep list alphabetized
