@@ -67,11 +67,15 @@ export async function GET(request: Request): Promise<Response> {
                 ...pagination.prismaOptions,
                 select: {
                     id: true,
-                    amount: true,
-                    method: true,
-                    txid: true,
+                    freelancerId: true,
+                    requestedPlanId: true,
+                    phoneNumber: true,
+                    accountType: true,
+                    paymentMethod: true,
+                    paymentProof: true,
                     status: true,
                     createdAt: true,
+                    updatedAt: true,
                     // Hydrate specific fields for UI display
                     freelancer: {
                         select: {
@@ -83,7 +87,7 @@ export async function GET(request: Request): Promise<Response> {
                             }
                         }
                     },
-                    plan: {
+                    requestedPlan: {
                         select: {
                             membershipName: true,
                             planOrder: true
