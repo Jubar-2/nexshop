@@ -19,6 +19,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Sidebar from '@/components/admin/Sidebar';
 import Link from 'next/link';
+import { boolean, string } from 'zod';
+import { ReactNode } from 'react';
 
 // --- MOCK DATA FOR GRAPHS ---
 const userGrowthData = [
@@ -221,19 +223,41 @@ const SidebarContent = () => (
 );
 
 // --- REUSABLE MINI-COMPONENTS ---
-const AdminNavItem = ({ icon, label, active = false }: any) => (
+type AdminNavItemType = {
+    icon: ReactNode,
+    label: string,
+    active?: boolean
+}
+
+const AdminNavItem = ({ icon, label, active = false }: AdminNavItemType) => (
     <div className={`flex items-center gap-3 p-3.5 rounded-xl cursor-pointer transition-all ${active ? 'bg-white text-slate-900 shadow-lg' : 'hover:bg-white/5 text-slate-400 hover:text-white'}`}>
         <span className={active ? 'text-emerald-500' : ''}>{icon}</span>
         <span className="font-bold text-sm">{label}</span>
     </div>
 );
 
-const AdminStatCard = ({ label, val, trend, icon, color }: any) => {
-    const colors: any = { blue: "bg-blue-50 text-blue-600", emerald: "bg-emerald-50 text-emerald-600", amber: "bg-amber-50 text-amber-600", purple: "bg-purple-50 text-purple-600" };
+type AdminStatCardType = {
+    icon: ReactNode,
+    label: string,
+    val: string,
+    trend?: string,
+    color: string
+}
+
+const AdminStatCard = ({ label, val, trend, icon, color }: AdminStatCardType) => {
+    const colors = {
+        blue: "bg-blue-50 text-blue-600",
+        emerald: "bg-emerald-50 text-emerald-600",
+        amber: "bg-amber-50 text-amber-600",
+        purple: "bg-purple-50 text-purple-600"
+    };
+
     return (
         <Card className="bg-white border-none shadow-sm rounded-2xl p-6">
             <div className="flex justify-between items-start mb-4">
-                <div className={`p-3 rounded-2xl ${colors[color]}`}>{icon}</div>
+                <div className={`p-3 rounded-2xl ${colors[color as "blue" | "emerald" | "amber" | "purple"]}`}>
+                    {icon}
+                </div>
                 {trend && <Badge className="bg-slate-50 text-slate-500 border-none font-bold text-[10px] uppercase">{trend}</Badge>}
             </div>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{label}</p>
@@ -242,7 +266,11 @@ const AdminStatCard = ({ label, val, trend, icon, color }: any) => {
     );
 };
 
-const WithdrawRow = ({ name, amount, method, date }: any) => (
+type WithdrawRowType = {
+    name: string, amount: string, method: string, date: string
+}
+
+const WithdrawRow = ({ name, amount, method, date }: WithdrawRowType) => (
     <div className="flex items-center justify-between px-8 py-5 hover:bg-slate-50 transition-colors cursor-pointer group">
         <div className="flex items-center gap-4">
             <Avatar className="h-10 w-10 border border-slate-100">
@@ -260,7 +288,11 @@ const WithdrawRow = ({ name, amount, method, date }: any) => (
     </div>
 );
 
-const LogItem = ({ icon, title, desc, time }: any) => (
+type LogItemType = {
+    icon: ReactNode, title: string, desc: string, time: string
+}
+
+const LogItem = ({ icon, title, desc, time }: LogItemType) => (
     <div className="flex gap-4">
         <div className="mt-1">{icon}</div>
         <div>

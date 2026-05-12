@@ -1,9 +1,10 @@
 import { Card } from "@/components/ui/card";
+import { ReactNode } from "react";
 
 const MetricCard = ({ label, val, icon }: {
     label: string,
     val: string,
-    icon: string
+    icon: ReactNode
 }) => (
     <Card className="bg-white border-none shadow-sm rounded-2xl p-6 flex items-center justify-between">
         <div>

@@ -24,7 +24,7 @@ import SubCategoryDlt from '@/components/admin/category/SubCategoryDlt';
 // Types & Hooks
 import { categoryInput, categorySchema } from '@/lib/validations/category';
 import { subCategoryInput, subCategorySchema } from '@/lib/validations/subCategory';
-import { useGetCategory } from '@/hooks/admin/use-category';
+import { categoryType, subCatType, useGetCategory } from '@/hooks/admin/use-category';
 import axios from 'axios';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDebounce } from "use-debounce";
@@ -35,7 +35,7 @@ export default function AdminCategoryPage() {
 
 
     const [search, setSearch] = useState<string>("");
-    const [debouncedSearch] = useDebounce(search, 400);
+    const [debouncedSearch] = useDebounce<string>(search, 400);
 
     const { data, isLoading } = useGetCategory(debouncedSearch);
 
@@ -225,7 +225,7 @@ export default function AdminCategoryPage() {
                             </div>
                         ) : (
                             <Accordion type="single" collapsible className="w-full">
-                                {data?.map((cat: any) => (
+                                {data?.map((cat: categoryType) => (
                                     <AccordionItem key={cat.id} value={cat.id} className="border-b border-slate-50 last:border-none">
                                         <AccordionTrigger className="px-8 py-6 hover:bg-slate-50/50 transition-all hover:no-underline group">
                                             <div className="flex items-center gap-4 text-left">
@@ -245,7 +245,7 @@ export default function AdminCategoryPage() {
                                             className="bg-slate-50/30 px-8 pb-6 pt-2"
                                         >
                                             <div className="space-y-2 ml-0 sm:ml-14">
-                                                {cat.subCategories?.map((sub: any) => (
+                                                {cat.subCategories?.map((sub: subCatType) => (
                                                     <div key={sub.id} className="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-100 shadow-sm group/sub animate-in fade-in slide-in-from-left-2">
                                                         <div className="flex items-center gap-3">
                                                             <div className="w-2 h-2 rounded-full bg-emerald-400" />

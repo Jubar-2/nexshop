@@ -21,17 +21,38 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import Image from 'next/image';
+import { ReactNode } from "react";
+
+type BrandIconsType = {
+    YouTube: ReactNode,
+    Facebook: ReactNode,
+    Instagram: ReactNode,
+    Others: ReactNode
+}
 
 // Brand Icons
-const BrandIcons = {
+const BrandIcons: BrandIconsType = {
     YouTube: <Clock className="text-[#FF0000]" size={16} />,
     Facebook: <Clock className="text-[#1877F2]" size={16} />,
     Instagram: <Clock className="text-[#E4405F]" size={16} />,
     Others: <Globe className="text-slate-400" size={16} />
 };
 
+type subProofType = {
+    id: string,
+    user: string,
+    job: string,
+    category: string,
+    date: string,
+    status: string,
+    proofText: string,
+    screenshot: string
+}
+
+
 // --- MOCK DATA ---
-const submittedProofs = [
+const submittedProofs: subProofType[] = [
     { id: "P-4401", user: "mdjubairrahman", job: "Watch & Like YouTube Video", category: "YouTube", date: "2 mins ago", status: "Pending", proofText: "Done. My account name is Jubair Dev.", screenshot: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=1000&auto=format&fit=crop" },
     { id: "P-4402", user: "emonbhuiyan", job: "Follow Facebook Page", category: "Facebook", date: "15 mins ago", status: "Pending", proofText: "Followed successfully.", screenshot: "https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?q=80&w=1000&auto=format&fit=crop" },
     { id: "P-4395", user: "biplob_2004", job: "Instagram Story View", category: "Instagram", date: "1 hour ago", status: "Approved", proofText: "Viewed and liked.", screenshot: "https://images.unsplash.com/photo-1611224885990-ab7363d1f2a9?q=80&w=1000&auto=format&fit=crop" },
@@ -63,7 +84,7 @@ export default function SubmittedJobs() {
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Awaiting Review</p>
                             <h2 className="text-xl font-black text-amber-500 tracking-tighter">84 Proofs</h2>
                         </div>
-                        <div className="w-[1px] h-8 bg-slate-100"></div>
+                        <div className="w-px h-8 bg-slate-100"></div>
                         <div className="text-center">
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Approved Today</p>
                             <h2 className="text-xl font-black text-emerald-600 tracking-tighter">142</h2>
@@ -100,7 +121,7 @@ export default function SubmittedJobs() {
                                 <div className="flex flex-col lg:flex-row lg:items-center p-6 gap-6">
 
                                     {/* Worker Info */}
-                                    <div className="flex items-center gap-4 min-w-[220px]">
+                                    <div className="flex items-center gap-4 min-w-55">
                                         <Avatar className="h-12 w-12 border-2 border-slate-50 shadow-sm">
                                             <AvatarFallback className="bg-slate-100 font-black text-slate-400 uppercase text-xs">{proof.user[0]}</AvatarFallback>
                                         </Avatar>
@@ -111,12 +132,16 @@ export default function SubmittedJobs() {
                                     </div>
 
                                     {/* Job Info */}
-                                    <div className="flex-grow">
+                                    <div className="grow">
                                         <div className="flex items-center gap-2 mb-1">
-                                            <div className="p-1.5 bg-slate-50 rounded-lg">{(BrandIcons as any)[proof.category]}</div>
+                                            <div className="p-1.5 bg-slate-50 rounded-lg">
+                                                {(BrandIcons)[proof.category as "YouTube" | "Facebook" | "Instagram"]}
+                                            </div>
                                             <h3 className="text-sm font-bold text-slate-700 truncate">{proof.job}</h3>
                                         </div>
-                                        <p className="text-xs text-slate-400 font-medium italic line-clamp-1">"{proof.proofText}"</p>
+                                        <p className="text-xs text-slate-400 font-medium italic line-clamp-1">
+                                            {proof.proofText}
+                                        </p>
                                     </div>
 
                                     {/* Action Area */}
@@ -138,12 +163,16 @@ export default function SubmittedJobs() {
                                                     <Badge className="bg-white/10 text-white border-none font-bold">{proof.id}</Badge>
                                                 </div>
                                                 <div className="bg-slate-100 p-2">
-                                                    <img src={proof.screenshot} alt="Work Proof" className="w-full h-auto rounded-2xl shadow-inner max-h-[70vh] object-contain" />
+                                                    <Image
+                                                        src={proof.screenshot}
+                                                        alt="Work Proof"
+                                                        className="w-full h-auto rounded-2xl shadow-inner max-h-[70vh] object-contain"
+                                                    />
                                                 </div>
                                                 <div className="p-6 bg-white flex flex-col md:flex-row md:items-center justify-between gap-4">
                                                     <div className="space-y-1">
                                                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Worker Notes</p>
-                                                        <p className="text-sm font-bold text-slate-700 italic">"{proof.proofText}"</p>
+                                                        <p className="text-sm font-bold text-slate-700 italic">{proof.proofText}</p>
                                                     </div>
                                                     <div className="flex gap-2">
                                                         <Button onClick={() => handleAudit(proof.id, 'Approve')} className="bg-emerald-500 hover:bg-emerald-600 font-black px-6 rounded-xl h-11">Confirm & Pay</Button>

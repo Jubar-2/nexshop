@@ -93,3 +93,38 @@ export const JobSubmissionSchema = z.object({
 
 // TypeScript Types for safety across the app
 export type JobSubmissionInput = z.infer<typeof JobSubmissionSchema>;
+
+
+export const FontEndJobSubmissionSchema = z.object({
+    jobId: z
+        .string("Job reference is missing")
+        .cuid("Invalid Job ID format"),
+
+    submissionNotes: z
+        .string()
+        .trim()
+        .min(10, "Please provide at least 10 characters describing your work.")
+        .max(255, "Notes must be under 255 characters."),
+
+    // Validate the File object before sending to ImgBB
+    proofAttachment: z
+        .any()
+        // .refine((file) => file instanceof FileList, "Please upload a screenshot of your work.")
+        .refine((files) => files.length > 0, {
+            message: "Please upload a screenshot of your work."
+        })
+        .refine((file) => file[0]?.size <= MAX_FILE_SIZE, "Screenshot must be smaller than 5MB.")
+        .refine(
+            (file) => ACCEPTED_IMAGE_TYPES.includes(file[0]?.type),
+            "Only .jpg, .jpeg, and .png formats are accepted."
+        ),
+
+    // Profile link is optional but must be a valid URL if provided
+    profileLink: z
+        .string()
+        .trim()
+        .url("Please enter a valid social profile URL (e.g., https://facebook.com/...)")
+        .or(z.literal("")), // Allows empty string to be valid
+});
+
+export type FontEndJobSubmissionInput = z.input<typeof FontEndJobSubmissionSchema>;

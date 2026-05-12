@@ -4,8 +4,15 @@ import { cn } from "@/lib/utils";
 import { CheckCircle2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { membershipType, offerType } from "@/hooks/use-plan";
 
-function PricingCard({ plan, index, isYearly, isLoading }: any) {
+type PricingCardType = {
+    plan: membershipType[],
+    index?: number,
+    isLoading: boolean
+}
+
+function PricingCard({ plan, index, isLoading }: PricingCardType) {
     // const finalPrice = isYearly ? Math.floor(plan.price * 0.8 * 12) : plan.price;
     // console.log(isLoading, plan)
     if (isLoading || !plan) {
@@ -16,7 +23,7 @@ function PricingCard({ plan, index, isYearly, isLoading }: any) {
                         key={i}
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1, duration: 0.5 }}
+                        transition={{ delay: index || 0 * 0.1, duration: 0.5 }}
                         whileHover={{ y: -8 }}
                         className="h-full"
                     >
@@ -97,15 +104,14 @@ function PricingCard({ plan, index, isYearly, isLoading }: any) {
         )
     }
 
-    console.log(isLoading, plan)
     return (
         <>
-            {plan.map((pln, i) => (
+            {plan.map((pln: membershipType, i: number) => (
                 <motion.div
                     key={i}
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1, duration: 0.5 }}
+                    transition={{ delay: index || 0 * 0.1, duration: 0.5 }}
                     whileHover={{ y: -8 }}
                     className="h-full"
                 >
@@ -152,7 +158,7 @@ function PricingCard({ plan, index, isYearly, isLoading }: any) {
                             </div>
 
                             <div className="space-y-4">
-                                {pln.offers.map((feat: string, i: number) => (
+                                {pln.offers.map((feat: offerType, i: number) => (
                                     <motion.div
                                         initial={{ opacity: 0, x: -10 }}
                                         whileInView={{ opacity: 1, x: 0 }}

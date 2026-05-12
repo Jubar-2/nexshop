@@ -19,6 +19,35 @@ export interface WithdrawalResponse {
     };
 }
 
+export interface offerType {
+    id: string;
+    offer: {
+        id: string;
+        offerTitle: string;
+    }
+}
+
+export interface countType {
+    freelancers: number;
+}
+
+export interface membershipType {
+    id: string;
+    membershipName: string;
+    price: number;
+    badgeText: null | string;
+    icon: string;
+    jobsSubmitLimit: string;
+    title: string;
+    color: string;
+    period: number,
+    description: null | string;
+    planOrder: number;
+    isDefault: boolean;
+    offers: offerType[],
+    _count: countType;
+}
+
 export const useGetPlans = () => {
     return useQuery({
         queryKey: ["plans"],

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import {
     Zap,
     Plus,
@@ -182,8 +182,11 @@ export default function AdminPackageList() {
 }
 
 // --- SUB-COMPONENTS ---
+type MetricCardType = {
+    label: string, val: string, icon: ReactNode
+}
 
-const MetricCard = ({ label, val, icon }: any) => (
+const MetricCard = ({ label, val, icon }: MetricCardType) => (
     <Card className="bg-white border-none shadow-sm rounded-2xl p-6 flex items-center justify-between group hover:shadow-md transition-all">
         <div>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{label}</p>

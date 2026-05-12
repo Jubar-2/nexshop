@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/sheet"
 import NavItem from './NavItem'
 import { useGetProfile } from '@/hooks/use-freelancer'
+import { signOut } from 'next-auth/react'
 
 export default function MobileSidebar() {
     const { data, isLoading, isError } = useGetProfile();
@@ -109,7 +110,13 @@ export default function MobileSidebar() {
                         <h3 className="text-[13px] font-bold text-slate-800 uppercase tracking-tight">Account</h3>
                         <div className="space-y-1">
                             <NavItem icon={<Settings size={20} />} label="Settings" />
-                            <NavItem icon={<LogOut size={20} />} label="Logout" />
+                            <NavItem icon={<LogOut size={20} />} label="Logout"
+                                onClick={() => signOut({
+                                    callbackUrl: "/signin",
+                                })}
+                            />
+
+
                         </div>
                     </section>
 

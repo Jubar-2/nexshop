@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useGetProfile } from "@/hooks/use-freelancer";
 import { cn } from "@/lib/utils";
 import { AlertCircle, ChevronDown, RefreshCcw, Smile } from "lucide-react";
+import { signOut } from "next-auth/react";
 
 export default function Menu() {
     const { data, isLoading, isError, refetch } = useGetProfile();
@@ -65,7 +66,10 @@ export default function Menu() {
             <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem>My Profile</DropdownMenuItem>
                 <DropdownMenuItem>Account Settings</DropdownMenuItem>
-                <DropdownMenuItem className="text-red-600">Logout</DropdownMenuItem>
+                <DropdownMenuItem className="text-red-600"
+                    onClick={() => signOut({
+                        callbackUrl: "/signin",
+                    })}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
     )

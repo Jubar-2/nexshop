@@ -20,7 +20,7 @@ function SubCategoryDlt({ id }: { id: string }) {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["category"] });
 
-            toast.success("Category Created", { description: `${data.name} is now live.` });
+            toast.success("Category Created", { description: ` is now live.` });
 
 
             toast.success("Withdrawal Request Sent", {
