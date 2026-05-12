@@ -40,7 +40,6 @@ export async function PATCH(request: Request) {
                 id: true,
                 name: true,
                 categoryId: true,
-                updatedAt: true,
                 category: { select: { name: true } } // Include parent name for UI confirmation
             }
         });
