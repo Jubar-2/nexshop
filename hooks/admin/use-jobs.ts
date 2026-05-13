@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
 // --- API CALL (React Query) ---
-export const useGetJobs = (filter, search, page) => {
+
+export const useGetJobs = (filter: string, search: string, page: number) => {
     return useQuery({
         queryKey: ['admin-jobs', filter, search, page],
         queryFn: async () => {
