@@ -51,9 +51,9 @@ export default function SignUp() {
         try {
             const response = await axios.post("/api/signup", data);
 
-            const result = response.data();
-
-            if (!result.data.ok) {
+            const result = response.data;
+            
+            if (!result.data.success) {
                 // Handle 409 Conflict or 400 Bad Request
                 throw new Error(result.data.message || "Signup failed");
             }
