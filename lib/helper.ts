@@ -79,11 +79,11 @@ export async function giveReferralReward(
         where: { id: referrerId },
         data: {
             currentBalance: { increment: currentReward },
-            totalEarned: { increment: currentReward }
+            // totalEarned: { increment: currentReward }
         },
     });
 
-    // 2. Create an audit log for this specific income generation.
+    // Create an audit log for this specific income generation.
     await tx.referralIncome.create({
         data: {
             freelancerId: referrerId,
@@ -93,7 +93,7 @@ export async function giveReferralReward(
         },
     });
 
-    // 3. Recursive Step: Find if the current referrer was also referred by someone else.
+    // Recursive Step: Find if the current referrer was also referred by someone else.
     const parent = await tx.referral.findUnique({
         where: { receiverId: referrerId },
         select: { senderId: true }
