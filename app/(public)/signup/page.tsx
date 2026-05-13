@@ -19,13 +19,12 @@ import axios from "axios";
 export default function SignUp() {
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
-    const searchParams = useSearchParams();
+    // const searchParams = useSearchParams();
 
     // Initialize Form
     const {
         register,
         handleSubmit,
-        setValue,
         formState: { errors },
     } = useForm<SignUpInput>({
         resolver: zodResolver(SignUpSchema),
@@ -40,10 +39,10 @@ export default function SignUp() {
     });
 
     // Auto-fill referral code from URL
-    useEffect(() => {
-        const ref = searchParams.get("ref");
-        if (ref) setValue("referCode", ref);
-    }, [searchParams, setValue]);
+    // useEffect(() => {
+    //     const ref = searchParams.get("ref");
+    //     if (ref) setValue("referCode", ref);
+    // }, [searchParams, setValue]);
 
     // Submission Logic
     const onSubmit = async (data: SignUpInput) => {
