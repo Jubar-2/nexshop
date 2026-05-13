@@ -44,17 +44,7 @@ export async function GET(request: Request): Promise<Response> {
           }
         },
         // Include the features/offers for each plan
-        MemberOffer: {
-          select: {
-            offer: {
-              select: {
-                id: true,
-                offerTitle: true,
-                description: true,
-              }
-            },
-          }
-        },
+        offers: true,
 
         // Meta-data optimization: count how many users are in this plan
         _count: {

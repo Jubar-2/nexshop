@@ -29,6 +29,7 @@ import {
 import NavItem from './NavItem'
 import { useGetProfile } from '@/hooks/use-freelancer'
 import { signOut } from 'next-auth/react'
+import Link from 'next/link'
 
 export default function MobileSidebar() {
     const { data, isLoading, isError } = useGetProfile();
@@ -80,8 +81,12 @@ export default function MobileSidebar() {
                     <section className="space-y-3">
                         <h3 className="text-[13px] font-bold text-slate-800 uppercase tracking-tight">Navigation</h3>
                         <div className="space-y-1">
-                            <NavItem icon={<LayoutGrid size={20} />} label="Dashboard" active />
-                            <NavItem icon={<Search size={20} />} label="Find Jobs" />
+                            <Link href="/dashboard">
+                                <NavItem icon={<LayoutGrid size={20} />} label="Dashboard" active />
+                            </Link>
+                            <Link href="/dashboard/jobs">
+                                <NavItem icon={<Search size={20} />} label="Find Jobs" />
+                            </Link>
                             <NavItem icon={<ClipboardList size={20} />} label="Submitted Jobs" />
                         </div>
                     </section>
@@ -91,8 +96,12 @@ export default function MobileSidebar() {
                         <h3 className="text-[13px] font-bold text-slate-800 uppercase tracking-tight">Wallet</h3>
                         <div className="space-y-1">
                             <NavItem icon={<RefreshCw size={20} />} label="Transfer to Deposit" />
-                            <NavItem icon={<Banknote size={20} />} label="Withdraw" />
-                            <NavItem icon={<FileText size={20} />} label="Wallet Statement" />
+                            <Link href="/dashboard/withdraw">
+                                <NavItem icon={<Banknote size={20} />} label="Withdraw" />
+                            </Link>
+                            <Link href="/dashboard/statement">
+                                <NavItem icon={<FileText size={20} />} label="Wallet Statement" />
+                            </Link>
                         </div>
                     </section>
 

@@ -6,6 +6,7 @@ import { useGetProfile } from "@/hooks/use-freelancer";
 import { cn } from "@/lib/utils";
 import { AlertCircle, ChevronDown, RefreshCcw, Smile } from "lucide-react";
 import { signOut } from "next-auth/react";
+import Link from "next/link";
 
 export default function Menu() {
     const { data, isLoading, isError, refetch } = useGetProfile();
@@ -64,7 +65,11 @@ export default function Menu() {
                 </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem>My Profile</DropdownMenuItem>
+                <Link href="/dashboard/profile">
+                    <DropdownMenuItem>
+                        My Profile
+                    </DropdownMenuItem>
+                </Link>
                 <DropdownMenuItem>Account Settings</DropdownMenuItem>
                 <DropdownMenuItem className="text-red-600"
                     onClick={() => signOut({
