@@ -33,20 +33,29 @@ export async function PATCH(request: Request) {
             postalCode
         } = validation.data;
 
-        const profile = await db.user.update({
-            where: { id: userId as string },
-            data: {
-                fullName,
-                phoneNumber,
-                country,
-                division,
-                district,
-                subDivision,
-                postalCode
-            }
-        });
+        const [address, user] = await Promise.all([
+            db.address.update({
+                where: { userId: userId as string },
+                data: {
 
-        return ApiResponse.success(profile, "Get profile data")
+                    countryId: country,
+                    divisionId: division,
+                    districtId: district,
+                    subDistrictId: subDivision,
+                    postalCode
+                }
+            }),
+
+            db.user.update({
+                where: { id: userId as string },
+                data: {
+                    fullName,
+                    phoneNumber,
+                }
+            })
+        ])
+
+        return ApiResponse.success({ ...address, ...user }, "Get profile data")
 
     } catch (error) {
         console.log(error)
