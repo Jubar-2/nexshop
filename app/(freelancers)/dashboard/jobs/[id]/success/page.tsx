@@ -10,31 +10,11 @@ import {
 } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import Link from 'next/link';
+import Spinner from '@/components/worker/jobs/Spinner';
 
 export default function SubmissionSuccessPage() {
-    const [isSpinning, setIsSpinning] = useState(false);
-    const [rotation, setRotation] = useState(0);
-    const [hasSpun, setHasSpun] = useState(false);
 
-    const startSpin = () => {
-        if (isSpinning || hasSpun) return;
-
-        setIsSpinning(true);
-        // Generate a random rotation between 2000 and 5000 degrees for effect
-        const newRotation = rotation + 1800 + Math.floor(Math.random() * 360);
-        setRotation(newRotation);
-
-        setTimeout(() => {
-            setIsSpinning(false);
-            setHasSpun(true);
-            toast.success("Bonus Applied!", {
-                description: "You've earned a 5% speed-up on your next approval!",
-                icon: <Trophy className="text-amber-500 w-5 h-5" />
-            });
-        }, 4000); // Match CSS transition duration
-    };
 
     return (
         <div className="min-h-screen bg-[#F0F2F5] pt-20 pb-12 font-poppins">
@@ -57,56 +37,7 @@ export default function SubmissionSuccessPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                     {/* Left: The Wheel Card */}
-                    <Card className="bg-white border-none shadow-sm rounded-3xl p-8 flex flex-col items-center justify-center relative overflow-hidden">
-                        <div className="absolute top-4 left-6">
-                            <Badge className="bg-amber-100 text-amber-700 border-none font-black text-[10px] uppercase tracking-widest px-3 py-1">Daily Lucky Spin</Badge>
-                        </div>
-
-                        {/* The Pointer */}
-                        <div className="absolute top-[28%] z-20 transform -translate-y-full">
-                            <div className="w-8 h-10 bg-slate-900 [clip-path:polygon(50%_100%,0_0,100%_0)] shadow-lg border-x-2 border-white"></div>
-                        </div>
-
-                        {/* The actual Wheel */}
-                        <div
-                            className="relative w-64 h-64 md:w-80 md:h-80 rounded-full border-8 border-slate-100 shadow-2xl transition-transform duration-[4000ms] cubic-bezier(0.15, 0, 0.15, 1)"
-                            style={{
-                                transform: `rotate(${rotation}deg)`,
-                                background: `conic-gradient(
-                            #ffadad 0deg 30deg, #ffd6a5 30deg 60deg, #fdffb6 60deg 90deg, 
-                            #caffbf 90deg 120deg, #9bf6ff 120deg 150deg, #a0c4ff 150deg 180deg, 
-                            #bdb2ff 180deg 210deg, #ffc6ff 210deg 240deg, #ffadad 240deg 270deg,
-                            #ffd6a5 270deg 300deg, #caffbf 300deg 330deg, #9bf6ff 330deg 360deg
-                        )`
-                            }}
-                        >
-                            {/* Numbers around the wheel */}
-                            {[...Array(12)].map((_, i) => (
-                                <div
-                                    key={i}
-                                    className="absolute inset-0 flex items-start justify-center font-black text-slate-800/40 text-xs"
-                                    style={{ transform: `rotate(${i * 30 + 15}deg)`, paddingTop: '15px' }}
-                                >
-                                    {i + 1}
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Center Spin Button */}
-                        <button
-                            onClick={startSpin}
-                            disabled={isSpinning || hasSpun}
-                            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-xl flex items-center justify-center font-black text-white text-sm md:text-base uppercase tracking-tighter transition-all active:scale-90 disabled:opacity-100
-                        ${hasSpun ? 'bg-slate-400' : 'bg-slate-900 hover:bg-black cursor-pointer animate-pulse-subtle'}
-                    `}
-                        >
-                            {isSpinning ? "..." : hasSpun ? "Used" : "Spin"}
-                        </button>
-
-                        <p className="mt-8 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">
-                            Spin to win a random <span className="text-emerald-500">Bonus Reward</span>
-                        </p>
-                    </Card>
+                    <Spinner />
 
                     {/* Right: What Next & Details */}
                     <div className="space-y-6">
@@ -127,16 +58,14 @@ export default function SubmissionSuccessPage() {
                                     <LayoutGrid size={18} /> Dashboard
                                 </Button>
                             </Link>
-                            <Link href="/jobs" className="w-full">
+                            <Link href="/dashboard/jobs" className="w-full">
                                 <Button className="w-full bg-[#10B981] hover:bg-[#0da06f] h-14 rounded-2xl font-black text-white gap-2 shadow-lg">
                                     Next Job <ChevronRight size={18} />
                                 </Button>
                             </Link>
                         </div>
                     </div>
-
                 </div>
-
             </div>
         </div>
     );

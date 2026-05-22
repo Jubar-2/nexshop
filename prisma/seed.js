@@ -28,7 +28,18 @@ async function main() {
     },
   });
 
-  console.log("Admin created successfully:", admin.email);
+  let settingsData = [
+    {
+      key: "luckySpin",
+      value: 0
+    }
+  ];
+
+  const settings = await db.settings.createMany({
+    data: settingsData
+  })
+
+
 }
 
 main()

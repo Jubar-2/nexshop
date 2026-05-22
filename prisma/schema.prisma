@@ -97,6 +97,8 @@ model Freelancer {
   totalSuccessRate Float   @default(0)
   currentBalance   Decimal @default(0.00) @db.Decimal(10, 2)
   referralBalance  Decimal @default(0.00) @db.Decimal(10, 2)
+  lifeTimeIncome   Decimal @default(0.00) @db.Decimal(10, 2)
+  spinX            Int     @default(0)
   totalApproved    Int     @default(0)
   totalRejected    Int     @default(0)
   totalSubmitted   Int     @default(0)
@@ -111,6 +113,7 @@ model Freelancer {
   referralIncomes          ReferralIncome[]
   referralSender           Referral[]                 @relation("Receiver")
   referralReceiver         Referral[]                 @relation("Sender")
+  luckySpin                LuckySpin[]
 }
 
 model Referral {
@@ -317,6 +320,21 @@ model SubmittedJob {
   // Relations
   job        Jobs       @relation(fields: [jobId], references: [id])
   freelancer Freelancer @relation(fields: [freelancerId], references: [id])
+}
+
+model LuckySpin {
+  id           String     @id @default(cuid())
+  freelancerId String
+  reword       Decimal    @db.Decimal(10, 2)
+  createdAt    DateTime   @default(now())
+  freelancer   Freelancer @relation(fields: [freelancerId], references: [id])
+}
+
+model Settings {
+  id     String  @id @default(cuid())
+  key    String  @unique
+  value  Decimal @default(0.00) @db.Decimal(10, 2)
+  switch Boolean @default(true)
 }
 
 // --- Location & Address ---

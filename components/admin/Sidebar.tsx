@@ -23,6 +23,8 @@ import Image from 'next/image';
 import logo from '../../public/image/logo.png';
 import { string } from 'zod';
 import NavItem from './NavItem';
+import { signOut } from 'next-auth/react';
+import Logout from './Logout';
 
 export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -159,8 +161,13 @@ const SidebarContent = ({ isCollapsed, toggleCollapse }: { isCollapsed: boolean,
 
         <NavItem isCollapsed={isCollapsed} icon={<HelpCircle size={20} />} label="Help Line" />
         <NavItem isCollapsed={isCollapsed} icon={<Settings size={20} />} label="Settings" />
-        <NavItem isCollapsed={isCollapsed} icon={<LogOut size={20} />} label="Log Out" />
+        <Logout
+          isCollapsed={isCollapsed}
+          icon={<LogOut size={20} />}
+          label="Log Out"
+        />
       </div>
+      
 
       {/* Footer Area */}
       <div className="p-4 border-t border-slate-50 space-y-4">

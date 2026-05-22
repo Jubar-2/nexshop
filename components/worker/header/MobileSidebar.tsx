@@ -26,10 +26,11 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet"
-import NavItem from './NavItem'
+
 import { useGetProfile } from '@/hooks/use-freelancer'
 import { signOut } from 'next-auth/react'
 import Link from 'next/link'
+import NavItem from './NavItem'
 
 export default function MobileSidebar() {
     const { data, isLoading, isError } = useGetProfile();

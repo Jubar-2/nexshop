@@ -14,13 +14,13 @@ export default function Balance() {
 
     // Logic: Memoize the formatted value to prevent recalculation on every render
     const formattedBalance = useMemo(() => {
-        const value = data?.balance ?? 0;
+        const value = data?.currentBalance ?? 0;
         return new Intl.NumberFormat('en-BD', {
             style: 'currency',
             currency: 'BDT',
             minimumFractionDigits: 2,
         }).format(value).replace("BDT", "৳"); // Clean custom currency symbol
-    }, [data?.balance]);
+    }, [data?.currentBalance]);
 
     // LLD Principle: Return specific UI states early
     if (isLoading) return <Spinner />;

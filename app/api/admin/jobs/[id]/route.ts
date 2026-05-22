@@ -25,11 +25,14 @@ export async function GET(
                 status: true,
                 category: {
                     select: {
-                        name: true
+                        id: true,
+                        name: true,
+                        icon: true
                     }
                 },
                 subCategory: {
                     select: {
+                        id: true,
                         name: true
                     }
                 },

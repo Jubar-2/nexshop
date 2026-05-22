@@ -128,3 +128,19 @@ export const FontEndJobSubmissionSchema = z.object({
 });
 
 export type FontEndJobSubmissionInput = z.input<typeof FontEndJobSubmissionSchema>;
+
+export const ChangeStatusSchema = z.object({
+    id: z.string("Job Id is must be string")
+        .cuid("Job Id type is must be cuid"),
+    status: z.enum(["ACTIVE", "INACTIVE", "COMPLETED"])
+});
+
+export const ChangeSubmitJobStatusSchema = z.object({
+    id: z.string("Job Id is must be string")
+        .cuid("Job Id type is must be cuid"),
+    status: z.enum(["PENDING", "APPROVED", "REJECTED"]),
+    freelancerId: z.string("Job Id is must be string")
+        .cuid("Job Id type is must be cuid"),
+});
+
+export type ChangeSubmitJobStatusType = z.input<typeof ChangeSubmitJobStatusSchema>

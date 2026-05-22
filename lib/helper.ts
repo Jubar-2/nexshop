@@ -3,6 +3,7 @@ import db from "./db";
 import { signAccessToken, signRefreshToken } from "./tokens";
 import { ApiResponse } from "./apiResponse";
 import { Prisma } from "@prisma/client";
+import Settings from "./Settings";
 
 /**
  * Helper to refresh the access token automatically
@@ -50,6 +51,14 @@ export function checkUserId(request: Request) {
     return userId;
 }
 
+// get Settings 
+const settingsData = new Settings();
+
+const [getOne, getTwo, getThree] = await Promise.all([
+    await settingsData.genOneAmount(),
+    await settingsData.genTwoAmount(),
+    await settingsData.genThreeAmount()
+])
 
 /**
  * Distributes referral rewards recursively up to a specified generation.
@@ -68,10 +77,11 @@ export async function giveReferralReward(
     maxGen: number = 3
 ): Promise<void> {
     // Base case: Stop if we exceed the maximum allowed generation.
-    if (gen > maxGen) return;
+    const switches: Record<number, boolean> = { 1: getOne.switch, 2: getTwo.switch, 3: getThree.switch };
+    if (gen > maxGen && switches[gen]) return;
 
     // Define tiered rewards (e.g., Gen 1 gets 10, Gen 2 gets 5, Gen 3 gets 2)
-    const rewards: Record<number, number> = { 1: 10.0, 2: 5.0, 3: 2.0 };
+    const rewards: Record<number, number> = { 1: getOne.value, 2: getTwo.value, 3: getThree.value };
     const currentReward = rewards[gen] || 1.0;
 
     // Atomically increment the referrer's balance.

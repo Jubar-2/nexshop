@@ -22,7 +22,7 @@ function EarningsStats() {
             currency: "BDT",
             minimumFractionDigits: 2,
         })
-            .format(data?.balance ?? 0)
+            .format(data?.currentBalance ?? 0)
             .replace("BDT", "৳");
     }, [data]);
 

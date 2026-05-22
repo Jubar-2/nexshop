@@ -37,7 +37,6 @@ export async function PATCH(request: Request) {
             db.address.update({
                 where: { userId: userId as string },
                 data: {
-
                     countryId: country,
                     divisionId: division,
                     districtId: district,

@@ -1,5 +1,6 @@
 import db from "@/lib/db";
 import { Prisma } from "@prisma/client";
+import Settings from "../Settings";
 
 // Use the Prisma-generated types for perfect autocomplete
 type FreelancerWithPlan = Prisma.FreelancerGetPayload<{
@@ -11,14 +12,22 @@ export default class FreelancerService {
     // private readonly freelancerId: string;
     private cachedProfile: FreelancerWithPlan | null = null;
 
+    private jobParLoad!: number;
+
     constructor(userId: string) {
         this.userId = userId;
+    }
+
+    private async init() {
+        const setting = new Settings();
+        const jobSet = await setting.jobParLoad();
+        this.jobParLoad = jobSet.value;
     }
 
     /**
      * Optimization: One database trip for profile & dependencies.
      */
-    private async getProfile(): Promise<FreelancerWithPlan> {
+    public async getProfile(): Promise<FreelancerWithPlan> {
         if (this.cachedProfile) return this.cachedProfile;
 
         const profile = await db.freelancer.findUnique({
@@ -36,6 +45,9 @@ export default class FreelancerService {
      * Prevents lower tiers from exhausting premium job budgets immediately.
      */
     private async getPriceThreshold(planOrder: number): Promise<number> {
+
+        await this.init();
+
         const higherTierCount = await db.freelancer.count({
             where: { membershipPlan: { planOrder: { gt: planOrder } } }
         });
@@ -44,7 +56,7 @@ export default class FreelancerService {
         * Take vale will come to setting table
         */
         // Limit the pool based on competition in higher tiers
-        const fetchLimit = higherTierCount * 5;
+        const fetchLimit = higherTierCount * this.jobParLoad;
 
         if (fetchLimit <= 0) return 0;
 
@@ -98,7 +110,7 @@ export default class FreelancerService {
 
         // If no high-paying jobs, fallback to general available jobs
         let pool = jobs;
-        if (pool.length < 5) {
+        if (pool.length < this.jobParLoad) {
             const fallback = await db.jobs.findMany({
                 where: {
                     status: "ACTIVE",
@@ -134,7 +146,7 @@ export default class FreelancerService {
 
             // Finally, show newest
             return b.createdAt.getTime() - a.createdAt.getTime();
-        }).slice(0, 5); // Return top 5 best matches for the user
+        }).slice(0, this.jobParLoad); // Return top 5 best matches for the user
     }
 
     /**
@@ -304,5 +316,27 @@ export default class FreelancerService {
         });
 
         return jobsCount;
+    }
+
+    public async jobWithId(id: string) {
+        const profile = await this.getProfile();
+
+        const jobs = await db.jobs.findFirst({
+            where: {
+                id,
+                status: "ACTIVE",
+
+                NOT: {
+                    submissions: {
+                        some: {
+                            freelancerId: profile.id
+                        }
+                    }
+                }
+            },
+            include: { category: true, subCategory: true }
+        });
+
+        return jobs;
     }
 }

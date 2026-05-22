@@ -11,20 +11,20 @@ export async function proxy(request: NextRequest) {
 
     const isApiRoute = pathname.startsWith("/api");
 
-    // -----------------------------
+    // =====================================================
     // PUBLIC ROUTES
-    // -----------------------------
+    // =====================================================
     const publicRoutes = [
         "/signin",
         "/signup",
-        "/admin/login",
+        "/admin/auth",
     ];
 
     const isPublicRoute = publicRoutes.includes(pathname);
 
-    // -----------------------------
+    // =====================================================
     // ROLE PROTECTION
-    // -----------------------------
+    // =====================================================
     const protections = [
         { path: "/api/admin", role: "ADMIN" },
         { path: "/api/freelancer", role: "FREELANCER" },
@@ -33,7 +33,10 @@ export async function proxy(request: NextRequest) {
         { path: "/admin", role: "ADMIN" },
     ];
 
+    // IMPORTANT:
+    // Skip /admin/auth from protection
     const activeRoute = protections.find((p) =>
+        pathname !== "/admin/auth" &&
         pathname.startsWith(p.path)
     );
 
@@ -44,7 +47,7 @@ export async function proxy(request: NextRequest) {
     // =====================================================
     if (isPublicRoute && token) {
 
-        // already logged in
+        // Already logged in
         if (token.role === "ADMIN") {
             return NextResponse.redirect(
                 new URL("/admin", request.url)
@@ -72,13 +75,14 @@ export async function proxy(request: NextRequest) {
             );
         }
 
-        // Page redirect
+        // Admin page redirect
         if (pathname.startsWith("/admin")) {
             return NextResponse.redirect(
-                new URL("/admin/login", request.url)
+                new URL("/admin/auth", request.url)
             );
         }
 
+        // Freelancer page redirect
         return NextResponse.redirect(
             new URL("/signin", request.url)
         );
@@ -89,6 +93,7 @@ export async function proxy(request: NextRequest) {
     // =====================================================
     if (activeRoute && token?.role !== activeRoute.role) {
 
+        // API forbidden response
         if (isApiRoute) {
             return NextResponse.json(
                 {
@@ -99,7 +104,7 @@ export async function proxy(request: NextRequest) {
             );
         }
 
-        // redirect based on role
+        // Redirect based on role
         if (token?.role === "ADMIN") {
             return NextResponse.redirect(
                 new URL("/admin", request.url)
@@ -133,6 +138,6 @@ export const config = {
         "/admin/:path*",
         "/signin",
         "/signup",
-        "/admin/login",
+        "/admin/auth",
     ],
 };
