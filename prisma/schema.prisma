@@ -91,6 +91,8 @@ model Freelancer {
   user           User           @relation(fields: [userId], references: [id])
   referKey       String?        @unique
   memberPlanId   String
+  startAt        DateTime?
+  expireAt       DateTime?
   membershipPlan MembershipPlan @relation(fields: [memberPlanId], references: [id])
 
   // Statistics
@@ -163,9 +165,9 @@ model MembershipUpgradeRequest {
   freelancerId    String
   requestedPlanId String
   phoneNumber     String
+  trxID           String?
   accountType     AccountType
   paymentMethod   PaymentMethod
-  paymentProof    String
   status          PaymentRequestStatus @default(PENDING)
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
@@ -342,7 +344,7 @@ model Country {
   id          String     @id @default(cuid())
   countryName String     @unique
   divisions   Division[]
-  addresses   Address[]
+  // addresses   Address[]
 }
 
 model Division {
@@ -351,7 +353,7 @@ model Division {
   countryId    String
   country      Country    @relation(fields: [countryId], references: [id])
   districts    District[]
-  addresses    Address[]
+  // addresses    Address[]
 }
 
 model District {
@@ -360,28 +362,25 @@ model District {
   divisionId   String
   division     Division      @relation(fields: [divisionId], references: [id])
   subDistricts SubDistrict[]
-  addresses    Address[]
+  // addresses    Address[]
 }
 
 model SubDistrict {
-  id              String    @id @default(cuid())
+  id              String   @id @default(cuid())
   subDistrictName String
   districtId      String
-  district        District  @relation(fields: [districtId], references: [id])
-  addresses       Address[]
+  district        District @relation(fields: [districtId], references: [id])
+  // addresses       Address[]
 }
 
 model Address {
-  id            String      @id @default(cuid())
-  userId        String      @unique
-  user          User        @relation(fields: [userId], references: [id])
-  countryId     String
-  country       Country     @relation(fields: [countryId], references: [id])
-  divisionId    String
-  division      Division    @relation(fields: [divisionId], references: [id])
-  districtId    String
-  district      District    @relation(fields: [districtId], references: [id])
-  subDistrictId String
-  subDistrict   SubDistrict @relation(fields: [subDistrictId], references: [id])
-  postalCode    Int
+  id           String @id @default(cuid())
+  userId       String @unique
+  user         User   @relation(fields: [userId], references: [id])
+  country      String
+  division     String
+  district     String
+  subDistrict  String
+  postalCode   String
+  addressLine1 String
 }

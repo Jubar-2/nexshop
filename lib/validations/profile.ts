@@ -6,15 +6,12 @@ export const ProfileSchema = z.object({
     phoneNumber: z.string().refine((val) => isValidPhoneNumber(val), {
         message: "Invalid phone number",
     }),
-    country: z.string("Country Id is must be string")
-        .cuid("Invalid country Id"),
-    division: z.string("Country Id is must be string")
-        .cuid("Invalid country Id"),
-    district: z.string("Country Id is must be string")
-        .cuid("Invalid country Id"),
-    subDivision: z.string("Country Id is must be string")
-        .cuid("Invalid country Id"),
-    postalCode: z.number("Country Id is must be string")
+    country: z.string("Country name is must be string"),
+    division: z.string("Division name is must be string"),
+    district: z.string("District name is must be string"),
+    subDivision: z.string("Sub-division name is must be string"),
+    postalCode: z.string("Postal code is must be string"),
+    addressLine1: z.string("Address line 1 is must be string"),
 });
 
 // Type inference for TypeScript

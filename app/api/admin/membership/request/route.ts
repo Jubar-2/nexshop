@@ -72,7 +72,7 @@ export async function GET(request: Request): Promise<Response> {
                     phoneNumber: true,
                     accountType: true,
                     paymentMethod: true,
-                    paymentProof: true,
+                    trxID: true,
                     status: true,
                     createdAt: true,
                     updatedAt: true,
@@ -90,7 +90,7 @@ export async function GET(request: Request): Promise<Response> {
                     requestedPlan: {
                         select: {
                             membershipName: true,
-                            planOrder: true
+                            price: true,
                         }
                     }
                 }

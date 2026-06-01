@@ -1,7 +1,6 @@
 import { ApiResponse } from "@/lib/apiResponse";
 import db from "@/lib/db";
 import { checkUserId } from "@/lib/helper";
-import { imageUploader } from "@/services/image-upload";
 import { MemberShipUpgradeInSchema } from "@/lib/validations/membership";
 
 /**
@@ -39,12 +38,20 @@ export async function POST(request: Request): Promise<Response> {
             phoneNumber,
             paymentMethod,
             accountType,
-            amount,
             planId,
-            paymentProof
+            trxID
         } = validation.data;
 
-        const imageLink = await imageUploader.upload(paymentProof);
+        const membershipPlan = await db.membershipPlan.findUnique({
+            where: { id: planId },
+            select: { price: true }
+        })
+
+        if (!membershipPlan) {
+            return ApiResponse.error("Membership plan not found", 404);
+        }
+
+        const packagePrice = membershipPlan.price.toNumber();
 
         // Execute the core financial logic within a database transaction.
         const result = await db.$transaction(async (tx) => {
@@ -65,10 +72,6 @@ export async function POST(request: Request): Promise<Response> {
 
             if (!membershipPlan) throw new Error("PLAN_NOT_FOUND");
 
-            if (amount !== membershipPlan.price.toNumber()) {
-                throw new Error("INSUFFICIENT_BALANCE");
-            }
-
             const membershipRequest = await tx.membershipUpgradeRequest.create({
                 data: {
                     freelancerId: freelancer.id,
@@ -76,14 +79,14 @@ export async function POST(request: Request): Promise<Response> {
                     phoneNumber,
                     accountType,
                     requestedPlanId: membershipPlan.id,
-                    paymentProof: imageLink
+                    trxID
                 },
             });
 
             const invoice = await tx.invoice.create({
                 data: {
                     freelancerId: freelancer.id,
-                    amount: amount,
+                    amount: packagePrice,
                 }
             });
 

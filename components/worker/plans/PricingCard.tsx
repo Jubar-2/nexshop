@@ -5,6 +5,7 @@ import { CheckCircle2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { membershipType, offerType } from "@/hooks/use-plan";
+import { useRouter } from "next/navigation";
 
 type PricingCardType = {
     plan: membershipType[],
@@ -13,6 +14,8 @@ type PricingCardType = {
 }
 
 function PricingCard({ plan, index, isLoading }: PricingCardType) {
+    const router = useRouter();
+
     // const finalPrice = isYearly ? Math.floor(plan.price * 0.8 * 12) : plan.price;
     // console.log(isLoading, plan)
     if (isLoading || !plan) {
@@ -152,7 +155,11 @@ function PricingCard({ plan, index, isLoading }: PricingCardType) {
                                     animate={{ scale: 1, opacity: 1 }}
                                     className="text-5xl font-black text-slate-900 tracking-tighter"
                                 >
-                                    ৳{12}
+                                    {new Intl.NumberFormat('en-BD', {
+                                        style: 'currency',
+                                        currency: 'BDT',
+                                        minimumFractionDigits: 2,
+                                    }).format(pln.price).replace("BDT", "৳")}
                                 </motion.span>
                                 <span className="text-slate-400 font-bold text-sm">/{pln.period === 0 ? " Unlimited" : pln.period + " mo"}</span>
                             </div>
@@ -177,6 +184,7 @@ function PricingCard({ plan, index, isLoading }: PricingCardType) {
 
                         <CardFooter className="p-10">
                             <Button
+                                onClick={() => router.push(`/dashboard/plans/upgrade/${pln.id}`)}
                                 className={cn(
                                     "w-full h-16 rounded-2xl text-lg font-black transition-all shadow-lg active:scale-95",
                                     pln.badgeText ? "bg-emerald-600 hover:bg-emerald-700 text-white" :

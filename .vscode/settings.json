@@ -2,9 +2,11 @@
     "prisma.pinToPrisma6": true,
     "cSpell.words": [
         "autoincrement",
+        "Discription",
         "legnth",
         "Panding",
         "submited",
-        "succfully"
+        "succfully",
+        "Upgreadtion"
     ]
 }

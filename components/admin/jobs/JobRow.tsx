@@ -100,7 +100,7 @@ export default function JobRow({ job }: { job: Job }) {
 
             <td className="px-8 py-6 text-center">
                 <span className="text-sm font-black text-slate-700 tracking-tighter">
-                    ৳{parseFloat(job.reward).toFixed(2)}
+                    ৳{Number(job.reward).toFixed(2)}
                 </span>
             </td>
 

@@ -14,7 +14,7 @@ export async function GET(request: Request) {
         const profile = await freelancerService.getProfile();
         const settings = new Settings();
         const luckySpinAmount = await settings.luckySpinAmount();
-    
+
         const luckySpinAmountValue = luckySpinAmount.value
 
         if (!luckySpinAmount.switch) {
@@ -25,8 +25,15 @@ export async function GET(request: Request) {
             return ApiResponse.error("Lucky spin amount is not set", 409)
         }
 
-        if (profile.lifeTimeIncome > luckySpinAmountValue && profile.spinX <= 0) {
-            return ApiResponse.success({ spin: true }, "Lucky spin is available")
+        // if (profile.lifeTimeIncome > luckySpinAmountValue && profile.spinX <= 0) {
+        //     return ApiResponse.success({ spin: true }, "Lucky spin is available")
+        // }
+
+        if (profile.lifeTimeIncome.gt(luckySpinAmountValue) && profile.spinX <= 0) {
+            return ApiResponse.success(
+                { spin: true },
+                "Lucky spin is available"
+            );
         }
 
         if (luckySpinAmountValue * profile.spinX > profile.lifeTimeIncome.toNumber()) {

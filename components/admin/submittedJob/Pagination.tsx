@@ -1,9 +1,16 @@
 import { Button } from "@/components/ui/button";
+import { PaginationMeta } from "@/lib/pagination";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-function Pagination({ meta, isLoading, setPage }) {
+type PaginationType = {
+    isLoading: boolean,
+    setPage: React.Dispatch<React.SetStateAction<number>>,
+    meta: PaginationMeta
+}
+
+function Pagination({ meta, isLoading, setPage }: PaginationType) {
     return (
-        <div className="bg-white p-4 md:p-6 rounded-[24px] md:rounded-3xl shadow-sm border border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="bg-white p-4 md:p-6 rounded-3xl md:rounded-3xl shadow-sm border border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">
                 Page {meta?.currentPage || 1} of {meta?.totalPages || 1}
             </p>

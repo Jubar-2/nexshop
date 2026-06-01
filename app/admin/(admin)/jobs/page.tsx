@@ -32,7 +32,7 @@ export default function AdminJobList() {
     const jobs = data?.data
     const meta = data?.meta;
 
-    console.log(jobs)
+    console.log("jobs",jobs)
 
     return (
         <div className="min-h-screen bg-[#F0F2F5] pt-20 pb-12 font-poppins">

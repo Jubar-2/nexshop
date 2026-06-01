@@ -1,3 +1,4 @@
+import { SubmittedJob } from "@/types/jobs";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
@@ -17,7 +18,7 @@ export const useGetJobs = (filter: string, search: string, page: number) => {
             const statusParam = filter !== "All" ? `&status=${statusMap[filter]}` : "";
 
             const { data } = await axios.get(
-                `/api/admin/jobs?page=${page}&limit=15&search=${search}${statusParam}`
+                `/api/admin/jobs?page=${page}&search=${search}${statusParam}`
             );
             console.log(data.data)
             return data.data; // Your API nests data inside a data object
@@ -47,3 +48,4 @@ export const useGetSubmittedJobs = (page: number = 1, status: string, search: st
     staleTime: 1000 * 60,
     refetchOnWindowFocus: true,
 })
+

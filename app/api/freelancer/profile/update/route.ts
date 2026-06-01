@@ -30,20 +30,34 @@ export async function PATCH(request: Request) {
             division,
             district,
             subDivision,
-            postalCode
+            postalCode,
+            addressLine1
         } = validation.data;
 
         const [address, user] = await Promise.all([
-            db.address.update({
-                where: { userId: userId as string },
-                data: {
-                    countryId: country,
-                    divisionId: division,
-                    districtId: district,
-                    subDistrictId: subDivision,
-                    postalCode
-                }
+            db.address.upsert({
+                where: {
+                    userId: userId as string,
+                },
+                update: {
+                    country,
+                    division,
+                    district,
+                    subDistrict: subDivision,
+                    postalCode,
+                    addressLine1,
+                },
+                create: {
+                    userId: userId as string,
+                    country,
+                    division,
+                    district,
+                    subDistrict: subDivision,
+                    postalCode,
+                    addressLine1,
+                },
             }),
+
 
             db.user.update({
                 where: { id: userId as string },

@@ -40,7 +40,8 @@ export async function PATCH(request: Request): Promise<Response> {
                     id: true,
                     status: true,
                     freelancerId: true,
-                    requestedPlanId: true
+                    requestedPlanId: true,
+                    requestedPlan: true
                 }
             });
 
@@ -80,6 +81,17 @@ export async function PATCH(request: Request): Promise<Response> {
                     }
                 }
             });
+
+            if (status === "APPROVED") {
+                await tx.freelancer.update({
+                    where: { id: requestRecord.freelancerId },
+                    data: {
+                        memberPlanId: requestRecord.requestedPlanId,
+                        startAt: startDate,
+                        expireAt: endDate
+                    }
+                })
+            }
 
             return updatedRequest;
         });

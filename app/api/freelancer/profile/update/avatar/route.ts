@@ -9,13 +9,13 @@ export async function PATCH(request: Request) {
 
         const userId = checkUserId(request);
 
-        const body = await request.json().catch(() => null);
-        if (!body) {
-            return ApiResponse.error("Invalid JSON payload", 400);
-        }
+        const formData = await request.formData();
+        const rawData = {
+            avatar: formData.get("avatar"),
+        };
 
         // Validate input using Zod schema
-        const validation = AvatarSchema.safeParse(body);
+        const validation = AvatarSchema.safeParse(rawData);
         if (!validation.success) {
             return ApiResponse.error(
                 "Validation failed",

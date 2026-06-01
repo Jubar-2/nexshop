@@ -39,12 +39,12 @@ export async function POST(request: Request): Promise<Response> {
             phoneNumber,
             paymentMethod,
             accountType,
-            amount,
+            // amount,
             planId,
-            paymentProof
+            // paymentProof
         } = validation.data;
 
-        const imageLink = await imageUploader.upload(paymentProof);
+        // const imageLink = await imageUploader.upload(paymentProof);
 
         // Execute the core financial logic within a database transaction.
         const result = await db.$transaction(async (tx) => {
@@ -65,9 +65,9 @@ export async function POST(request: Request): Promise<Response> {
 
             if (!membershipPlan) throw new Error("PLAN_NOT_FOUND");
 
-            if (amount !== membershipPlan.price.toNumber()) {
-                throw new Error("INSUFFICIENT_BALANCE");
-            }
+            // if (amount !== membershipPlan.price.toNumber()) {
+            //     throw new Error("INSUFFICIENT_BALANCE");
+            // }
 
             const membershipRequest = await tx.membershipUpgradeRequest.create({
                 data: {
@@ -76,25 +76,25 @@ export async function POST(request: Request): Promise<Response> {
                     phoneNumber,
                     accountType,
                     requestedPlanId: membershipPlan.id,
-                    paymentProof: imageLink
+                    // paymentProof: imageLink
                 },
             });
 
-            const invoice = await tx.invoice.create({
-                data: {
-                    freelancerId: freelancer.id,
-                    amount: amount,
-                }
-            });
+            // const invoice = await tx.invoice.create({
+            //     data: {
+            //         freelancerId: freelancer.id,
+            //         amount: amount,
+            //     }
+            // });
 
-            await tx.membershipHistory.create({
-                data: {
-                    freelancerId: freelancer.id,
-                    membershipRequestId: membershipRequest.id,
-                    membershipPlanId: membershipPlan.id,
-                    invoiceId: invoice.id,
-                }
-            })
+            // await tx.membershipHistory.create({
+            //     data: {
+            //         freelancerId: freelancer.id,
+            //         membershipRequestId: membershipRequest.id,
+            //         membershipPlanId: membershipPlan.id,
+            //         // invoiceId: invoice.id,
+            //     }
+            // })
 
             return membershipRequest;
         });

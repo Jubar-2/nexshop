@@ -51,7 +51,10 @@ class Settings {
         }
     );
 
-    public async luckySpinAmount() {
+    public async luckySpinAmount(): Promise<{
+        value: number;
+        switch: boolean;
+    }> {
         const allData = await this.getAllSettings();
         return allData.luckySpin;
     }

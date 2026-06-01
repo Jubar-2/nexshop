@@ -150,6 +150,7 @@ const SidebarContent = ({ isCollapsed, toggleCollapse }: { isCollapsed: boolean,
           icon={<Zap size={20} />}
           label="Memberships"
           subItems={[
+            { label: "Upgreadtion Request List", href: "/admin/packages/request" },
             { label: "Package List", href: "/admin/packages" },
             { label: "Create Package", href: "/admin/packages/create" },
           ]}
@@ -167,7 +168,7 @@ const SidebarContent = ({ isCollapsed, toggleCollapse }: { isCollapsed: boolean,
           label="Log Out"
         />
       </div>
-      
+
 
       {/* Footer Area */}
       <div className="p-4 border-t border-slate-50 space-y-4">

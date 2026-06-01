@@ -23,6 +23,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { ChangeSubmitJobStatusType } from '@/lib/validations/jobs';
 import Pagination from '@/components/admin//submittedJob/Pagination';
+import { SubmittedJob } from '@/types/jobs';
 
 export default function SubmittedJobs() {
     const queryClient = useQueryClient();
@@ -142,8 +143,8 @@ export default function SubmittedJobs() {
                 <div className="grid grid-cols-1 gap-4">
                     {isLoading ? (
                         [1, 2, 3].map(i => <SubmissionSkeleton key={i} />)
-                    ) : submissions.map((proof: any) => (
-                        <Card key={proof.id} className="bg-white border-none shadow-sm rounded-[24px] overflow-hidden hover:shadow-md transition-all group">
+                    ) : submissions.map((proof: SubmittedJob) => (
+                        <Card key={proof.id} className="bg-white border-none shadow-sm rounded-3xl overflow-hidden hover:shadow-md transition-all group">
                             <CardContent className="p-4 md:p-6">
                                 <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 md:gap-6">
 
@@ -237,7 +238,7 @@ export default function SubmittedJobs() {
 
                                                 {/* MODAL FOOTER */}
                                                 <div className="p-4 md:p-10 bg-white space-y-6">
-                                                    <div className="bg-slate-50/80 p-4 rounded-xl md:rounded-[24px] border border-slate-100">
+                                                    <div className="bg-slate-50/80 p-4 rounded-xl md:rounded-3xl border border-slate-100">
                                                         <p className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Worker Note</p>
                                                         <p className="text-xs md:text-sm font-bold text-slate-700 italic leading-relaxed">
                                                             &ldquo;{proof.submissionNotes || "Empty submission notes."}&rdquo;

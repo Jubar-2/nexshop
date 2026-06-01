@@ -1,76 +1,89 @@
 import { ApiResponse } from "@/lib/apiResponse";
-import { ChangeStatusSchema, JobsUpdateInSchema } from "@/lib/validations/jobs";
 import db from "@/lib/db";
-// import { getServerSession } from "next-auth";
-// import { authOptions } from "@/lib/auth";
+import { Pagination } from "@/lib/pagination";
 import { Prisma } from "@prisma/client";
 
-export async function PATCH(request: Request) {
+export async function GET(request: Request) {
     try {
-        // const session = await getServerSession(authOptions);
 
-        // if (!session || session.user.role !== "ADMIN" || !session.user.id) {
-        //     return ApiResponse.error("Forbidden: Admin access required", 403);
-        // }
+        const { searchParams } = new URL(request.url);
+        const pagination = new Pagination(searchParams, 15);
 
-        // Safe JSON parsing with error handling
-        const body = await request.json().catch(() => null);
-        if (!body) {
-            return ApiResponse.error("Invalid JSON payload", 400);
+        const status = searchParams.get("status");
+        const search = searchParams.get("search");
+
+        // STATUS VALIDATION
+        const statusInputs: Array<string> = ["ACTIVE", "INACTIVE", "COMPLETED"];
+        if (status && !statusInputs.some(e => status === e)) {
+            return ApiResponse.error("Status is invalid", 401);
         }
 
-        // Validate input using Zod schema
-        const validation = ChangeStatusSchema.safeParse(body);
-        if (!validation.success) {
-            return ApiResponse.error(
-                "Validation failed",
-                400,
-                validation.error.flatten().fieldErrors
-            );
+        const whereClause: Prisma.JobsWhereInput = {
+            // Validate status enum casting
+            ...(status && { status: status as Prisma.EnumJobStatusFilter<"Jobs"> }),
+
+            // We search by ID (String) and FullName (String).
+            // We REMOVED 'createdAt' because you cannot use 'contains' on a Date.
+            ...(search && {
+                OR: [
+                    {
+                        jobTitle: {
+                            contains: search.trim() || "",
+                            mode: 'insensitive'
+                        }
+                    }
+                ]
+            })
+        };
+
+        const [total, jobs] = await Promise.all([
+            db.jobs.count({ where: whereClause }),
+
+            db.jobs.findMany({
+                where: whereClause,
+                ...pagination.prismaOptions,
+                select: {
+                    id: true,
+                    jobTitle: true,
+                    targetLink: true,
+                    description: true,
+                    workerRequired: true,
+                    reward: true,
+                    status: true,
+                    category: {
+                        select: {
+                            name: true,
+                            icon: true
+                        }
+                    },
+                    subCategory: {
+                        select: { name: true }
+                    },
+                    createdAt: true
+                }
+            })
+
+        ])
+        // Optimized Database Query
+
+        // Handle Not Found
+        if (!jobs) {
+            return ApiResponse.error("Jobs are not found", 404);
         }
 
-        // Extract validated data
-        const { id, status } = validation.data;
+        // Professional Success Response
+        return ApiResponse.success({
+            data: jobs,
+            meta: pagination.getMetadata(total, jobs.length)
+        }, "Jobs data retrieved");
 
-        // find the job
-        const findJob = await db.jobs.findUnique({
-            where: { id }
-        })
+    } catch (error) {
+        // Professional Logging with context
+        console.error(`[CATEGORY_GET_BY_ID_ERROR]:`, error);
 
-        if (!findJob) {
-            return ApiResponse.error("job id is not valid", 400)
-        }
-
-        // Create the job in the database
-        const job = await db.jobs.update({
-            where: {
-                id
-            },
-            data: { status },
-        });
-
-        return ApiResponse.success(job, "Job created successfully", 201);
-
-    } catch (error: unknown) {
-
-        console.error("JOB_CREATE_ERROR:", error);
-
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            if (error.code === "P2000") {
-                return ApiResponse.error(
-                    "Value too long for one of the fields",
-                    400
-                );
-            }
-
-            if (error.code === "P2003") {
-                return ApiResponse.error(
-                    "User id is not exist",
-                    400
-                );
-            }
-        }
-
-        return ApiResponse.error("Failed to create job", 500);
+        return ApiResponse.error(
+            "An internal server error occurred while fetching the Jobs",
+            500
+        );
     }
 }

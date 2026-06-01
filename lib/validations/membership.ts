@@ -65,40 +65,24 @@ const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 
 export const MemberShipUpgradeInSchema = z.object({
     planId: z.string("Plan id is required").cuid("Invalid plan id format"),
-    freelancerId: z.string("Freelancer id is required").cuid("Invalid plan id format"),
+    // freelancerId: z.string("Freelancer id is required").cuid("Invalid plan id format"),
     phoneNumber: z.string().refine((val) => isValidPhoneNumber(val), {
         message: "Invalid phone number",
     }),
+    trxID: z.string().min(3, "Transaction ID must be at least 3 characters"),
+    accountType: z.enum(["PERSONAL", "AGENT"], "Account type must be either PERSONAL or AGENT"),
 
-    accountType: z.nativeEnum(AccountType)
-        .superRefine((val, ctx) => {
-            if (!Object.values(AccountType).includes(val)) {
-                ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
-                    message: "Your custom error message here",
-                });
-            }
-        }),
+    paymentMethod: z.enum(["BkASH", "NAGAD"], "Payment method must be either BkASH or NAGAD")
 
-    paymentMethod: z.nativeEnum(PaymentMethod)
-        .superRefine((val, ctx) => {
-            if (!Object.values(PaymentMethod).includes(val)) {
-                ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
-                    message: "Invalid payment method",
-                });
-            }
-        }),
+    // paymentProof: z.any()
+    //     .refine((file) => file instanceof File, "Please upload a screenshot of your work.")
+    //     .refine((file) => file?.size <= MAX_FILE_SIZE, "Screenshot must be smaller than 5MB.")
+    //     .refine(
+    //         (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
+    //         "Only .jpg, .jpeg, and .png formats are accepted."
+    //     ),
 
-    paymentProof: z.any()
-        .refine((file) => file instanceof File, "Please upload a screenshot of your work.")
-        .refine((file) => file?.size <= MAX_FILE_SIZE, "Screenshot must be smaller than 5MB.")
-        .refine(
-            (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
-            "Only .jpg, .jpeg, and .png formats are accepted."
-        ),
-
-    amount: z.number("Amount is required")
+    // amount: z.number("Amount is required")
 });
 
 export type MemberShipUpgradeInput = z.infer<typeof MemberShipUpgradeInSchema>;

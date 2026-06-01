@@ -12,8 +12,8 @@ export async function GET(request: Request) {
                 fullName: true,
                 email: true,
                 phoneNumber: true,
-                role: true,
                 status: true,
+                avatar: true,
                 freelancer: {
                     select: {
                         membershipPlan: {
@@ -23,6 +23,7 @@ export async function GET(request: Request) {
                                 jobsSubmitLimit: true,
                                 description: true,
                                 planOrder: true,
+                                period: true,
                             }
                         },
                         referKey: true,

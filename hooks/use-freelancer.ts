@@ -1,4 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+import { AvatarSchemaInput, ProfileSchemaInput } from "@/lib/validations/profile";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
 export const useFreelancerProfile = () => {
@@ -17,7 +18,7 @@ export const useFreelancerProfile = () => {
 export const useGetProfile = () => {
     return useQuery({
         queryKey: ["Profile"],
-        queryFn: async (): Promise<{ email: string }> => {
+        queryFn: async (): Promise<FreelancerProfile> => {
             const { data } = await axios.get("/api/freelancer/profile");
             return data.data;
         },
@@ -71,5 +72,27 @@ export const useGetTotalJobsNumber = () => {
         },
         staleTime: 1000 * 60,
         refetchOnWindowFocus: true,
+    });
+}
+
+export const useUpdateProfile = () => {
+    return useMutation({
+        mutationFn: async (profileData: ProfileSchemaInput) => {
+            const { data } = await axios.patch("/api/freelancer/profile/update", profileData);
+            return data.data;
+        }
+    });
+}
+
+export const useUpdateProfilePicture = () => {
+    return useMutation({
+        mutationFn: async (profileData: FormData) => {
+            const { data } = await axios.patch("/api/freelancer/profile/update/avatar", profileData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+            return data.data;
+        }
     });
 }

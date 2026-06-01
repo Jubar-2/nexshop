@@ -1,4 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+import { MemberShipUpgradeInput } from "@/lib/validations/membership";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
 export interface Transaction {
@@ -61,3 +62,24 @@ export const useGetPlans = () => {
         staleTime: (1000 * 60) * 72,
     });
 };
+
+export const useGetPlan = (id: string) =>
+    useQuery({
+        queryKey: ["plan", id],
+        queryFn: async () => {
+            const { data } = await axios.get(
+                `/api/freelancer/membership/${id}`
+            );
+            return data.data;
+        },
+        placeholderData: (prev) => prev,
+        staleTime: (1000 * 60) * 72,
+    });
+
+export const useUpgradeMembership = () =>
+    useMutation({
+        mutationFn: async (payload: MemberShipUpgradeInput) => {
+            const response = await axios.post("/api/freelancer/membership/upgrade", payload);
+            return response.data;
+        }
+    });

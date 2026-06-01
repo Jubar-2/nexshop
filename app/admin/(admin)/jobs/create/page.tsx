@@ -50,7 +50,7 @@ type Category = {
 export default function AdminPostJob() {
     const { data: categories } = useGetCategory("");
 
-    // 1. Setup Form
+    // Setup Form
     const {
         register,
         handleSubmit,
@@ -71,7 +71,7 @@ export default function AdminPostJob() {
         }
     });
 
-    // 2. Watch values for Live Preview & Dynamic Logic
+    // Watch values for Live Preview & Dynamic Logic
     const watchedCategory = watch("category");
     const watchedReward = watch("reward");
     const watchedSlots = watch("workerRequired");

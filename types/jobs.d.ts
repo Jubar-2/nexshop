@@ -22,3 +22,28 @@ export interface Job {
   subCategory: SubCategory;
   submissionCount: number,
 }
+
+export type userType = {
+  email: string;
+  fullName: string;
+  avatar: string | null;
+}
+
+export type SubmittedJob = {
+  id: string;
+  jobId: string;
+  freelancerId: string;
+  submissionNotes: string;
+  proofAttachment: string;
+  profileLink: string;
+  reward: string;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  submittedAt: string;
+  job: Job;
+
+  freelancer: {
+    id: string;
+    user: userType;
+  }
+
+};

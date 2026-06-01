@@ -2,67 +2,91 @@ import { ApiResponse } from "@/lib/apiResponse";
 import db from "@/lib/db";
 import FreelancerService from "@/lib/freelancer/FreelancerService";
 import Settings from "@/lib/Settings";
+import { Decimal } from "@prisma/client/runtime/library";
 
 export async function POST(request: Request) {
     try {
-        const userId = request.headers.get('x-user-id');
+        const userId = request.headers.get("x-user-id");
 
         if (!userId) {
             return ApiResponse.error("User Id is missing", 409);
         }
 
-        const freelancerService = new FreelancerService(userId)
+        // -------------------------
+        // GET PROFILE
+        // -------------------------
+        const freelancerService = new FreelancerService(userId);
         const profile = await freelancerService.getProfile();
 
+        // -------------------------
+        // GET SETTINGS
+        // -------------------------
         const settings = new Settings();
-        const luckySpinAmount = await settings.luckySpinAmount();
+        const luckySpinSetting = await settings.luckySpinAmount();
 
-        if (!luckySpinAmount.switch) {
-            return ApiResponse.error("Lucky spin amount is not set", 409)
+        if (!luckySpinSetting?.switch) {
+            return ApiResponse.error("Lucky spin is disabled", 409);
         }
 
-        if (!luckySpinAmount) {
-            return ApiResponse.error("Lucky spin amount is not set", 409)
-        }
+        const spinValue = new Decimal(luckySpinSetting.value);
+        const lifeTimeIncome = new Decimal(profile.lifeTimeIncome);
 
-        let spinX, luckySpinAmounts;
+        let spinX: number;
+        let luckySpinAmounts: Decimal;
 
-        if (profile.lifeTimeIncome > luckySpinAmount && profile.spinX <= 0) {
+        // -------------------------
+        // BUSINESS LOGIC
+        // -------------------------
+        if (lifeTimeIncome.gt(spinValue) && profile.spinX <= 0) {
             spinX = profile.spinX + 2;
-            luckySpinAmounts = luckySpinAmount;
-        } else if (luckySpinAmount.toNumber() * profile.spinX > profile.lifeTimeIncome.toNumber()) {
+            luckySpinAmounts = spinValue;
+        }
+        else if (spinValue.mul(profile.spinX).gt(lifeTimeIncome)) {
             spinX = profile.spinX + 2;
-            luckySpinAmounts = luckySpinAmount.toNumber() * spinX;
-
-            // return ApiResponse.success({ spin: true }, "Lucky spin is available")
-
-        } else {
-            return ApiResponse.success({ spin: false }, "Lucky spin is not available")
+            luckySpinAmounts = spinValue.mul(spinX);
+        }
+        else {
+            return ApiResponse.success(
+                { spin: false },
+                "Lucky spin is not available"
+            );
         }
 
-        const result = db.$transaction(async (tx) => {
+        // -------------------------
+        // TRANSACTION
+        // -------------------------
+        const result = await db.$transaction(async (tx) => {
+
             const freelancer = await tx.freelancer.update({
-                where: { userId: userId },
+                where: { userId },
                 data: {
-                    spinX: spinX,
+                    spinX,
                     currentBalance: {
-                        increment: luckySpinAmounts
+                        increment: luckySpinAmounts,
                     },
                     lifeTimeIncome: {
-                        increment: luckySpinAmounts
-                    }
-                }
+                        increment: luckySpinAmounts,
+                    },
+                },
             });
 
             const luckySpin = await tx.luckySpin.create({
-                freelancerId: profile.id,
-                reword: luckySpinAmounts,
+                data: {
+                    freelancerId: profile.id,
+                    reword: luckySpinAmounts,
+                },
             });
 
-            return { freelancer, luckySpin }
-        })
+            return { freelancer, luckySpin };
+        });
 
-        return ApiResponse.success(result, "Add lucky bonus successful")
+        // -------------------------
+        // RESPONSE
+        // -------------------------
+        return ApiResponse.success(
+            result,
+            "Lucky spin added successfully"
+        );
 
     } catch (error) {
         console.error("[SIGNUP_CRITICAL_FAILURE]:", (error as Error).message);
