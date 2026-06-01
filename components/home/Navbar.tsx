@@ -77,16 +77,14 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-3">
           <Link href="/signin" className="text-sm font-medium px-4 py-2 rounded-lg transition-colors hover:text-purple-600"
             style={{ color: "#6b7280" }}>Sign In</Link>
-          <motion.a
-            whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
-          >
-            <Link href="/signup"
-              className="btn-primary text-sm px-5 py-2.5 rounded-xl font-semibold glow-purple"
-            >
-              Start Earning Free
-            </Link>
 
-          </motion.a>
+          <Link href="/signup"
+            className="btn-primary text-sm px-5 py-2.5 rounded-xl font-semibold glow-purple"
+          >
+            Start Earning Free
+          </Link>
+
+
         </div>
 
         <button className="md:hidden p-2" onClick={() => setMobileOpen(!mobileOpen)}>

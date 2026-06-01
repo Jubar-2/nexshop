@@ -9,7 +9,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
 import Link from 'next/link';
 import { useDebounce } from 'use-debounce';
 import { useGetJobs } from '@/hooks/admin/use-jobs';
@@ -94,7 +93,7 @@ export default function AdminJobList() {
                 </Card>
 
                 {/* --- JOBS TABLE --- */}
-                <Card className="bg-white border-none shadow-sm rounded-[32px] overflow-hidden">
+                <Card className="bg-white border-none shadow-sm rounded-4xl overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead className="bg-slate-50/50 border-b border-slate-50">
