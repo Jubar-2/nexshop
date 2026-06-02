@@ -53,8 +53,8 @@ export default function Navbar() {
             <Image src={Logo} alt="Logo" width={24} height={24} />
           </div>
           <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: 20 }}>
-            <span className="text-gradient">Next</span>
-            <span style={{ color: "#1a1a2e" }}>Shop</span>
+            <span className="text-gradient">Nex</span>
+            <span style={{ color: "#1a1a2e" }}>shop</span>
           </span>
           {/* <div className="flex flex-col leading-none">
             <span className="text-xl font-bold text-white tracking-tight font-poppins italic lowercase">NEXSHOP</span>
