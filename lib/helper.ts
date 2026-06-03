@@ -3,7 +3,7 @@ import db from "./db";
 import { signAccessToken, signRefreshToken } from "./tokens";
 import { ApiResponse } from "./apiResponse";
 import { Prisma } from "@prisma/client";
-import Settings from "./Settings";
+
 
 /**
  * Helper to refresh the access token automatically
@@ -52,13 +52,13 @@ export function checkUserId(request: Request) {
 }
 
 // get Settings 
-const settingsData = new Settings();
+// const settingsData = new Settings();
 
-const [getOne, getTwo, getThree] = await Promise.all([
-    await settingsData.genOneAmount(),
-    await settingsData.genTwoAmount(),
-    await settingsData.genThreeAmount()
-])
+// const [getOne, getTwo, getThree] = await Promise.all([
+//     settingsData.genOneAmount(),
+//     settingsData.genTwoAmount(),
+//     settingsData.genThreeAmount()
+// ])
 
 /**
  * Distributes referral rewards recursively up to a specified generation.
@@ -74,14 +74,15 @@ export async function giveReferralReward(
     referralId: string,
     referrerId: string,
     gen: number,
-    maxGen: number = 3
+    maxGen: number = 3,
+    settings: { getOne: { value: number; switch: boolean }, getTwo: { value: number; switch: boolean }, getThree: { value: number; switch: boolean } }  
 ): Promise<void> {
     // Base case: Stop if we exceed the maximum allowed generation.
-    const switches: Record<number, boolean> = { 1: getOne.switch, 2: getTwo.switch, 3: getThree.switch };
+    const switches: Record<number, boolean> = { 1: settings.getOne.switch, 2: settings.getTwo.switch, 3: settings.getThree.switch };
     if (gen > maxGen && switches[gen]) return;
 
     // Define tiered rewards (e.g., Gen 1 gets 10, Gen 2 gets 5, Gen 3 gets 2)
-    const rewards: Record<number, number> = { 1: getOne.value, 2: getTwo.value, 3: getThree.value };
+    const rewards: Record<number, number> = { 1: settings.getOne.value, 2: settings.getTwo.value, 3: settings.getThree.value };
     const currentReward = rewards[gen] || 1.0;
 
     // Atomically increment the referrer's balance.
@@ -111,6 +112,6 @@ export async function giveReferralReward(
 
     // If a parent exists, move up to the next generation.
     if (parent?.senderId) {
-        await giveReferralReward(tx, referralId, parent.senderId, gen + 1, maxGen);
+        await giveReferralReward(tx, referralId, parent.senderId, gen + 1, maxGen, settings);
     }
 }

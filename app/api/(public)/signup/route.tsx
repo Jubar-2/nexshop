@@ -5,6 +5,7 @@ import Validation from "@/lib/Validation";
 import { ApiResponse } from "@/lib/apiResponse";
 import { AuthService } from "@/services/auth.service";
 import { giveReferralReward } from "@/lib/helper";
+import Settings from "@/lib/Settings";
 
 /**
  * Handles multi-step user registration including MLM referral processing.
@@ -64,8 +65,16 @@ export async function POST(request: Request) {
                     }
                 });
 
+                const settingsData = new Settings();
+
+                const [getOne, getTwo, getThree] = await Promise.all([
+                    settingsData.genOneAmount(),
+                    settingsData.genTwoAmount(),
+                    settingsData.genThreeAmount()
+                ])
+
                 // Distribute 3 generations of rewards
-                await giveReferralReward(tx, referral.id, referrer.id, 1, 3);
+                await giveReferralReward(tx, referral.id, referrer.id, 1, 3, { getOne, getTwo, getThree });
             }
 
             return { user, freelancer };
