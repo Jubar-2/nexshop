@@ -7,7 +7,7 @@ import Link from "next/link";
 const cols = [
   { title: "Earn Money", links: ["Like Tasks", "Comment Jobs", "Share Tasks", "Subscribe Offers", "Review Tasks", "Watch & Earn"] },
   { title: "Platform", links: ["How It Works", "Pricing Plans", "Task Dashboard", "Earner Leaderboard", "Referral Program", "Mobile App"] },
-  { title: "Company", links: ["About NextShop", "Blog & Tips", "Press Kit", "Careers", "Privacy Policy", "Terms of Service"] },
+  { title: "Company", links: ["About NexShop", "Blog & Tips", "Press Kit", "Careers", "Privacy Policy", "Terms of Service"] },
   { title: "Support", links: ["Help Center", "Contact Us", "Community Forum", "Report an Issue", "API Docs", "Status Page"] },
 ];
 
@@ -26,7 +26,7 @@ export default function Footer() {
                 <Image src={Logo} alt="Logo" width={24} height={24} />
               </div>
               <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: 20 }}>
-                <span className="text-gradient">Next</span>
+                <span className="text-gradient">Nex</span>
                 <span style={{ color: "#1a1a2e" }}>Shop</span>
               </span>
               {/* <div className="flex flex-col leading-none">
@@ -65,7 +65,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-8"
           style={{ borderTop: "1px solid rgba(155,89,182,0.08)" }}>
           <p className="text-xs" style={{ color: "#9ca3af" }}>
-            © 2025 NextShop. All rights reserved. The micro jobs platform for social media earners.
+            © 2025 NexShop. All rights reserved. The micro jobs platform for social media earners.
           </p>
           <div className="flex gap-4">
             {["Privacy", "Terms", "Cookies"].map(l => (

@@ -23,15 +23,14 @@ import SummaryCard from '@/components/worker/statement/SummaryCard';
 import StatusBadge from '@/components/worker/statement/StatusBadge';
 import { Transaction, useGetWithdrawalStatement } from '@/hooks/use-withdraw';
 
-
 export default function WithdrawStatementPage() {
     const [page, setPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
 
-    const { data, isLoading, isFetching } = useGetWithdrawalStatement(page, searchTerm);
+    const { data, isLoading, isFetching } = useGetWithdrawalStatement(page, searchTerm, 10);
 
     const statements = data?.data || [];
-    const meta = data?.meta || { totalPages: 0, lastPage: 1 };
+    const meta = data?.meta;
 
     // Strong Typing for Stats Calculation
     const approvedStatements = statements.filter((s: Transaction) => s.status === "Approved");
@@ -57,7 +56,7 @@ export default function WithdrawStatementPage() {
                 {/* --- HEADER --- */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
                     <div className="space-y-1">
-                        <Link href="/wallet" className="flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-colors font-bold text-sm group mb-1">
+                        <Link href="/dashboard/withdraw" className="flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-colors font-bold text-sm group mb-1">
                             <div className="bg-white p-1.5 rounded-full shadow-sm group-hover:bg-emerald-50 transition-colors">
                                 <ArrowLeft size={14} />
                             </div>
@@ -83,7 +82,7 @@ export default function WithdrawStatementPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <SummaryCard title="Page Payouts" value={`৳${stats.totalPayout.toLocaleString()}`} icon={<FileText />} color="blue" />
                     <SummaryCard title="Success Rate" value={`${stats.successRate}%`} icon={<CheckCircle2 />} color="emerald" />
-                    <SummaryCard title="Total Found" value={meta.totalPages.toString()} icon={<Calendar />} color="slate" />
+                    <SummaryCard title="Total Found" value={meta?.totalItems.toString() || "0"} icon={<Calendar />} color="slate" />
                 </div>
 
                 {/* --- TABLE & FILTER CARD --- */}
@@ -118,6 +117,7 @@ export default function WithdrawStatementPage() {
                                     <tr className="bg-slate-50/50 text-[11px] font-black text-slate-400 uppercase tracking-wider">
                                         <th className="px-6 py-4">Date & Time</th>
                                         <th className="px-6 py-4">Method</th>
+                                        <th className="px-6 py-4">Account Number</th>
                                         <th className="px-6 py-4 text-right">Amount (৳)</th>
                                         <th className="px-8 py-4 text-center">Status</th>
                                     </tr>
@@ -152,9 +152,20 @@ export default function WithdrawStatementPage() {
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-5">
-                                                    <span className={`text-sm font-black uppercase ${stmt.method === 'bKash' ? 'text-[#D12053]' : 'text-[#ED1C24]'}`}>
-                                                        {stmt.method}
-                                                    </span>
+                                                    <p className={`text-sm font-black uppercase ${stmt.withdrawRequest.paymentMethod === 'BkASH' ? 'text-[#D12053]' : 'text-[#ED1C24]'}`}>
+                                                        {stmt.withdrawRequest.paymentMethod}
+                                                    </p>
+                                                    <p className="text-[10px] font-bold text-slate-400">
+                                                        {stmt.trxID}
+                                                    </p>
+                                                </td>
+                                                <td className="px-6 py-5">
+                                                    <p className="text-sm font-black uppercase text-slate-800">
+                                                        {stmt.withdrawRequest.phoneNumber}
+                                                    </p>
+                                                    <p className="text-[10px] font-bold text-slate-400">
+                                                        {stmt.withdrawRequest.accountType}
+                                                    </p>
                                                 </td>
                                                 <td className="px-6 py-5 text-right">
                                                     <div className="flex flex-col">
@@ -176,14 +187,14 @@ export default function WithdrawStatementPage() {
                         {!isLoading && statements.length > 0 && (
                             <div className="border-t border-slate-50 px-8 py-4 flex items-center justify-between bg-slate-50/30">
                                 <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                                    Page {page} of {meta.lastPage}
+                                    Page {page} of {meta?.totalItems}
                                 </span>
                                 <div className="flex items-center gap-2">
                                     <Button
                                         variant="outline"
                                         size="sm"
                                         onClick={() => setPage(p => Math.max(1, p - 1))}
-                                        disabled={page === 1}
+                                        disabled={!meta?.hasPreviousPage}
                                         className="rounded-lg h-9 border-slate-200 px-3 gap-1 font-bold text-xs"
                                     >
                                         <ChevronLeft size={14} /> Previous
@@ -192,7 +203,7 @@ export default function WithdrawStatementPage() {
                                         variant="outline"
                                         size="sm"
                                         onClick={() => setPage(p => p + 1)}
-                                        disabled={page >= meta.lastPage}
+                                        disabled={!meta?.hasNextPage}
                                         className="rounded-lg h-9 border-slate-200 px-3 gap-1 font-bold text-xs"
                                     >
                                         Next <ChevronRight size={14} />

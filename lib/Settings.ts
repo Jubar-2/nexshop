@@ -45,6 +45,11 @@ class Settings {
         return allData.luckySpin;
     }
 
+    public async allSettings() {
+        const allData = await getCachedSettings();
+        return allData;
+    }
+
     public async genOneAmount() {
         const allData = await getCachedSettings();
         return allData.gen_1;
@@ -63,6 +68,16 @@ class Settings {
     public async jobParLoad() {
         const allData = await getCachedSettings();
         return allData.job_par_refresh;
+    }
+
+    public async withdrawFee() {
+        const allData = await getCachedSettings();
+        return allData.withdraw_fee;
+    }
+
+    public async minWithdrawAmount() {
+        const allData = await getCachedSettings();
+        return allData.withdraw_limit;
     }
 }
 

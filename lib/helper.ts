@@ -69,49 +69,117 @@ export function checkUserId(request: Request) {
  * @param {number} gen The current generation depth (starts at 1).
  * @param {number} maxGen The maximum depth for rewards (usually 3).
  */
+// export async function giveReferralReward(
+//     tx: Prisma.TransactionClient,
+//     referralId: string,
+//     referrerId: string,
+//     gen: number,
+//     maxGen: number = 3,
+//     settings: { getOne: { value: number; switch: boolean }, getTwo: { value: number; switch: boolean }, getThree: { value: number; switch: boolean } }
+// ): Promise<void> {
+//     // Base case: Stop if we exceed the maximum allowed generation.
+//     const switches: Record<number, boolean> = { 1: settings.getOne.switch, 2: settings.getTwo.switch, 3: settings.getThree.switch };
+//     if (gen > maxGen && switches[gen]) return;
+
+//     // Define tiered rewards (e.g., Gen 1 gets 10, Gen 2 gets 5, Gen 3 gets 2)
+//     const rewards: Record<number, number> = { 1: settings.getOne.value, 2: settings.getTwo.value, 3: settings.getThree.value };
+//     const currentReward = rewards[gen] || 1.0;
+
+//     // Atomically increment the referrer's balance.
+//     tx.freelancer.update({
+//         where: { id: referrerId },
+//         data: {
+//             currentBalance: { increment: currentReward },
+//             referralBalance: { increment: currentReward },
+//             lifeTimeIncome: { increment: currentReward },
+//         },
+//     });
+
+//     // Create an audit log for this specific income generation.
+//     tx.referralIncome.create({
+//         data: {
+//             freelancerId: referrerId,
+//             ReferralId: referralId,
+//             reward: currentReward,
+//             gen: gen,
+//         },
+//     });
+
+//     // Recursive Step: Find if the current referrer was also referred by someone else.
+//     const parent = await tx.referral.findUnique({
+//         where: { receiverId: referrerId },
+//         select: { senderId: true }
+//     });
+
+//     // If a parent exists, move up to the next generation.
+//     if (parent?.senderId) {
+//         await giveReferralReward(tx, referralId, parent.senderId, gen + 1, maxGen, settings);
+//     }
+// }
+
+
 export async function giveReferralReward(
     tx: Prisma.TransactionClient,
     referralId: string,
-    referrerId: string,
-    gen: number,
+    startReferrerId: string,
     maxGen: number = 3,
-    settings: { getOne: { value: number; switch: boolean }, getTwo: { value: number; switch: boolean }, getThree: { value: number; switch: boolean } }  
-): Promise<void> {
-    // Base case: Stop if we exceed the maximum allowed generation.
-    const switches: Record<number, boolean> = { 1: settings.getOne.switch, 2: settings.getTwo.switch, 3: settings.getThree.switch };
-    if (gen > maxGen && switches[gen]) return;
-
-    // Define tiered rewards (e.g., Gen 1 gets 10, Gen 2 gets 5, Gen 3 gets 2)
-    const rewards: Record<number, number> = { 1: settings.getOne.value, 2: settings.getTwo.value, 3: settings.getThree.value };
-    const currentReward = rewards[gen] || 1.0;
-
-    // Atomically increment the referrer's balance.
-    await tx.freelancer.update({
-        where: { id: referrerId },
-        data: {
-            currentBalance: { increment: currentReward },
-            // totalEarned: { increment: currentReward }
-        },
-    });
-
-    // Create an audit log for this specific income generation.
-    await tx.referralIncome.create({
-        data: {
-            freelancerId: referrerId,
-            ReferralId: referralId,
-            reward: currentReward,
-            gen: gen,
-        },
-    });
-
-    // Recursive Step: Find if the current referrer was also referred by someone else.
-    const parent = await tx.referral.findUnique({
-        where: { receiverId: referrerId },
-        select: { senderId: true }
-    });
-
-    // If a parent exists, move up to the next generation.
-    if (parent?.senderId) {
-        await giveReferralReward(tx, referralId, parent.senderId, gen + 1, maxGen, settings);
+    settings: {
+        getOne: { value: number; switch: boolean },
+        getTwo: { value: number; switch: boolean },
+        getThree: { value: number; switch: boolean }
     }
+): Promise<void> {
+    const settingsMap: Record<number, { value: number; switch: boolean }> = {
+        1: settings.getOne,
+        2: settings.getTwo,
+        3: settings.getThree,
+    };
+
+    // PHASE 1: Walk the chain with only findUnique calls (no writes yet)
+    const chain: { referrerId: string; gen: number }[] = [];
+    let currentReferrerId: string | null = startReferrerId;
+    let gen = 1;
+
+    while (currentReferrerId && gen <= maxGen) {
+        const genSettings = settingsMap[gen];
+
+        if (genSettings?.switch) {
+            chain.push({ referrerId: currentReferrerId, gen });
+        }
+
+        const parent: { senderId: string } | null = await tx.referral.findUnique({
+            where: { receiverId: currentReferrerId },
+            select: { senderId: true },
+        });
+
+        currentReferrerId = parent?.senderId ?? null;
+        gen++;
+    }
+
+    if (chain.length === 0) return;
+
+    // PHASE 2: All writes fire in parallel — properly awaited
+    await Promise.all(
+        chain.flatMap(({ referrerId, gen }) => {
+            const reward = settingsMap[gen].value;
+            return [
+                tx.freelancer.update({
+                    where: { id: referrerId },
+                    data: {
+                        currentBalance: { increment: reward },
+                        referralBalance: { increment: reward },
+                        lifeTimeIncome: { increment: reward },
+                    },
+                }),
+                tx.referralIncome.create({
+                    data: {
+                        freelancerId: referrerId,
+                        ReferralId: referralId,
+                        reward,
+                        gen,
+                    },
+                }),
+            ];
+        })
+    );
 }

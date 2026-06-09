@@ -40,7 +40,8 @@ export async function POST(request: Request) {
             color,
             icon,
             title,
-            badgeText
+            badgeText,
+            limitParDay
         } = validation.data;
 
         const result = await db.$transaction(async (tx) => {
@@ -49,6 +50,7 @@ export async function POST(request: Request) {
                 data: {
                     membershipName: membershipName.trim(),
                     jobsSubmitLimit,
+                    limitParDay,
                     description: description?.trim(),
                     planOrder,
                     price: price.toFixed(2),

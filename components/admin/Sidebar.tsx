@@ -11,7 +11,8 @@ import {
   ChevronsRight,
   PersonStanding,
   Zap,
-  ArrowDownLeft
+  ArrowDownLeft,
+  CreditCard
 } from 'lucide-react';
 import { cn } from "@/lib/utils"; // Standard Shadcn utility
 import { Button } from "@/components/ui/button";
@@ -156,12 +157,23 @@ const SidebarContent = ({ isCollapsed, toggleCollapse }: { isCollapsed: boolean,
           ]}
         />
 
+        <NavItem
+          isCollapsed={isCollapsed}
+          icon={<CreditCard size={20} />}
+          label="Payments"
+          href="/admin/withdrawal-requests"
+        />
         {/* ... other nav items ... */}
 
         <div className="py-4 px-2"><hr className="border-slate-50" /></div>
 
         <NavItem isCollapsed={isCollapsed} icon={<HelpCircle size={20} />} label="Help Line" />
-        <NavItem isCollapsed={isCollapsed} icon={<Settings size={20} />} label="Settings" />
+        <NavItem
+          isCollapsed={isCollapsed}
+          icon={<Settings size={20} />}
+          label="Settings"
+          href="/admin/settings"
+        />
         <Logout
           isCollapsed={isCollapsed}
           icon={<LogOut size={20} />}

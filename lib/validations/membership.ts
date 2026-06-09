@@ -14,6 +14,11 @@ const membershipFiled = {
         .int()
         .nonnegative("Limit cannot be negative"),
 
+    limitParDay: z
+        .number("Limit par day is required")
+        .int()
+        .nonnegative("Limit cannot be negative"),
+
     description: z
         .string()
         .max(100, "Description cannot exceed 100 characters")

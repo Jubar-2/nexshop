@@ -46,7 +46,6 @@ function JobDescription() {
         );
     }
 
-
     return (
         <Card className="bg-white border-none shadow-sm rounded-2xl overflow-hidden animate-in fade-in duration-500">
             <CardHeader className="bg-slate-50/50 border-b border-slate-100 px-8 py-5">
@@ -62,7 +61,7 @@ function JobDescription() {
                         <ShieldCheck size={80} />
                     </div>
                     <p className="text-slate-600 font-medium leading-relaxed italic whitespace-pre-wrap relative z-10">
-                        {data?.description || "No specific description provided by the admin."}
+                        {data?.job.description || "No specific description provided by the admin."}
                     </p>
                 </div>
 
@@ -76,13 +75,13 @@ function JobDescription() {
 
                     <div className="ml-14">
                         <Button
-                            onClick={() => window.open(data?.targetLink, '_blank')}
+                            onClick={() => window.open(data?.job.targetLink, '_blank')}
                             className="bg-slate-900 hover:bg-black text-white font-black h-14 rounded-2xl px-10 flex gap-3 transition-all active:scale-95 shadow-lg group"
                         >
                             Open Task URL <ExternalLink size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                         </Button>
                         <p className="text-[10px] text-blue-500 font-bold mt-4 underline italic cursor-pointer truncate max-w-xs opacity-70">
-                            {data?.targetLink}
+                            {data?.job.targetLink}
                         </p>
                     </div>
 

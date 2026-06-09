@@ -11,7 +11,7 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section id="how-it-works" className="py-24 bg-white" aria-label="How NextShop Micro Jobs Work">
+    <section id="how-it-works" className="py-24 bg-white" aria-label="How NexShop Micro Jobs Work">
       <div className="max-w-7xl mx-auto px-6">
         <motion.div initial={{ opacity:0, y:30 }} whileInView={{ opacity:1, y:0 }}
           viewport={{ once:true }} className="text-center mb-16">
@@ -21,7 +21,7 @@ export default function HowItWorks() {
             Start Earning in <span className="text-gradient">4 Easy Steps</span>
           </h2>
           <p className="mt-4 max-w-lg mx-auto" style={{ color:"#6b7280" }}>
-            No experience needed. NextShop is designed to get you earning from your very first minute.
+            No experience needed. NexShop is designed to get you earning from your very first minute.
           </p>
         </motion.div>
 

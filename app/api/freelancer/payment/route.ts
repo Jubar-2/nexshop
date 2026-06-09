@@ -50,6 +50,13 @@ export async function GET(request: Request): Promise<Response> {
                         select: {
                             id: true
                         }
+                    },
+                    withdrawRequest: {
+                        select: {
+                            paymentMethod: true,
+                            phoneNumber: true,
+                            accountType: true,
+                        }
                     }
                 },
             }),

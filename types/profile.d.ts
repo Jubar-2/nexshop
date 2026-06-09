@@ -30,6 +30,7 @@ type freelancerType = {
     id: string;
     jobsSubmitLimit: number;
     membershipName: number;
+    referralBalance: number;
     period: number;
     planOrder: number;
     referKey: string;

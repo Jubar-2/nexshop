@@ -60,6 +60,7 @@ export async function GET(request: Request): Promise<Response> {
                     phoneNumber: true,
                     status: true,
                     createdAt: true,
+                    accountType: true,
                     freelancer: {
                         select: {
                             user: {
@@ -68,6 +69,13 @@ export async function GET(request: Request): Promise<Response> {
                                     email: true
                                 }
                             }
+                        }
+                    },
+                    transactions: {
+                        select: {
+                            trxID: true,
+                            amount: true,
+                            fee: true
                         }
                     }
                 },

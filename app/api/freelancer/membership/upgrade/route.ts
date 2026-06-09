@@ -1,5 +1,6 @@
 import { ApiResponse } from "@/lib/apiResponse";
 import db from "@/lib/db";
+import FreelancerService from "@/lib/freelancer/FreelancerService";
 import { checkUserId } from "@/lib/helper";
 import { MemberShipUpgradeInSchema } from "@/lib/validations/membership";
 
@@ -49,6 +50,31 @@ export async function POST(request: Request): Promise<Response> {
 
         if (!membershipPlan) {
             return ApiResponse.error("Membership plan not found", 404);
+        }
+
+        const planForFreelancer = await db.freelancer.findFirst({
+            where: {
+                userId: userId as string,
+                membershipPlanId: planId
+            }
+        });
+
+        if (planForFreelancer) {
+            return ApiResponse.error("You have already subscribed to this membership plan", 400);
+        }
+
+        const freelancerService = new FreelancerService(userId as string);
+        const profile = await freelancerService.getProfile();
+
+        const planForFreelancerRequested = await db.membershipUpgradeRequest.findFirst({
+            where: {
+                freelancerId: profile.id,
+                requestedPlanId: planId
+            }
+        });
+
+        if (planForFreelancerRequested) {
+            return ApiResponse.error("You have already requested for this membership plan. Please wait for the approval.", 400);
         }
 
         const packagePrice = membershipPlan.price.toNumber();

@@ -3,17 +3,17 @@ import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 
 const reviews = [
-  { name:"Aisha Rahman",   role:"Student, Bangladesh",        avatar:"AR", color:"#9b59b6", earn:"$320/mo", text:"I earn money between classes doing like and comment tasks. NextShop pays out every week, no delays. Best micro job platform I've tried." },
+  { name:"Aisha Rahman",   role:"Student, Bangladesh",        avatar:"AR", color:"#9b59b6", earn:"$320/mo", text:"I earn money between classes doing like and comment tasks. NexShop pays out every week, no delays. Best micro job platform I've tried." },
   { name:"Carlos Mendes",  role:"Freelancer, Brazil",         avatar:"CM", color:"#1abc9c", earn:"$580/mo", text:"Started with share tasks, now I focus on review jobs which pay more. The task volume is massive — I never run out of work to do." },
   { name:"Priya Nair",     role:"Stay-at-home Parent, India", avatar:"PN", color:"#3498db", earn:"$210/mo", text:"Perfect for earning in spare time. Subscription tasks are my favorite — quick to complete and the pay is consistent. Highly recommended." },
-  { name:"James Okafor",   role:"College Graduate, Nigeria",  avatar:"JO", color:"#f39c12", earn:"$450/mo", text:"NextShop gave me real income while job hunting. Withdrawal to my bank took under 24 hours. Legit and trustworthy platform." },
+  { name:"James Okafor",   role:"College Graduate, Nigeria",  avatar:"JO", color:"#f39c12", earn:"$450/mo", text:"NexShop gave me real income while job hunting. Withdrawal to my bank took under 24 hours. Legit and trustworthy platform." },
   { name:"Sofia Petrova",  role:"Part-time Worker, Ukraine",  avatar:"SP", color:"#e74c3c", earn:"$390/mo", text:"I combine YouTube like tasks with comment jobs every morning. Doubled my earnings in 3 months by following the earner tips." },
   { name:"Rajan Chaudhary",role:"Teacher, Pakistan",          avatar:"RC", color:"#8e44ad", earn:"$260/mo", text:"The task variety is impressive. Share and repost jobs during free periods. Clean interface, fast payments, excellent support." },
 ];
 
 export default function Testimonials() {
   return (
-    <section id="earners" className="py-24 bg-white" aria-label="NextShop Earner Reviews and Testimonials">
+    <section id="earners" className="py-24 bg-white" aria-label="NexShop Earner Reviews and Testimonials">
       <div className="max-w-7xl mx-auto px-6">
         <motion.div initial={{ opacity:0, y:30 }} whileInView={{ opacity:1, y:0 }}
           viewport={{ once:true }} className="text-center mb-16">
@@ -23,7 +23,7 @@ export default function Testimonials() {
             Trusted by <span className="text-gradient">500,000 Earners</span>
           </h2>
           <p className="mt-4 max-w-lg mx-auto" style={{ color:"#6b7280" }}>
-            Real people, real earnings. See what our community says about working micro jobs on NextShop.
+            Real people, real earnings. See what our community says about working micro jobs on NexShop.
           </p>
         </motion.div>
 

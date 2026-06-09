@@ -31,9 +31,35 @@ export async function POST(request: Request) {
 
         // BUSINESS LOGIC GUARDS (THE "PRO" STEP)
         // Fetch User and Job simultaneously to save time (Optimization)
-        const [freelancer, job] = await Promise.all([
-            db.freelancer.findUnique({ where: { userId } }),
-            db.jobs.findUnique({ where: { id: jobId } })
+        const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const [freelancer, job, count] = await Promise.all([
+            db.freelancer.findUnique({
+                where: { userId },
+                include: {
+                    membershipPlan: {
+                        select: {
+                            jobsSubmitLimit: true,
+                            limitParDay: true
+                        }
+                    },
+                    _count: {
+                        select: {
+                            submissions: true
+                        },
+                    },
+                }
+            }),
+            db.jobs.findUnique({ where: { id: jobId } }),
+            db.submittedJob.count({
+                where: {
+                    freelancer: {
+                        userId,
+                    },
+                    submittedAt: {
+                        gte: last24Hours,
+                    },
+                },
+            })
         ]);
 
         if (!freelancer) return ApiResponse.error("Freelancer profile not found", 404);
@@ -46,6 +72,16 @@ export async function POST(request: Request) {
         });
         if (alreadySubmitted) {
             return ApiResponse.error("You have already submitted proof for this job", 409);
+        }
+
+        // Check if Job is Full
+        if (count >= freelancer.membershipPlan.limitParDay) {
+            return ApiResponse.error("Job limit reached: No more submissions allowed", 400);
+        }
+
+        // Check if Job is Full
+        if (freelancer._count.submissions >= freelancer.membershipPlan.jobsSubmitLimit) {
+            return ApiResponse.error("Job limit reached: No more submissions allowed", 400);
         }
 
         // Check if Job is Full

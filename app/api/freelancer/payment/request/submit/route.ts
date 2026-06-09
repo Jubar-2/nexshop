@@ -1,6 +1,7 @@
 import { ApiResponse } from "@/lib/apiResponse";
 import db from "@/lib/db";
 import { checkUserId } from "@/lib/helper";
+import Settings from "@/lib/Settings";
 import { WithdrawSchema } from "@/lib/validations/payment";
 
 /**
@@ -24,8 +25,11 @@ export async function POST(request: Request): Promise<Response> {
             return ApiResponse.error("Invalid request payload", 400);
         }
 
+        const settingsData = new Settings();
+        const minAmount = await settingsData.minWithdrawAmount()
+
         // Validate the input data against the business rules schema.
-        const validation = WithdrawSchema.safeParse(body);
+        const validation = WithdrawSchema(minAmount.value).safeParse(body);
         if (!validation.success) {
             return ApiResponse.error(
                 "Validation failed",
@@ -35,6 +39,16 @@ export async function POST(request: Request): Promise<Response> {
         }
 
         const { amount, phoneNumber, paymentMethod, accountType } = validation.data;
+
+        // Calculate the withdrawal fee based on the configured percentage.
+
+
+        if (minAmount.value <= amount) {
+            return ApiResponse.error(`allow minimum ${minAmount.value}tk`, 400);
+        }
+
+        const withdrawFee = await settingsData.withdrawFee();
+        const feeValue = amount * withdrawFee.value / 100;
 
         // Execute the core financial logic within a database transaction.
         const result = await db.$transaction(async (tx) => {
@@ -69,7 +83,7 @@ export async function POST(request: Request): Promise<Response> {
                 },
             });
 
-            await tx.invoice.create({
+            const invoice = await tx.invoice.create({
                 data: {
                     freelancerId: freelancer.id,
                     amount: amount,
@@ -78,9 +92,10 @@ export async function POST(request: Request): Promise<Response> {
 
             await tx.transaction.create({
                 data: {
-                    invoiceId: withdrawal.id, // Using withdrawal ID as ref for this logic
+                    invoiceId: invoice.id, // Using invoice ID as ref for this logic
                     withdrawRequestId: withdrawal.id,
-                    amount: amount,
+                    amount: amount - feeValue,
+                    fee: feeValue,
                     freelancerId: freelancer.id
                 }
             });

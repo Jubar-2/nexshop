@@ -2,34 +2,23 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-    Zap,
-    Plus,
-    Trash2,
     CheckCircle2,
     ArrowLeft,
-    Crown,
-    CircleDollarSign,
     Clock,
     ShieldCheck,
     PlusCircle,
     Save,
-    X
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import Link from 'next/link';
 import FeatureBuilder from '@/components/admin/package/FeatureBuilder';
 import { useGetOffers } from '@/hooks/use-offers';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useForm } from 'react-hook-form';
-import { OffersInput } from '@/lib/validations/offers';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { MemberShipInput, MemberShipInSchema } from '@/lib/validations/membership';
-import { number } from 'zod';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 
@@ -48,6 +37,7 @@ type dataState = {
     color: string,
     planOrder: string,
     submitNumber: string,
+    limitParDay: string,
     features: features[]
 }
 
@@ -64,6 +54,7 @@ export default function AdminCreatePackage() {
         color: "",
         planOrder: "",
         submitNumber: "",
+        limitParDay: "",
         // features: ["Instant Job Access", "10% Higher Earnings", "Priority Support"],
         features: []
     });
@@ -125,6 +116,7 @@ export default function AdminCreatePackage() {
         const result = MemberShipInSchema.safeParse({
             membershipName: pkg.name,
             jobsSubmitLimit: pkg.submitNumber !== "" ? +pkg.submitNumber : 0,
+            limitParDay: pkg.limitParDay !== "" ? +pkg.limitParDay : 0,
             title: pkg.title,
             planOrder: pkg.planOrder !== "" ? +pkg.planOrder : "",
             price: pkg.price !== "" ? +pkg.price : "",
@@ -146,7 +138,7 @@ export default function AdminCreatePackage() {
             });
 
             setErrors(fieldErrors);
-            
+
             return;
         }
 
@@ -179,7 +171,7 @@ export default function AdminCreatePackage() {
 
                     {/* --- LEFT: CONFIGURATION (3/5 Width) --- */}
                     <div className="lg:col-span-3 space-y-6">
-                        <Card className="bg-white border-none shadow-sm rounded-[32px] overflow-hidden">
+                        <Card className="bg-white border-none shadow-sm rounded-4xl overflow-hidden">
                             <CardHeader className="bg-slate-50/50 border-b border-slate-100 px-8 py-5">
                                 <CardTitle className="text-base font-bold flex items-center gap-2 text-slate-800 uppercase tracking-wide">
                                     <PlusCircle className="text-blue-500" size={18} /> Package Configuration
@@ -356,6 +348,25 @@ export default function AdminCreatePackage() {
                                             </p>
                                         )}
                                     </div>
+
+                                    <div className="space-y-2">
+                                        <Label className="text-slate-400 font-black text-[10px] uppercase tracking-widest ml-1">
+                                            Jobs Submit Limit (par day)
+                                        </Label>
+                                        <Input
+                                            type="number"
+                                            value={pkg.limitParDay}
+                                            onChange={(e) => setPkg({ ...pkg, limitParDay: e.target.value })}
+                                            placeholder="Jobs Submit Number of a day"
+                                            className="h-12 rounded-xl border-slate-200 font-bold text-emerald-600"
+                                        />
+
+                                        {errors.jobsSubmitLimit && (
+                                            <p className="text-red-500 text-xs mt-0 font-bold">
+                                                {errors?.limitParDay}
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
 
                                 {/* Feature Builder */}
@@ -407,6 +418,12 @@ export default function AdminCreatePackage() {
                                                 <CheckCircle2 size={12} className="text-emerald-600" />
                                             </div>
                                             Jobs submission limit is {pkg.submitNumber === "" ? "unlimited" : pkg.submitNumber}
+                                        </div>
+                                        <div className="flex items-center gap-3 text-sm font-bold text-slate-600">
+                                            <div className="w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center shrink-0">
+                                                <CheckCircle2 size={12} className="text-emerald-600" />
+                                            </div>
+                                            Jobs submission limit is {pkg.limitParDay === "" ? "unlimited" : pkg.limitParDay} par day
                                         </div>
                                         {isLoading ? (
                                             [1, 2, 3].map((feat, i) => (

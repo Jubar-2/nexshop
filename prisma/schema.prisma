@@ -132,7 +132,7 @@ model Referral {
 model ReferralIncome {
   id           String   @id @default(cuid())
   freelancerId String
-  ReferralId   String   @unique
+  ReferralId   String   //@unique
   gen          Int
   reward       Decimal  @default(0.00) @db.Decimal(10, 2)
   createdAt    DateTime @default(now())
@@ -145,6 +145,7 @@ model MembershipPlan {
   id                       String                     @id @default(cuid())
   membershipName           String                     @unique
   jobsSubmitLimit          Int
+  limitParDay              Int
   price                    Decimal                    @db.Decimal(10, 2)
   description              String?                    @db.VarChar(100)
   title                    String
@@ -213,8 +214,8 @@ model WithdrawRequest {
   createdAt     DateTime             @default(now())
   updatedAt     DateTime             @updatedAt
 
-  freelancer   Freelancer    @relation(fields: [freelancerId], references: [id])
-  transactions Transaction[]
+  freelancer   Freelancer   @relation(fields: [freelancerId], references: [id])
+  transactions Transaction?
 }
 
 model Invoice {
@@ -235,6 +236,8 @@ model Transaction {
   invoiceId            String            @unique
   withdrawRequestId    String            @unique
   amount               Decimal           @default(0.00) @db.Decimal(10, 2)
+  trxID                String?
+  fee                  Decimal           @default(0) @db.Decimal(10, 2)
   type                 TransactionType   @default(WITHDRAWAL)
   gatewayTransactionId String?
   status               TransactionStatus @default(PENDING)
@@ -296,6 +299,7 @@ model Jobs {
   submissionCount Int       @default(0)
   categoryId      String
   subCategoryId   String
+  note            String?
   reward          Decimal   @db.Decimal(10, 2)
   status          JobStatus @default(ACTIVE)
 

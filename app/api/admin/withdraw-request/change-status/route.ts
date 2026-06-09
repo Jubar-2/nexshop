@@ -28,7 +28,7 @@ export async function PATCH(request: Request): Promise<Response> {
       return ApiResponse.error("Validation failed", 400, validation.error.flatten().fieldErrors);
     }
 
-    const { id, status } = validation.data;
+    const { id, status, trxID } = validation.data;
 
     // Execute Transaction
     const result = await db.$transaction(async (tx) => {
@@ -41,6 +41,8 @@ export async function PATCH(request: Request): Promise<Response> {
 
       if (!currentRequest) throw new Error("NOT_FOUND");
       if (currentRequest.status !== "PENDING") throw new Error("ALREADY_PROCESSED");
+      console.log("trx id =",trxID)
+      if (status === "APPROVED" && !trxID) throw new Error("TRXID_REQUIRED_FOR_APPROVAL");
 
       // If REJECTED, Refund the money to the Freelancer
       if (status === "REJECTED") {
@@ -64,6 +66,7 @@ export async function PATCH(request: Request): Promise<Response> {
       await tx.transaction.update({
         where: { withdrawRequestId: updated.id },
         data: {
+          trxID: trxID || null, // Update TrxID if provided
           status: status === "APPROVED" ? "COMPLETED" : "FAILED",
           invoice: {
             update: {

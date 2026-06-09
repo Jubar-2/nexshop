@@ -31,4 +31,15 @@ export const useUpdateWithdrawalStatus = () => useMutation({
         const response = await axios.patch(`/api/admin/withdrawals/${id}/status`, { status });
         return response.data;
     }
-})
+});
+
+export const useUpdateWithdrawalApproved = () => useMutation({
+    mutationFn: async ({ id, status, trxID }: {
+        id: string;
+        status: "PENDING" | "APPROVED" | "REJECTED";
+        trxID?: string | undefined;
+    }) => {
+        const response = await axios.patch(`/api/admin/withdraw-request/change-status`, { status, id, trxID });
+        return response.data;
+    }
+});

@@ -1,34 +1,51 @@
 "use client"
 
 import React, { useState } from 'react';
-import {
-  ArrowLeft,
-  CheckCircle2,
-  AlertTriangle,
-  ExternalLink,
-  Clock,
-  ShieldCheck,
-  Image as ImageIcon,
-  Send,
-  Link as LinkIcon
-} from 'lucide-react';
-import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import { ArrowLeft } from 'lucide-react';
+
 import Link from 'next/link';
-import { useForm } from 'react-hook-form';
-import { JobSubmissionInput, JobSubmissionSchema } from '@/lib/validations/jobs';
-import { zodResolver } from '@hookform/resolvers/zod';
 import PooSubForm from '@/components/worker/jobs/PooSubForm';
 import HeaderCard from '@/components/worker/jobs/HeaderCard';
 import JobDiscription from '@/components/worker/jobs/JobDiscription';
+import { useGetJob } from '@/hooks/use-jobs';
+import { useParams } from 'next/navigation';
+import Alert from '@/components/worker/Alert';
 
 // Brand Icons
 
 export default function JobApplyPage() {
+  const params = useParams();
+  const jobId = params?.id as string;
+  const { data } = useGetJob(jobId);
+
+  if (data?.permission.jobsSubmitLimit) {
+    return (
+      <div className="min-h-screen bg-[#F0F2F5] pt-20 pb-12 font-poppins">
+        {/* Container: Matched to max-w-4xl like Jobs List */}
+        <div className="max-w-4xl mx-auto px-4 space-y-6">
+          <Alert
+            title="Job submission limit reached"
+            note="You’ve reached your job submission limit. Please upgrade your plan to continue."
+          />
+        </div>
+      </div>
+    )
+  }
+
+  if (data?.permission.limitParDay && !data?.permission.jobsSubmitLimit) {
+    return (
+      <div className="min-h-screen bg-[#F0F2F5] pt-20 pb-12 font-poppins">
+        {/* Container: Matched to max-w-4xl like Jobs List */}
+        <div className="max-w-4xl mx-auto px-4 space-y-6">
+          <Alert
+            title="Daily job submission limit reached"
+            note="You’ve reached your job submission limit for today. Please try again tomorrow."
+          />
+        </div>
+      </div>
+    )
+  }
+
 
   return (
     <div className="min-h-screen bg-[#F0F2F5] pt-20 pb-12 font-poppins">

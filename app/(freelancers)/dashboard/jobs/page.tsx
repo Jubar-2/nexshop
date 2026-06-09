@@ -13,6 +13,7 @@ import {
     Globe,
     Clock,
     CircleDollarSign,
+    AlertTriangle,
 } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ import { Job } from '@/types/jobs';
 import JobCard from '@/components/worker/dashboard/JobCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Job as jobType } from "@/types/jobs"
+import Alert from '@/components/worker/Alert';
 
 // Mock Data for Jobs
 const jobData = [
@@ -79,7 +81,7 @@ const categories = ["All Jobs", "YouTube", "Facebook", "Instagram", "Others"];
 
 export default function JobListPage() {
 
-    const { data, isLoading } = useGetJobs();
+    const { data, isLoading, isError } = useGetJobs();
     
     return (
         <div className="min-h-screen bg-[#F0F2F5] pt-20 pb-12 font-poppins">
@@ -182,10 +184,30 @@ export default function JobListPage() {
                             </Card >
 
                         )) :
-                            (data.map((job: jobType) => (
+                            (data.jobs.map((job: jobType) => (
                                 <JobCard key={job.id} job={job} />
                             )))
                     }
+
+                    {
+                        !data?.permission.jobsSubmitLimit ||
+                        <Alert
+                            title="Job submission limit reached"
+                            note="You’ve reached your job submission limit. Please upgrade your plan to continue."
+                        />
+                    }
+
+                    {
+                        data?.permission.limitParDay && !data?.permission.jobsSubmitLimit ?
+                            <Alert
+                                title="Daily job submission limit reached"
+                                note="You’ve reached your job submission limit for today. Please try again tomorrow."
+                            /> : ""
+                    }
+
+                    {data?.jobs.length <= 0 && !data?.permission.limitParDay && !data?.permission.jobsSubmitLimit ? (
+                        <Alert title="Not available" note="Jobs are not available at the moment. Please try again later." />
+                    ) : ""}
                 </div>
 
                 {/* Pagination / Load More */}

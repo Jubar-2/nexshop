@@ -36,6 +36,7 @@ export async function PATCH(request: Request) {
             planOrder,
             offers,
             id,
+            limitParDay
         } = validation.data;
 
         // find the job
@@ -55,6 +56,7 @@ export async function PATCH(request: Request) {
                 data: {
                     membershipName: membershipName.trim(),
                     jobsSubmitLimit,
+                    limitParDay,
                     description: description?.trim(),
                     planOrder
                 },

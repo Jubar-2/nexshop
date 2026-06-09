@@ -5,16 +5,16 @@ import { useMemo } from "react";
 
 function HeaderBalance() {
     const { data, isLoading, isError } = useFreelancerProfile();
-
+    console.log(data)
     // Memoize the formatted value to prevent recalculation on every render
     const formattedBalance = useMemo(() => {
-        const value = data?.balance ?? 0;
+        const value = data?.currentBalance ?? 0;
         return new Intl.NumberFormat('en-BD', {
             style: 'currency',
             currency: 'BDT',
             minimumFractionDigits: 2,
         }).format(value).replace("BDT", "৳"); // Clean custom currency symbol
-    }, [data?.balance]);
+    }, [data?.currentBalance]);
 
 
     return (

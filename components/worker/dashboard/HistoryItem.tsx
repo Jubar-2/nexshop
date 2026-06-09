@@ -13,9 +13,8 @@ function HistoryItem({ method, amount, status, date, isLoading = false }: Histor
     
     // Helper to get status colors
     const getStatusColor = (status: string) => {
-        const s = status?.toLowerCase();
-        if (s === "approved" || s === "success") return "bg-emerald-100 text-emerald-700";
-        if (s === "pending") return "bg-amber-100 text-amber-700";
+        if (status === "COMPLETED" || status === "success") return "bg-emerald-100 text-emerald-700";
+        if (status === "PENDING" || status === "REFUNDED") return "bg-amber-100 text-amber-700";
         return "bg-red-100 text-red-700"; // For rejected or failed
     };
 

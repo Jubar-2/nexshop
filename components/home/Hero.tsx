@@ -40,7 +40,7 @@ export default function Hero() {
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden mesh-bg pt-24"
-      aria-label="NextShop Hero – Micro Jobs Platform">
+      aria-label="NexShop Hero – Micro Jobs Platform">
 
       {/* Subtle animated rings in background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center">
@@ -135,7 +135,7 @@ export default function Hero() {
               {/* <Zap size={26} fill="white" /> */}
               <Image src={Logo} alt="Logo" width={26} height={26} />
             </div>
-            <div className="text-sm font-bold" style={{ fontFamily: "'Space Grotesk',sans-serif", color: "#1a1a2e" }}>NextShop</div>
+            <div className="text-sm font-bold" style={{ fontFamily: "'Space Grotesk',sans-serif", color: "#1a1a2e" }}>NexShop</div>
             <div className="text-xs mt-1" style={{ color: "#9ca3af" }}>Micro Jobs Hub</div>
             <div className="mt-3 flex justify-center gap-0.5">
               {[1, 2, 3, 4, 5].map(i => <Star key={i} size={12} fill="#f39c12" style={{ color: "#f39c12" }} />)}

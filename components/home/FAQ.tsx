@@ -4,18 +4,18 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 
 const faqs = [
-  { q:"What are micro jobs on NextShop?", a:"Micro jobs are small, simple social media tasks like liking posts, writing comments, sharing content, subscribing to channels, and following accounts. Each task pays a small amount — complete many tasks daily to build meaningful income." },
-  { q:"How much money can I earn with social media micro jobs?", a:"Earnings vary by task type. Like tasks pay $0.05–$0.50 each, comment jobs $0.20–$2.00, and review tasks up to $5.00. Active earners on NextShop make $100–$600+ per month working part-time." },
-  { q:"Is NextShop legitimate? When and how do I get paid?", a:"Yes, NextShop is a verified platform with $8M+ paid out globally. Free earners receive weekly payouts and Pro earners get daily payouts. Withdrawal methods include PayPal, bank transfer, and cryptocurrency." },
-  { q:"Do I need any experience or special skills?", a:"No experience is needed. If you have a smartphone or computer and social media accounts, you can complete tasks on NextShop. We provide clear instructions for every task type." },
-  { q:"Which social media platforms are supported?", a:"NextShop supports tasks across YouTube, Instagram, TikTok, Twitter/X, Facebook, LinkedIn, Reddit, Twitch, Pinterest, Google, and many more. New platforms are added regularly." },
+  { q:"What are micro jobs on NexShop?", a:"Micro jobs are small, simple social media tasks like liking posts, writing comments, sharing content, subscribing to channels, and following accounts. Each task pays a small amount — complete many tasks daily to build meaningful income." },
+  { q:"How much money can I earn with social media micro jobs?", a:"Earnings vary by task type. Like tasks pay $0.05–$0.50 each, comment jobs $0.20–$2.00, and review tasks up to $5.00. Active earners on NexShop make $100–$600+ per month working part-time." },
+  { q:"Is NexShop legitimate? When and how do I get paid?", a:"Yes, NexShop is a verified platform with $8M+ paid out globally. Free earners receive weekly payouts and Pro earners get daily payouts. Withdrawal methods include PayPal, bank transfer, and cryptocurrency." },
+  { q:"Do I need any experience or special skills?", a:"No experience is needed. If you have a smartphone or computer and social media accounts, you can complete tasks on NexShop. We provide clear instructions for every task type." },
+  { q:"Which social media platforms are supported?", a:"NexShop supports tasks across YouTube, Instagram, TikTok, Twitter/X, Facebook, LinkedIn, Reddit, Twitch, Pinterest, Google, and many more. New platforms are added regularly." },
   { q:"Is there a minimum withdrawal amount?", a:"Free plan earners can withdraw from $10. Pro earners can withdraw from $5. Agency plan members have no minimum. All withdrawals are processed within 24 hours on business days." },
 ];
 
 export default function FAQ() {
   const [open, setOpen] = useState<number|null>(0);
   return (
-    <section className="py-24 section-alt" aria-label="Frequently Asked Questions about NextShop Micro Jobs">
+    <section className="py-24 section-alt" aria-label="Frequently Asked Questions about NexShop Micro Jobs">
       <div className="max-w-3xl mx-auto px-6">
         <motion.div initial={{ opacity:0, y:30 }} whileInView={{ opacity:1, y:0 }}
           viewport={{ once:true }} className="text-center mb-14">

@@ -5,9 +5,7 @@ import { checkUserId } from "@/lib/helper"
 export async function GET(request: Request) {
     try {
         const userId = checkUserId(request);
-
-
-
+        
         const [jobsIncome, referIncome] = await Promise.all([
             await db.submittedJob.aggregate({
                 where: {

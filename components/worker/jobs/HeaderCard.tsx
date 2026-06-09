@@ -13,14 +13,14 @@ function HeaderCard() {
     const { data, isLoading } = useGetJob(jobId);
 
     const formattedBalance = useMemo(() => {
-        const value = data?.reward ?? 0;
+        const value = data?.job?.reward ?? 0;
         return new Intl.NumberFormat('en-BD', {
             style: 'currency',
             currency: 'BDT',
             minimumFractionDigits: 2,
         }).format(value).replace("BDT", "৳"); // Clean custom currency symbol
-    }, [data?.reward]);
-
+    }, [data?.job?.reward]);
+    
     // --- LOADING STATE (SKELETON) ---
     if (isLoading) {
         return (
@@ -59,13 +59,13 @@ function HeaderCard() {
                     {/* Platform Icon */}
                     <div
                         className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center shrink-0 shadow-inner overflow-hidden border border-slate-100"
-                        dangerouslySetInnerHTML={{ __html: data?.category?.icon }}
+                        dangerouslySetInnerHTML={{ __html: data?.job?.category?.icon }}
                     />
 
                     {/* Job Details */}
                     <div className="grow text-center md:text-left space-y-2">
                         <h1 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight tracking-tight">
-                            {data.jobTitle}
+                            {data.job.jobTitle}
                         </h1>
                         <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-6 gap-y-2 text-slate-400 text-[11px] font-bold uppercase tracking-widest">
                             <span className="flex items-center gap-2">

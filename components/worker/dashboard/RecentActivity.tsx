@@ -7,13 +7,9 @@ import Link from "next/link";
 
 function RecentActivity() {
 
-
-    const { data, isLoading } = useGetWithdrawalStatement(1, "");
+    const { data, isLoading } = useGetWithdrawalStatement(1, "", 3);
 
     const statements = data?.data || [];
-    
-
-
 
     return (
         <Card className="bg-white border-none shadow-sm rounded-3xl overflow-hidden">

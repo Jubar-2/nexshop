@@ -1,11 +1,10 @@
 "use client"
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import {
   User, Camera, Mail, ShieldCheck, Zap,
-  Phone, MapPin, Share2, Copy, Users,
-  DollarSign, Save, ChevronRight, CheckCircle2,
-  Lock
+  Share2, Copy, Users,
+  DollarSign, CheckCircle2,
 } from 'lucide-react';
 import { toast } from "sonner"; // Import Sonner
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,14 +16,14 @@ import { Badge } from "@/components/ui/badge";
 import { useGetProfile, useUpdateProfile, useUpdateProfilePicture } from '@/hooks/use-freelancer';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from "next/navigation";
-import { useForm, UseFormReset } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ProfileSchema, ProfileSchemaInput } from '@/lib/validations/profile';
 import BenefitItem from '@/components/worker/plans/BenefitItem';
 
 
 const Profile = () => {
-  const [referLink] = useState("https://nexshop.com/ref/mdjubair77");
+  // const [referLink] = useState("https://nexshop.com/ref/mdjubair77");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -34,9 +33,7 @@ const Profile = () => {
   const {
     register,
     handleSubmit,
-    setValue,
     reset,
-    watch,
     formState: { errors },
   } = useForm<ProfileSchemaInput>({
     resolver: zodResolver(ProfileSchema),
@@ -54,6 +51,16 @@ const Profile = () => {
   });
 
   const { data, isLoading } = useGetProfile();
+
+  const formattedBalance = useMemo(() => {
+    const value = data?.freelancer.referralBalance ?? 0;
+    return new Intl.NumberFormat('en-BD', {
+      style: 'currency',
+      currency: 'BDT',
+      minimumFractionDigits: 2,
+    }).format(value).replace("BDT", "৳"); // Clean custom currency symbol
+  }, [data?.freelancer.referralBalance]);
+
   const { mutate } = useUpdateProfile()
   const router = useRouter();
 
@@ -368,7 +375,7 @@ const Profile = () => {
                 <div className="p-6 rounded-2xl bg-emerald-50/50 border border-emerald-100 flex items-center gap-5">
                   <div className="p-3.5 bg-white text-emerald-600 rounded-xl shadow-sm"><DollarSign size={28} /></div>
                   <div>
-                    <p className="text-3xl font-black text-emerald-700">৳2,100.00</p>
+                    <p className="text-3xl font-black text-emerald-700">{formattedBalance}</p>
                     <p className="text-[10px] font-bold text-emerald-600/70 uppercase tracking-widest">Bonus Balance</p>
                   </div>
                 </div>

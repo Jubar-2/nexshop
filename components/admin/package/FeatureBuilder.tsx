@@ -28,6 +28,7 @@ type dataState = {
     color: string,
     planOrder: string,
     submitNumber: string,
+    limitParDay: string,
     features: features[]
 }
 

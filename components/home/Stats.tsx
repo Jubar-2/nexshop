@@ -11,7 +11,7 @@ const stats = [
 
 export default function Stats() {
   return (
-    <section className="py-16" aria-label="NextShop Platform Statistics">
+    <section className="py-16" aria-label="NexShop Platform Statistics">
       <div className="max-w-7xl mx-auto px-6">
         <div className="rounded-3xl p-10"
           style={{ background: "linear-gradient(135deg, rgba(155,89,182,0.12) 0%, rgba(26,188,156,0.08) 100%)", border: "1px solid rgba(155,89,182,0.2)" }}>

@@ -74,7 +74,8 @@ export async function POST(request: Request) {
                 ])
 
                 // Distribute 3 generations of rewards
-                await giveReferralReward(tx, referral.id, referrer.id, 1, 3, { getOne, getTwo, getThree });
+                // await giveReferralReward(tx, referral.id, referrer.id, 1, 3, { getOne, getTwo, getThree });
+                await giveReferralReward(tx, referral.id, referrer.id, 3, { getOne, getTwo, getThree });
             }
 
             return { user, freelancer };

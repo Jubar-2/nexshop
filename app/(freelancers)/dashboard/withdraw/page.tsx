@@ -34,8 +34,13 @@ import {
     WithdrawSchemaInput,
 } from "@/lib/validations/payment";
 import { useRouter } from "next/navigation";
+import { useGetWithdrawalFee } from "@/hooks/use-settings";
+import { useFreelancerProfile } from "@/hooks/use-freelancer";
+import Alert from "@/components/worker/Alert";
 
 export default function WithdrawPage() {
+    const { data } = useGetWithdrawalFee();
+    const { data: profileData, isLoading } = useFreelancerProfile();
 
     const router = useRouter();
 
@@ -47,7 +52,7 @@ export default function WithdrawPage() {
         watch,
         formState: { errors },
     } = useForm<WithdrawSchemaInput>({
-        resolver: zodResolver(WithdrawSchema),
+        resolver: zodResolver(WithdrawSchema(data?.minWithdrawAmount)),
         mode: "onChange",
         defaultValues: {
             amount: undefined,
@@ -63,10 +68,10 @@ export default function WithdrawPage() {
     const amount = watch("amount");
     const method = watch("paymentMethod");
 
-    const withdrawFee = 0.05;
+    const withdrawFee = data?.fee || 0;
     const numAmount = Number(amount) || 0;
-    const netAmount =
-        numAmount > 0 ? numAmount - numAmount * withdrawFee : 0;
+    const fee = numAmount > 0 ? numAmount * withdrawFee / 100 : 0;
+    const netAmount = numAmount - fee;
 
     // MUTATION
     const { mutate, isPending } = useMutation({
@@ -171,6 +176,7 @@ export default function WithdrawPage() {
 
                                         <Input
                                             {...register("phoneNumber")}
+                                            disabled={Number(data?.minWithdrawAmount) > Number(profileData?.currentBalance) || isLoading}
                                             placeholder="017XXXXXXXX"
                                             type="text"
                                             className="h-12 rounded-xl border-slate-200 focus:border-emerald-500 font-bold"
@@ -192,6 +198,7 @@ export default function WithdrawPage() {
                                             </Label>
 
                                             <Select
+                                                disabled={Number(data?.minWithdrawAmount) > Number(profileData?.currentBalance) || isLoading}
                                                 onValueChange={(val) =>
                                                     setValue("accountType", val as "PERSONAL" | "AGENT", {
                                                         shouldValidate: true,
@@ -230,7 +237,8 @@ export default function WithdrawPage() {
                                             <Input
                                                 {...register("amount", { valueAsNumber: true })}
                                                 type="number"
-                                                placeholder="Min. 500"
+                                                disabled={Number(data?.minWithdrawAmount) > Number(profileData?.currentBalance) || isLoading}
+                                                placeholder={`Min. ${data?.minWithdrawAmount || "..."}`}
                                                 className="h-12 rounded-xl border-slate-200 focus:border-emerald-500 font-black text-lg"
                                             />
 
@@ -253,7 +261,7 @@ export default function WithdrawPage() {
                                             <div className="flex justify-between text-xs font-bold text-red-400 mb-4">
                                                 <span>Processing Fee (5%)</span>
                                                 <span>
-                                                    - ৳{(numAmount * withdrawFee).toFixed(2)}
+                                                    - ৳{(fee).toFixed(2)}
                                                 </span>
                                             </div>
 
@@ -281,7 +289,7 @@ export default function WithdrawPage() {
                                     {/* BUTTON */}
                                     <Button
                                         type="submit"
-                                        disabled={isPending}
+                                        disabled={Number(data?.minWithdrawAmount) > Number(profileData?.currentBalance) || isLoading || isPending}
                                         className="w-full bg-slate-900 text-white font-black h-14 rounded-2xl"
                                     >
                                         {isPending ? (
@@ -292,6 +300,14 @@ export default function WithdrawPage() {
                                             </>
                                         )}
                                     </Button>
+                                    {
+                                        Number(data?.minWithdrawAmount) < Number(profileData?.currentBalance) ||
+                                        <Alert
+                                            title="Insufficient balance"
+                                            note="You don't have enough balance. Please earn more to continue."
+                                        />
+                                    }
+
                                 </CardContent>
                             </form>
                         </Card>

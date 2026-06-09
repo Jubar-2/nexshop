@@ -25,7 +25,7 @@ export default function CTA() {
               Ready to Start Earning<br /><span className="text-gradient">with Micro Jobs?</span>
             </h2>
             <p className="mt-4 text-base max-w-lg mx-auto" style={{ color:"#6b7280" }}>
-              Join 500,000+ earners who complete social media tasks and get paid daily on NextShop.
+              Join 500,000+ earners who complete social media tasks and get paid daily on NexShop.
               Free signup, instant access, real money.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">

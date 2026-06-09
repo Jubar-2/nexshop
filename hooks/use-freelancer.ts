@@ -1,4 +1,4 @@
-import { AvatarSchemaInput, ProfileSchemaInput } from "@/lib/validations/profile";
+import { ProfileSchemaInput } from "@/lib/validations/profile";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 

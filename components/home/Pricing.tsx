@@ -28,7 +28,7 @@ const plans = [
 
 export default function Pricing() {
   return (
-    <section id="pricing" className="py-24 section-alt" aria-label="NextShop Pricing Plans">
+    <section id="pricing" className="py-24 section-alt" aria-label="NexShop Pricing Plans">
       <div className="max-w-7xl mx-auto px-6">
         <motion.div initial={{ opacity:0, y:30 }} whileInView={{ opacity:1, y:0 }}
           viewport={{ once:true }} className="text-center mb-16">

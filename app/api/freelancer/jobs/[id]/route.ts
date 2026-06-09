@@ -1,4 +1,5 @@
 import { ApiResponse } from "@/lib/apiResponse";
+import db from "@/lib/db";
 
 import FreelancerService from "@/lib/freelancer/FreelancerService";
 
@@ -16,6 +17,59 @@ export async function GET(
 
         const { id } = await params;
 
+        const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const [freelancer, count] = await Promise.all([
+            db.freelancer.findUnique({
+                where: { userId },
+                include: {
+                    membershipPlan: {
+                        select: {
+                            jobsSubmitLimit: true,
+                            limitParDay: true
+                        }
+                    },
+                    _count: {
+                        select: {
+                            submissions: true
+                        },
+                    },
+                }
+            }),
+
+            db.submittedJob.count({
+                where: {
+                    freelancer: {
+                        userId,
+                    },
+                    submittedAt: {
+                        gte: last24Hours,
+                    },
+                },
+            })
+        ]);
+
+        if (!freelancer) {
+            return ApiResponse.error("Freelancer not found", 409);
+        }
+
+        const permission: {
+            limitParDay: boolean;
+            jobsSubmitLimit: boolean;
+        } = {
+            limitParDay: false,
+            jobsSubmitLimit: false
+        }
+
+        // Check if Job is Full
+        if (count >= freelancer.membershipPlan.limitParDay ||
+            freelancer._count.submissions >= freelancer.membershipPlan.jobsSubmitLimit) {
+
+            permission.jobsSubmitLimit = freelancer._count.submissions >= freelancer.membershipPlan.jobsSubmitLimit;
+            permission.limitParDay = count >= freelancer.membershipPlan.limitParDay;
+
+            return ApiResponse.success({ job: {}, permission }, "Jobs data retrieved");
+        }
+
         const freelancerService = new FreelancerService(userId)
         const job = await freelancerService.jobWithId(id);
 
@@ -24,7 +78,7 @@ export async function GET(
         }
 
         // Success Response
-        return ApiResponse.success(job, "Jobs data retrieved");
+        return ApiResponse.success({ job, permission }, "Jobs data retrieved");
 
     } catch (error) {
         // Logging with context
