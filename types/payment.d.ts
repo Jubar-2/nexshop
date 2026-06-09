@@ -15,6 +15,8 @@ declare module "payment" {
         }
         transactions: {
             trxID: string | null;
+            fee: number;
+            amount: number;
         }
     }
 }
