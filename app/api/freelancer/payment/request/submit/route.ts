@@ -42,8 +42,7 @@ export async function POST(request: Request): Promise<Response> {
 
         // Calculate the withdrawal fee based on the configured percentage.
 
-
-        if (minAmount.value <= amount) {
+        if (minAmount.value > amount) {
             return ApiResponse.error(`allow minimum ${minAmount.value}tk`, 400);
         }
 

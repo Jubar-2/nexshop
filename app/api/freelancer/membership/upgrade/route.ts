@@ -52,10 +52,10 @@ export async function POST(request: Request): Promise<Response> {
             return ApiResponse.error("Membership plan not found", 404);
         }
 
-        const planForFreelancer = await db.freelancer.findFirst({
+        const planForFreelancer = await db.freelancer.findUnique({
             where: {
                 userId: userId as string,
-                membershipPlanId: planId
+                memberPlanId: planId
             }
         });
 
