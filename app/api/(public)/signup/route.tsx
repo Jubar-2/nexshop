@@ -6,6 +6,8 @@ import { ApiResponse } from "@/lib/apiResponse";
 import { AuthService } from "@/services/auth.service";
 import { giveReferralReward } from "@/lib/helper";
 import Settings from "@/lib/Settings";
+// import { sendVerificationEmail } from "@/lib/services/sendVerificationEmail";
+
 
 /**
  * Handles multi-step user registration including MLM referral processing.
@@ -29,6 +31,9 @@ export async function POST(request: Request) {
 
         const hashedPassword = await bcrypt.hash(password, 12);
 
+        const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const verifyCodeExpiry = new Date(Date.now() + 2 * 60 * 1000);
+
         // --- EXECUTE ATOMIC WORKFLOW ---
         const result = await db.$transaction(async (tx) => {
             // Get Default Plan
@@ -41,7 +46,10 @@ export async function POST(request: Request) {
                     fullName,
                     phoneNumber: phoneNumber.trim(),
                     email: email.trim().toLowerCase(),
-                    password: hashedPassword
+                    password: hashedPassword,
+                    verifyCode,
+                    verifyCodeExpiry,
+                    // status: "UNVERIFIED"
                 },
                 select: { id: true, fullName: true, email: true }
             });
@@ -79,7 +87,14 @@ export async function POST(request: Request) {
             }
 
             return { user, freelancer };
-        });
+        },{timeout: 10000});
+
+        // --- POST-TRANSACTION: Side effects (email) ---
+        // Fire and don't block the response — email failure should never
+        // roll back an already-committed account creation.
+        // sendVerificationEmail("jubaer00032@gmail.com".trim().toLowerCase(), fullName, verifyCode).catch((err) => {
+        //     console.error("[EMAIL_FAILURE]:", err);
+        // });
 
         return ApiResponse.success(result, "Account created successfully", 201);
 
