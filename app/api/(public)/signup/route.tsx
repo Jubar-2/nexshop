@@ -64,30 +64,31 @@ export async function POST(request: Request) {
             // Create Freelancer Profile (Shared Transaction)
             const freelancer = await AuthService.registerFreelancer(tx, user.id, defaultPlan.id);
 
-            // Trigger Referral MLM Logic
-            if (referrer) {
-                const referral = await tx.referral.create({
-                    data: {
-                        senderId: referrer.id,
-                        receiverId: freelancer.id,
-                    }
-                });
+            return { user, freelancer, referrer };
+        }, { timeout: 15000 });
 
-                const settingsData = new Settings();
 
-                const [getOne, getTwo, getThree] = await Promise.all([
-                    settingsData.genOneAmount(),
-                    settingsData.genTwoAmount(),
-                    settingsData.genThreeAmount()
-                ])
+        // Trigger Referral MLM Logic
+        if (result.referrer) {
+            const referral = await db.referral.create({
+                data: {
+                    senderId: result.referrer.id,
+                    receiverId: result.freelancer.id,
+                }
+            });
 
-                // Distribute 3 generations of rewards
-                // await giveReferralReward(tx, referral.id, referrer.id, 1, 3, { getOne, getTwo, getThree });
-                await giveReferralReward(tx, referral.id, referrer.id, 3, { getOne, getTwo, getThree });
-            }
+            const settingsData = new Settings();
 
-            return { user, freelancer };
-        },{timeout: 10000});
+            const [getOne, getTwo, getThree] = await Promise.all([
+                settingsData.genOneAmount(),
+                settingsData.genTwoAmount(),
+                settingsData.genThreeAmount()
+            ])
+
+            // Distribute 3 generations of rewards
+            // await giveReferralReward(tx, referral.id, referrer.id, 1, 3, { getOne, getTwo, getThree });
+            giveReferralReward(db, referral.id, result.referrer.id, 3, { getOne, getTwo, getThree });
+        }
 
         // --- POST-TRANSACTION: Side effects (email) ---
         // Fire and don't block the response — email failure should never
