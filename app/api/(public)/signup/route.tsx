@@ -31,8 +31,8 @@ export async function POST(request: Request) {
 
         const hashedPassword = await bcrypt.hash(password, 12);
 
-        const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
-        const verifyCodeExpiry = new Date(Date.now() + 2 * 60 * 1000);
+        // const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+        // const verifyCodeExpiry = new Date(Date.now() + 2 * 60 * 1000);
 
         // --- EXECUTE ATOMIC WORKFLOW ---
         const result = await db.$transaction(async (tx) => {
@@ -47,8 +47,8 @@ export async function POST(request: Request) {
                     phoneNumber: phoneNumber.trim(),
                     email: email.trim().toLowerCase(),
                     password: hashedPassword,
-                    verifyCode,
-                    verifyCodeExpiry,
+                    // verifyCode,
+                    // verifyCodeExpiry,
                     // status: "UNVERIFIED"
                 },
                 select: { id: true, fullName: true, email: true }
