@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
 import axios from "axios";
+import { Toaster } from "@/components/ui/sonner";
 
 export default function SignUp() {
     const [isLoading, setIsLoading] = useState(false);
@@ -51,8 +52,9 @@ export default function SignUp() {
             const response = await axios.post("/api/signup", data);
 
             const result = response.data;
-            
-            if (!result.data.success) {
+
+            if (!result.success) {
+                console.log("Signup failed")
                 // Handle 409 Conflict or 400 Bad Request
                 throw new Error(result.data.message || "Signup failed");
             }
@@ -65,6 +67,8 @@ export default function SignUp() {
             });
 
             if (loginRes?.error) {
+
+                console.log("login error")
                 throw new Error(loginRes.error);
             }
 
@@ -72,7 +76,7 @@ export default function SignUp() {
                 description: "Redirecting you to dashboard page...",
             });
 
-            router.push("/dashboard");
+            router.push("/verify");
         } catch (error: unknown) {
             toast.error("Registration Error", {
                 description: (error as Error).message,
@@ -185,6 +189,7 @@ export default function SignUp() {
                 </div>
 
             </div>
+            <Toaster />
         </div>
     );
 }
