@@ -39,7 +39,7 @@ export async function PATCH(request: Request) {
         }
 
         // Check if the code is correct and not expired
-        const isCodeNotExpired = new Date(user.verifyCodeExpiry) > new Date();
+        const isCodeNotExpired = user?.verifyCodeExpiry && new Date(user.verifyCodeExpiry) > new Date();
 
         if (user.verifyCodeExpiry && isCodeNotExpired) {
             return ApiResponse.error("verify code is not expired", 400);
