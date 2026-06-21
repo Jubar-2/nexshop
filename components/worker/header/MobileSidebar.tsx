@@ -88,15 +88,15 @@ export default function MobileSidebar() {
                             <Link href="/dashboard" onClick={closeDrawer}>
                                 <NavItem icon={<LayoutGrid size={20} />} label="Dashboard" />
                             </Link>
+                            <Link href="/dashboard/profile" onClick={closeDrawer}>
+                                <NavItem icon={<User size={20} />} label="My Profile" />
+                            </Link>
                             <Link href="/dashboard/jobs" onClick={closeDrawer}>
                                 <NavItem icon={<Search size={20} />} label="Find Jobs" />
                             </Link>
                             {/* <Link href="/dashboard/jobs/submitted" onClick={closeDrawer}>
                                 <NavItem icon={<ClipboardList size={20} />} label="Submitted Jobs" />
-                            </Link> */}
-                             <Link href="/dashboard/jobs/submitted" onClick={closeDrawer}>
-                                <NavItem icon={<User size={20} />} label="Submitted Jobs" />
-                            </Link>
+                            </Link> */}                             
                         </div>
                     </section>
 
