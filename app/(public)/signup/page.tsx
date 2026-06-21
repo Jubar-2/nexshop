@@ -26,6 +26,7 @@ export default function SignUp() {
     const {
         register,
         handleSubmit,
+        setError,
         formState: { errors },
     } = useForm<SignUpInput>({
         resolver: zodResolver(SignUpSchema),
@@ -78,9 +79,20 @@ export default function SignUp() {
 
             router.push("/verify");
         } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {                
+                if (error.response?.data?.errors?.email[0]) {
+                    setError("email", { message: error.response?.data?.errors?.email[0] })
+                }
+
+                if (error.response?.data?.errors?.phoneNumber[0]) {
+                    setError("phoneNumber", { message: error.response?.data?.errors?.phoneNumber[0] })
+                }
+            }
+
             toast.error("Registration Error", {
                 description: (error as Error).message,
             });
+
         } finally {
             setIsLoading(false);
         }

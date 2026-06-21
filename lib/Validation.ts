@@ -24,7 +24,9 @@ export default class Validation implements IValidation {
      */
     public async emailConflict(email: string): Promise<void> {
         const existingUser = await db.user.findUnique({
-            where: { email: email.toLowerCase() },
+            where: {
+                email: email.toLowerCase(),
+            },
             select: { email: true }
         });
 

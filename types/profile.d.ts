@@ -43,6 +43,7 @@ type freelancerType = {
 type FreelancerProfile = {
     fullName: string;
     email: string;
+    verifyCodeExpiry: string,
     phoneNumber: string;
     address: addressType;
     freelancer: freelancerType;

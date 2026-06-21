@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { generateCode } from "@/lib/referral";
+import db from "@/lib/db";
 
 export class AuthService {
   /**
@@ -11,7 +12,7 @@ export class AuthService {
     planId: string
   ) {
     // Generate unique key using the circuit-breaker logic we built earlier
-    const referKey = await this.generateUniqueKey(tx);
+    const referKey = await this.generateUniqueKey(db);
 
     return await tx.freelancer.create({
       data: {

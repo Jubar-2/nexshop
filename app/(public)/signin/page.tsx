@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { SignInSchema } from "@/lib/validations/signIn";
+import { Toaster } from "@/components/ui/sonner";
 
 type LoginFormValues = z.infer<typeof SignInSchema>;
 
@@ -107,9 +108,12 @@ export default function LoginPage() {
                         </div>
 
                         <div className="flex justify-end px-2">
-                            <Button variant="link" type="button" className="text-slate-400 font-semibold p-0 h-auto">
+                            <Link
+                                href="/forgot-password"
+                                className="text-slate-400 font-semibold p-0 h-auto"
+                            >
                                 Forgot Password?
-                            </Button>
+                            </Link>
                         </div>
 
                         <Button
@@ -131,6 +135,7 @@ export default function LoginPage() {
                     </div>
                 </div>
             </div>
+            <Toaster />
         </div>
     );
 }

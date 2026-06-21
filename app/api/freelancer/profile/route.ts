@@ -14,6 +14,7 @@ export async function GET(request: Request) {
                 phoneNumber: true,
                 status: true,
                 avatar: true,
+                verifyCodeExpiry: true,
                 freelancer: {
                     select: {
                         membershipPlan: {

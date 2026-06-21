@@ -1,3 +1,4 @@
+import { OTPValues } from "@/lib/validations/otpCode";
 import { ProfileSchemaInput } from "@/lib/validations/profile";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -94,5 +95,43 @@ export const useUpdateProfilePicture = () => {
             });
             return data.data;
         }
+    });
+}
+
+export const useVerifyEmail = () => {
+    return useMutation({
+        mutationFn: async (OTP: OTPValues) => {
+            const { data } = await axios.patch("/api/verify", OTP, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+            return data.data;
+        }
+    });
+}
+
+export const useResendEmail = () => {
+    return useMutation({
+        mutationFn: async (_: string) => {
+            const { data } = await axios.patch("/api/resend", {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+            return data.data;
+        }
+    });
+}
+
+export const useGetUnverified = () => {
+    return useQuery({
+        queryKey: ["Unverified"],
+        queryFn: async (): Promise<FreelancerProfile> => {
+            const { data } = await axios.get("/api/unverified");
+            return data.data;
+        },
+        staleTime: 1000 * 60,
+        refetchOnWindowFocus: true,
     });
 }

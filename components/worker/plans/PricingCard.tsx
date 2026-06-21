@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { membershipType, offerType } from "@/hooks/use-plan";
 import { useRouter } from "next/navigation";
+import { useGetProfile } from "@/hooks/use-freelancer";
 
 type PricingCardType = {
     plan: membershipType[],
@@ -16,9 +17,11 @@ type PricingCardType = {
 function PricingCard({ plan, index, isLoading }: PricingCardType) {
     const router = useRouter();
 
+    const { data: profileData, isLoading: profileLoading } = useGetProfile();
+
     // const finalPrice = isYearly ? Math.floor(plan.price * 0.8 * 12) : plan.price;
     // console.log(isLoading, plan)
-    if (isLoading || !plan) {
+    if (isLoading || !plan || profileLoading) {
         return (
             <>
                 {[1, 2, 3].map((i) => (
@@ -188,10 +191,10 @@ function PricingCard({ plan, index, isLoading }: PricingCardType) {
                                 className={cn(
                                     "w-full h-16 rounded-2xl text-lg font-black transition-all shadow-lg active:scale-95",
                                     pln.badgeText ? "bg-emerald-600 hover:bg-emerald-700 text-white" :
-                                        pln.price === 0 ? "bg-slate-100 text-slate-400 border-none pointer-events-none" : "bg-slate-900 hover:bg-black text-white"
+                                        +pln.price === 0 || pln.id === profileData?.freelancer?.membershipPlan?.id ? "bg-slate-100 text-slate-400 border-none pointer-events-none" : "bg-slate-900 hover:bg-black text-white"
                                 )}
                             >
-                                {pln.price === 0 ? "Active Plan" : "Upgrade Plan"}
+                                {pln.id === profileData?.freelancer?.membershipPlan?.id ? "Active Plan" : "Upgrade Plan"}
                             </Button>
                         </CardFooter>
                     </Card>

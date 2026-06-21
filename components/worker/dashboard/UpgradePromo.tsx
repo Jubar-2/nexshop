@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge, Crown, Sparkles } from "lucide-react";
+import Link from "next/link";
 
 function UpgradePromo() {
     return (<div className="bg-linear-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-2xl p-1 shadow-xl">
@@ -18,9 +19,11 @@ function UpgradePromo() {
                     <p className="text-white/80 text-sm font-medium">Unlock 0% fees, instant withdrawals, and priority support.</p>
                 </div>
             </div>
-            <Button className="bg-white text-indigo-600 hover:bg-slate-50 rounded-xl h-12 px-10 font-black text-lg shadow-lg relative z-10 transition-transform active:scale-95">
-                Upgrade Now
-            </Button>
+            <Link href="/dashboard/plans">
+                <Button className="bg-white text-indigo-600 hover:bg-slate-50 rounded-xl h-12 px-10 font-black text-lg shadow-lg relative z-10 transition-transform active:scale-95">
+                    Upgrade Now
+                </Button>
+            </Link>
         </div>
     </div>)
 }

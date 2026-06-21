@@ -8,7 +8,6 @@ import { refreshAccessToken } from "@/lib/helper";
 export const authOptions: NextAuthOptions = {
     providers: [
         Credentials({
-            // You MUST define the credentials object
             credentials: {
                 email: { label: "Email", type: "email" },
                 password: { label: "Password", type: "password" }
@@ -25,11 +24,9 @@ export const authOptions: NextAuthOptions = {
                     return null;
                 }
 
-                // Generate our custom tokens
                 const accessToken = signAccessToken({ userId: user.id });
                 const refreshToken = signRefreshToken({ userId: user.id });
 
-                // Professional Step: Save Refresh Token to DB
                 await db.user.update({
                     where: { id: user.id },
                     data: { refreshToken },
@@ -40,42 +37,51 @@ export const authOptions: NextAuthOptions = {
                     email: user.email,
                     name: user.fullName,
                     role: user.role,
+                    status: user.status,   // ✅ included
                     accessToken,
                     refreshToken,
-                    accessTokenExpires: Date.now() + 15 * 60 * 1000, // 15 mins from now
+                    accessTokenExpires: Date.now() + 15 * 60 * 1000,
                 };
             },
         }),
     ],
+
     callbacks: {
-        async jwt({ token, user }) {
-
-            console.log("refreshed Token")
-
-            // Initial sign in
+        async jwt({ token, user, trigger }) {
+            // Initial sign in — populate token from user object
             if (user) {
                 return { ...token, ...user };
             }
+           
+            // Client called update() — re-fetch fresh data from DB
+            if (trigger === "update") {
+                const freshUser = await db.user.findUnique({
+                    where: { id: token.id as string },
+                    select: { status: true, role: true }
+                });
 
+                if (freshUser) {
+                    token.status = freshUser.status;
+                    token.role = freshUser.role;
+                }
 
+                return token;
+            }
 
-            // Return previous token if the access token has not expired yet
+            // Token still valid
             if (Date.now() < (token.accessTokenExpires as number)) {
                 return token;
             }
 
-            const refreshedToken = await refreshAccessToken(token);
-
-
-            // Access token has expired, try to update it
-            return refreshedToken;
+            // Token expired — refresh it
+            return refreshAccessToken(token);
         },
 
         async session({ session, token }) {
-            // Pass data from JWT to the client-side session
             if (token && session.user) {
                 session.user.id = token.id as string;
                 session.user.role = token.role as string;
+                session.user.status = token.status as string;  // ✅ was missing
                 session.accessToken = token.accessToken as string;
                 session.error = token.error as string;
             }
@@ -85,11 +91,12 @@ export const authOptions: NextAuthOptions = {
 
     session: {
         strategy: "jwt",
-        maxAge: 7 * 24 * 60 * 60, // 7 Days
+        maxAge: 7 * 24 * 60 * 60,
     },
-    pages: {
-        signIn: "/login", // Redirect to your custom login page
-    },
-    secret: process.env.NEXTAUTH_SECRET,
 
+    pages: {
+        signIn: "/signin",  // ✅ was "/login" — match your actual route
+    },
+
+    secret: process.env.NEXTAUTH_SECRET,
 };

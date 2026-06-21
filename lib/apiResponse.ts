@@ -1,33 +1,67 @@
 import { NextResponse } from "next/server";
 
-/**
- * Standard API Response Structure
- * T is a Generic that represents the type of data being returned
- */
 export interface IApiResponse<T = unknown> {
   success: boolean;
   message: string;
   data?: T;
-  errors?: Record<string, string[]>; // For Zod/Validation errors
+  errors?: Record<string, string[]>;
+}
+
+// কুকি কনফিগারেশনের জন্য টাইপ ডিফাইন করে নেওয়া ভালো
+interface CookieOptions {
+  name: string;
+  value: string;
+  httpOnly?: boolean;
+  secure?: boolean;
+  sameSite?: "lax" | "strict" | "none";
+  path?: string;
+  maxAge?: number;
+}
+
+// NextResponse.json এর ২য় প্যারামিটারের টাইপ এক্সটেন্ড করা
+interface ResponseOptions extends ResponseInit {
+  cookie?: CookieOptions;
+  clearCookie?: {
+    name: string;
+  }
 }
 
 export class ApiResponse {
   /**
-   * Success Response (200, 201)
+   * Success Response (200, 201) with optional Cookie support
    */
   static success<T>(
-    data: T, 
-    message: string = "Request successful", 
-    status: number = 200
+    data: T,
+    message: string = "Request successful",
+    status: number = 200,
+    options?: ResponseOptions // নতুন প্যারামিটার যোগ করা হলো
   ) {
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         success: true,
         message,
         data,
       },
-      { status }
+      { status, ...options }
     );
+
+    if (options?.cookie) {
+      response.cookies.set({
+        name: options.cookie.name,
+        value: options.cookie.value,
+        httpOnly: options.cookie.httpOnly ?? true,
+        secure: options.cookie.secure ?? process.env.NODE_ENV === "production",
+        sameSite: options.cookie.sameSite ?? "lax",
+        path: options.cookie.path ?? "/",
+        maxAge: options.cookie.maxAge,
+      });
+    }
+
+    if (options?.clearCookie) {
+      response.cookies.delete(options.clearCookie.name);
+    }
+
+    return response;
   }
 
   /**
@@ -42,7 +76,7 @@ export class ApiResponse {
       {
         success: false,
         message,
-        errors, // Structured field errors
+        errors,
       },
       { status }
     );
