@@ -1,13 +1,13 @@
 import React from "react";
 
-interface OmniLogoProps {
+interface NagadLogoProps {
   className?: string;
   size?: number | string;
   primaryColor?: string;
   secondaryColor?: string;
 }
 
-const NagadLogo: React.FC<OmniLogoProps> = ({
+const NagadLogo: React.FC<NagadLogoProps> = ({
   className = "",
   size = "180px",
   primaryColor = "#ed1c24", // Your Teal brand color

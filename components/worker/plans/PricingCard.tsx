@@ -19,8 +19,6 @@ function PricingCard({ plan, index, isLoading }: PricingCardType) {
 
     const { data: profileData, isLoading: profileLoading } = useGetProfile();
 
-    // const finalPrice = isYearly ? Math.floor(plan.price * 0.8 * 12) : plan.price;
-    // console.log(isLoading, plan)
     if (isLoading || !plan || profileLoading) {
         return (
             <>

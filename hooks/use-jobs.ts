@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
 export const useGetJobs = () => {
@@ -34,5 +34,18 @@ export const useGetSpin = () => {
         },
         staleTime: 1000 * 60,
         refetchOnWindowFocus: true,
+    });
+}
+
+export const useJobSubmit = () => {
+    return useMutation({
+        mutationFn: async (payload: FormData) => {
+            const response = await axios.post("/api/freelancer/jobs/submit", payload, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+            return response.data;
+        },
     });
 }

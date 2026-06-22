@@ -10,7 +10,7 @@ const BkashLogo: React.FC<BkashLogoProps> = ({ className = "", size = "165px" })
         <svg
             xmlns="http://www.w3.org/2000/svg"
             width={size}
-            height="auto" // Maintains aspect ratio based on width
+            height={size} // Maintains aspect ratio based on width
             viewBox="-37.062 -28.3525 321.204 170.115"
             className={className}
             preserveAspectRatio="xMidYMid meet"

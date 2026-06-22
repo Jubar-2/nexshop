@@ -11,13 +11,15 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
+import { useJobSubmit } from "@/hooks/use-jobs";
 
 
 const PooSubForm = () => {
     const params = useParams();
     const jobId = params.id;
+
+    const { mutate, isPending } = useJobSubmit();
 
     // const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -41,36 +43,6 @@ const PooSubForm = () => {
     });
 
     // Mutation for API call
-    const { mutate, isPending } = useMutation({
-        mutationFn: async (payload: FormData) => {
-            const response = await axios.post("/api/freelancer/jobs/submit", payload, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            });
-            return response.data;
-        },
-        onSuccess: () => {
-            toast.success("Job Published Successfully!", {
-                description: "The task is now live for all eligible workers.",
-                icon: <div className="bg-emerald-50 p-1.5 rounded-lg"><Zap className="text-emerald-500 w-4 h-4" /></div>
-            });
-            reset();
-
-            route.push(`/dashboard/jobs/${jobId}/success`);
-        },
-        onError: (error: unknown) => {
-            let message = "Failed to publish";
-            console.log(error)
-            if (axios.isAxiosError(error)) {
-                message = error.response?.data?.message;
-            }
-
-            toast.error("Failed to publish", { description: message });
-        }
-    });
-
-
     useEffect(() => {
         setValue("jobId", jobId as string);
     }, [jobId, setValue]);
@@ -98,7 +70,6 @@ const PooSubForm = () => {
     };
 
     const clickSubmit = (data: FontEndJobSubmissionInput) => {
-        console.log(data)
 
         const formData = new FormData();
 
@@ -122,7 +93,27 @@ const PooSubForm = () => {
             data.profileLink
         );
 
-        mutate(formData);
+        mutate(formData, {
+            onSuccess: () => {
+                setPreview(null);
+                reset();
+
+                toast.success("Job Published Successfully!", {
+                    description: "The task is now live for all eligible workers.",
+                    icon: <div className="bg-emerald-50 p-1.5 rounded-lg"> <Zap className="text-emerald-500 w-4 h-4" /></div >
+                });
+
+                route.push(`/dashboard/jobs/${jobId}/success`);
+            },
+            onError: (error: unknown) => {
+                let message = "Failed to publish";
+                if (axios.isAxiosError(error)) {
+                    message = error.response?.data?.message;
+                }
+
+                toast.error("Failed to publish", { description: message });
+            }
+        });
 
         // setIsSubmitting(true);
 
@@ -135,8 +126,6 @@ const PooSubForm = () => {
         // }, 1500);
     };
 
-    console.log(errors)
-
     return (
         <Card className="bg-white border-none shadow-sm rounded-2xl overflow-hidden">
             <CardHeader className="bg-slate-50/50 border-b border-slate-100 px-8 py-5">
@@ -144,12 +133,7 @@ const PooSubForm = () => {
                     <ImageIcon className="text-emerald-500" size={18} /> Submit Proof of Work
                 </CardTitle>
             </CardHeader>
-            <form onSubmit={handleSubmit(
-                clickSubmit,
-                (errors) => {
-                    console.log(errors);
-                }
-            )}>
+            <form onSubmit={handleSubmit(clickSubmit)}>
                 <CardContent className="p-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                         <div className="space-y-5">

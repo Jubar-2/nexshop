@@ -26,7 +26,7 @@ function PlanSummaryHeader() {
     // --- LOADING STATE (SKELETON) ---
     if (isLoading) {
         return (
-            <Card className="bg-slate-900 border-none shadow-xl rounded-[32px] overflow-hidden relative">
+            <Card className="bg-slate-900 border-none shadow-xl rounded-4xl overflow-hidden relative">
                 {/* Keep the decorative crown for visual consistency */}
                 <div className="absolute top-0 right-0 p-10 opacity-5 rotate-12 pointer-events-none">
                     <Crown size={120} className="text-white" />
@@ -59,7 +59,7 @@ function PlanSummaryHeader() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
         >
-            <Card className="bg-slate-900 text-white border-none shadow-xl rounded-[32px] overflow-hidden relative">
+            <Card className="bg-slate-900 text-white border-none shadow-xl rounded-4xl overflow-hidden relative">
                 {/* Background Decoration */}
                 <div className="absolute top-0 right-0 p-10 opacity-10 rotate-12 pointer-events-none">
                     <Crown size={120} />

@@ -57,7 +57,7 @@ export default function MembershipPage() {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
 
     const { data, isLoading, isError } = useGetPlans();
-    // console.log(data)
+    
     return (
         <div className="min-h-screen bg-[#F0F2F5] pt-24 pb-20 font-poppins selection:bg-emerald-100 selection:text-emerald-900">
             

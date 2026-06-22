@@ -1,16 +1,16 @@
-import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useGetPlan, useUpgradeMembership } from "@/hooks/use-plan"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useUpgradeMembership } from "@/hooks/use-plan"
 import { MemberShipUpgradeInput, MemberShipUpgradeInSchema } from "@/lib/validations/membership"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { CloudUpload, Hash, ImageIcon, ShieldCheck, X } from "lucide-react"
+import { Hash, ShieldCheck } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
 import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
+import axios from "axios"
 
 
 function VerificationForm({ method }: { method: "BkASH" | "NAGAD" }) {
@@ -21,7 +21,7 @@ function VerificationForm({ method }: { method: "BkASH" | "NAGAD" }) {
     // const { data } = useGetPlan(id)
 
     const { mutate, isPending } = useUpgradeMembership();
-    console.log(method)
+
     const {
         register,
         handleSubmit,
@@ -42,12 +42,31 @@ function VerificationForm({ method }: { method: "BkASH" | "NAGAD" }) {
     const handleConfirm = (data: MemberShipUpgradeInput) => {
         mutate(data, {
             onSuccess: () => {
+                reset();
                 toast.success("Upgrade Request Submitted", {
                     description: "Status will be updated in your dashboard within 1 hour.",
                     icon: <ShieldCheck className="text-emerald-500" />
                 });
-                reset();
                 router.push(`/dashboard/plans/upgrade/${id}/success`);
+            },
+            onError: (error) => {
+
+                let message = "Something went wrong. Please try again.";
+
+                if (axios.isAxiosError(error)) {
+                    message = error.response?.data?.message || message;
+                }
+
+                toast.error(
+                    <span className="text-red-600 font-semibold">
+                        Upgrade Request Submit Failed
+                    </span>, {
+                    description: (
+                        <p className="text-red-600 font-medium">
+                            {message}
+                        </p>
+                    ),
+                });
             }
         })
 
@@ -60,9 +79,7 @@ function VerificationForm({ method }: { method: "BkASH" | "NAGAD" }) {
                     <Hash size={16} /> 3. Verification
                 </CardTitle>
             </CardHeader>
-            <form onSubmit={handleSubmit(handleConfirm, (errors) => {
-                console.log(errors);
-            })}>
+            <form onSubmit={handleSubmit(handleConfirm)}>
                 <CardContent className="p-8 space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">

@@ -1,16 +1,18 @@
 "use client"
 
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton"; // Ensure this is installed
 import { useGetJob } from "@/hooks/use-jobs";
 import { CheckCircle2, Clock, ShieldCheck } from "lucide-react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import axios from "axios";
 
 function HeaderCard() {
     const params = useParams();
+    const router = useRouter();
     const jobId = params?.id as string;
-    const { data, isLoading } = useGetJob(jobId);
+    const { data, isLoading, error } = useGetJob(jobId);
 
     const formattedBalance = useMemo(() => {
         const value = data?.job?.reward ?? 0;
@@ -20,7 +22,15 @@ function HeaderCard() {
             minimumFractionDigits: 2,
         }).format(value).replace("BDT", "৳"); // Clean custom currency symbol
     }, [data?.job?.reward]);
-    
+
+    useEffect(() => {
+        if (axios.isAxiosError(error)) {
+            if (error?.response?.status === 409) {
+                router.push("/dashboard/jobs");
+            }
+        }
+    }, [error, router])
+
     // --- LOADING STATE (SKELETON) ---
     if (isLoading) {
         return (
@@ -65,7 +75,7 @@ function HeaderCard() {
                     {/* Job Details */}
                     <div className="grow text-center md:text-left space-y-2">
                         <h1 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight tracking-tight">
-                            {data.job.jobTitle}
+                            {data?.job?.jobTitle}
                         </h1>
                         <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-6 gap-y-2 text-slate-400 text-[11px] font-bold uppercase tracking-widest">
                             <span className="flex items-center gap-2">
