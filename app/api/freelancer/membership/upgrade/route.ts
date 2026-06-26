@@ -55,7 +55,7 @@ export async function POST(request: Request): Promise<Response> {
         const planForFreelancer = await db.freelancer.findUnique({
             where: {
                 userId: userId as string,
-                memberPlanId: planId
+                memberPlanId: planId,
             }
         });
 
@@ -69,7 +69,8 @@ export async function POST(request: Request): Promise<Response> {
         const planForFreelancerRequested = await db.membershipUpgradeRequest.findFirst({
             where: {
                 freelancerId: profile.id,
-                requestedPlanId: planId
+                requestedPlanId: planId,
+                status: "PENDING"
             }
         });
 

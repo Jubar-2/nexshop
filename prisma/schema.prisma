@@ -186,7 +186,7 @@ model MembershipHistory {
   id                  String               @id @default(cuid())
   freelancerId        String
   membershipRequestId String               @unique
-  membershipPlanId    String               @unique
+  membershipPlanId    String
   invoiceId           String               @unique
   startDate           DateTime?
   endDate             DateTime?

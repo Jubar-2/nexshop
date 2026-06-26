@@ -1,5 +1,6 @@
 import { ApiResponse } from "@/lib/apiResponse";
 import db from "@/lib/db";
+import { qstash } from "@/lib/qstash";
 import { MemberShipUpgradeStatusChangeInSchema } from "@/lib/validations/membership";
 
 /**
@@ -30,36 +31,43 @@ export async function PATCH(request: Request): Promise<Response> {
 
         const { id, status } = validation.data;
 
+        // FETCH FIRST (To verify current state)
+        const requestRecord = await db.membershipUpgradeRequest.findUnique({
+            where: { id },
+            select: {
+                id: true,
+                status: true,
+                freelancerId: true,
+                requestedPlanId: true,
+                requestedPlan: true,
+            }
+        });
+
+        if (!requestRecord) {
+            return ApiResponse.error("NOT_FOUND", 404)
+        }
+
+        if (requestRecord.status !== "PENDING") {
+            return ApiResponse.error("ALREADY_PROCESSED", 404)
+        }
+
+        // FETCH PLAN DETAILS (To calculate expiry)
+        const targetPlan = await db.membershipPlan.findUnique({
+            where: { id: requestRecord.requestedPlanId }
+        });
+
+        if (!targetPlan) {
+            return ApiResponse.error("PLAN_NOT_FOUND", 404);
+        }
+
+        // CALCULATE DATES
+        // Assuming 'period' is in days (e.g., 30)
+        const startDate = new Date();
+        const endDate = new Date();
+        endDate.setMonth(endDate.getMonth() + targetPlan.period);
+
         // Atomic Transaction
         const result = await db.$transaction(async (tx) => {
-
-            // FETCH FIRST (To verify current state)
-            const requestRecord = await tx.membershipUpgradeRequest.findUnique({
-                where: { id },
-                select: {
-                    id: true,
-                    status: true,
-                    freelancerId: true,
-                    requestedPlanId: true,
-                    requestedPlan: true
-                }
-            });
-
-            if (!requestRecord) throw new Error("NOT_FOUND");
-            if (requestRecord.status !== "PENDING") throw new Error("ALREADY_PROCESSED");
-
-            // FETCH PLAN DETAILS (To calculate expiry)
-            const targetPlan = await tx.membershipPlan.findUnique({
-                where: { id: requestRecord.requestedPlanId }
-            });
-
-            if (!targetPlan) throw new Error("PLAN_NOT_FOUND");
-
-            // CALCULATE DATES
-            // Assuming 'period' is in days (e.g., 30)
-            const startDate = new Date();
-            const endDate = new Date();
-            endDate.setDate(endDate.getDate() + targetPlan.period);
 
             // UPDATE REQUEST STATUS
             const updatedRequest = await tx.membershipUpgradeRequest.update({
@@ -83,18 +91,32 @@ export async function PATCH(request: Request): Promise<Response> {
             });
 
             if (status === "APPROVED") {
+
                 await tx.freelancer.update({
                     where: { id: requestRecord.freelancerId },
                     data: {
                         memberPlanId: requestRecord.requestedPlanId,
-                        startAt: startDate,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+                        startAt: startDate,
                         expireAt: endDate
                     }
-                })
+                });
+
             }
 
             return updatedRequest;
         });
+
+        if (status === "APPROVED") {
+            await qstash.publishJSON({
+                // url: `${process.env.NEXT_PUBLIC_APP_URL}/api/subscription/expire-webhook`,
+                url: `${process.env.APP_URL}/api/webhooks/expire-membership`,
+                body: {
+                    freelancerId: requestRecord.freelancerId,
+                },
+                // notBefore: Math.floor(endDate.getTime() / 1000),
+                notBefore: Math.floor((Date.now() + 5 * 60 * 1000) / 1000),
+            });
+        }
 
         return ApiResponse.success(result, `Membership request ${status.toLowerCase()} successfully`);
 
