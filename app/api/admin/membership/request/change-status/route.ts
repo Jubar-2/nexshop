@@ -113,8 +113,7 @@ export async function PATCH(request: Request): Promise<Response> {
                 body: {
                     freelancerId: requestRecord.freelancerId,
                 },
-                // notBefore: Math.floor(endDate.getTime() / 1000),
-                notBefore: Math.floor((Date.now() + 5 * 60 * 1000) / 1000),
+                notBefore: Math.floor(endDate.getTime() / 1000),
             });
         }
 

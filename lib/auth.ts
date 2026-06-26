@@ -1,9 +1,11 @@
 import { NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
 import bcrypt from "bcrypt";
 import db from "@/lib/db";
 import { signAccessToken, signRefreshToken } from "@/lib/tokens";
 import { refreshAccessToken } from "@/lib/helper";
+import { AuthService } from "@/services/auth.service";
 
 export const authOptions: NextAuthOptions = {
     providers: [
@@ -20,7 +22,9 @@ export const authOptions: NextAuthOptions = {
                     where: { email: credentials.email as string },
                 });
 
-                if (!user || !(await bcrypt.compare(credentials.password as string, user.password))) {
+                if (!user || !user.password) return null;
+
+                if (!(await bcrypt.compare(credentials.password as string, user.password))) {
                     return null;
                 }
 
@@ -33,27 +37,120 @@ export const authOptions: NextAuthOptions = {
                 });
 
                 return {
-                    id: user.id.toString(),
+                    id: user.id,
                     email: user.email,
                     name: user.fullName,
                     role: user.role,
-                    status: user.status,   // ✅ included
+                    status: user.status,
                     accessToken,
                     refreshToken,
                     accessTokenExpires: Date.now() + 15 * 60 * 1000,
                 };
             },
         }),
+
+        Google({
+            clientId: process.env.GOOGLE_CLIENT_ID!,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        }),
     ],
 
     callbacks: {
-        async jwt({ token, user, trigger }) {
-            // Initial sign in — populate token from user object
+        async signIn({ user, account }) {
+            if (account?.provider !== "google") return true;
+
+            try {
+                const [existingUser, defaultPlan] = await Promise.all([
+                    db.user.findUnique({
+                        where: { email: user.email! },
+                        select: { id: true, status: true, role: true },
+                    }),
+                    db.membershipPlan.findFirst({
+                        where: { isDefault: true },
+                        select: { id: true },
+                    }),
+                ]);
+
+                if (!existingUser) {
+                    if (!defaultPlan) {
+                        console.error("[GOOGLE_SIGNIN] No default plan found");
+                        return false; // block sign in — system misconfiguration
+                    }
+
+                    const refreshToken = signRefreshToken({ userId: user.email! });
+
+                    const result = await db.$transaction(async (tx) => {
+                        const newUser = await tx.user.create({
+                            data: {
+                                email: user.email!.toLowerCase(),
+                                fullName: user.name ?? "Unnamed User",
+                                password: null,
+                                phoneNumber: "",
+                                status: "ACTIVE",
+                                role: "FREELANCER",
+                                avatar: user.image,
+                                refreshToken,
+                            },
+                        });
+
+                        // ✅ Use newUser.id — not user.id which is the Google profile id
+                        await AuthService.registerFreelancer(tx, newUser.id, defaultPlan.id);
+
+                        return newUser;
+                    });
+
+                    // ✅ Now assign the real DB id so jwt() picks it up
+                    user.id = result.id;
+
+                } else {
+                    const refreshToken = signRefreshToken({ userId: existingUser.id });
+
+                    await db.user.update({
+                        where: { id: existingUser.id },
+                        data: { refreshToken },
+                    });
+
+                    // ✅ Assign real DB id
+                    user.id = existingUser.id;
+                }
+
+                return true;
+
+            } catch (error) {
+                console.error("[GOOGLE_SIGNIN_FAILURE]:", error);
+                return false; // return false, not throw — throwing causes redirect loop
+            }
+        },
+
+        async jwt({ token, user, account, trigger }) {
             if (user) {
+                if (account?.provider === "google") {
+                    // user.id is now the correct DB id set in signIn() above
+                    const dbUser = await db.user.findUnique({
+                        where: { id: user.id },
+                        select: { id: true, role: true, status: true, fullName: true, email: true },
+                    });
+
+                    if (dbUser) {
+                        return {
+                            ...token,
+                            id: dbUser.id,
+                            role: dbUser.role,
+                            status: dbUser.status,
+                            name: dbUser.fullName,
+                            email: dbUser.email,
+                            accessTokenExpires: Date.now() + 15 * 60 * 1000,
+                        };
+                    }
+
+                    // dbUser not found — block session
+                    return { ...token, error: "UserNotFound" };
+                }
+
+                // Credentials provider
                 return { ...token, ...user };
             }
-           
-            // Client called update() — re-fetch fresh data from DB
+
             if (trigger === "update") {
                 const freshUser = await db.user.findUnique({
                     where: { id: token.id as string },
@@ -68,12 +165,10 @@ export const authOptions: NextAuthOptions = {
                 return token;
             }
 
-            // Token still valid
             if (Date.now() < (token.accessTokenExpires as number)) {
                 return token;
             }
 
-            // Token expired — refresh it
             return refreshAccessToken(token);
         },
 
@@ -81,7 +176,7 @@ export const authOptions: NextAuthOptions = {
             if (token && session.user) {
                 session.user.id = token.id as string;
                 session.user.role = token.role as string;
-                session.user.status = token.status as string;  // ✅ was missing
+                session.user.status = token.status as string;
                 session.accessToken = token.accessToken as string;
                 session.error = token.error as string;
             }
@@ -95,7 +190,7 @@ export const authOptions: NextAuthOptions = {
     },
 
     pages: {
-        signIn: "/signin",  // ✅ was "/login" — match your actual route
+        signIn: "/signin",
     },
 
     secret: process.env.NEXTAUTH_SECRET,

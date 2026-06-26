@@ -59,6 +59,7 @@ export default function Menu() {
                 <div className="flex items-center gap-2 cursor-pointer group">
                     <div className="bg-[#4D5E66] p-1 rounded-full">
                         <Smile size={20} className="text-white" />
+                        
                     </div>
                     <span className="text-white font-medium text-sm max-w-25 truncate">{email}</span>
                     <ChevronDown size={14} className="text-white" />

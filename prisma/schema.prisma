@@ -73,7 +73,7 @@ model User {
   email            String     @unique
   avatar           String?
   phoneNumber      String     @unique
-  password         String
+  password         String?
   verifyCode       String?
   verifyCodeExpiry DateTime?
   refreshToken     String?
