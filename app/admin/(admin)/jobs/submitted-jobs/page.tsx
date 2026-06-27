@@ -2,17 +2,17 @@
 
 import React, { useState } from 'react';
 import {
-    Search, CheckCircle2, XCircle, Clock,
-    Image as ImageIcon, Globe, ShieldAlert,
-    ChevronLeft, ChevronRight, Loader2, ExternalLink,
+    Search, CheckCircle2, XCircle,
+    Image as ImageIcon, ShieldAlert,
+    ExternalLink,
     Zap
 } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import Image from 'next/image';
 import { useGetSubmittedJobs } from '@/hooks/admin/use-jobs';
@@ -151,6 +151,7 @@ export default function SubmittedJobs() {
                                     {/* Worker Info */}
                                     <div className="flex items-center gap-3 md:gap-4 w-full lg:w-auto sm:min-w-55">
                                         <Avatar className="h-10 w-10 md:h-12 md:w-12 border-2 border-slate-50 shadow-sm shrink-0">
+                                            <AvatarImage src={proof?.freelancer?.user?.avatar || ""} />
                                             <AvatarFallback className="bg-slate-100 font-black text-slate-400 uppercase text-xs">
                                                 {proof.freelancer.user.avatar || proof.freelancer.user.fullName[0]}
                                             </AvatarFallback>
@@ -195,7 +196,7 @@ export default function SubmittedJobs() {
                                                 </Button>
                                             </DialogTrigger>
 
-                                            <DialogContent className="max-w-[95vw] sm:max-w-3xl p-0 overflow-hidden rounded-[24px] md:rounded-[32px] border-none font-poppins shadow-2xl">
+                                            <DialogContent className="max-w-[95vw] sm:max-w-3xl p-0 overflow-hidden rounded-3xl md:rounded-4xl border-none font-poppins shadow-2xl">
                                                 {/* MODAL HEADER */}
                                                 <div className="bg-slate-900 p-4 md:p-6 flex items-center justify-between text-white">
                                                     <div className="flex items-center gap-3">
@@ -231,7 +232,7 @@ export default function SubmittedJobs() {
 
                                                 {/* IMAGE VIEWPORT */}
                                                 <div className="bg-slate-100 p-4 md:p-8 flex justify-center items-center">
-                                                    <div className="relative w-full aspect-video rounded-xl md:rounded-[24px] overflow-hidden shadow-2xl border-4 md:border-[6px] border-white group">
+                                                    <div className="relative w-full aspect-video rounded-xl md:rounded-3xl overflow-hidden shadow-2xl border-4 md:border-[6px] border-white group">
                                                         <Image src={proof.proofAttachment} alt="Proof" fill className="object-contain bg-slate-900" unoptimized />
                                                     </div>
                                                 </div>
@@ -267,6 +268,7 @@ export default function SubmittedJobs() {
                                         <div className="hidden sm:flex items-center gap-2">
                                             {proof.status !== "APPROVED" ?
                                                 <Button
+                                                    disabled={isPending}
                                                     onClick={() => handleAudit(proof.id, "APPROVED", proof.freelancer.id)}
                                                     size="icon"
                                                     className="h-10 w-10 md:h-11 md:w-11 rounded-xl bg-emerald-500 hover:bg-emerald-600 shadow-md transition-all active:scale-90"
@@ -276,7 +278,12 @@ export default function SubmittedJobs() {
                                                 : ""}
 
                                             {proof.status !== "REJECTED" ?
-                                                <Button onClick={() => handleAudit(proof.id, 'REJECTED', proof.freelancer.id)} size="icon" variant="outline" className="h-10 w-10 md:h-11 md:w-11 rounded-xl border-slate-200 text-red-500 hover:bg-red-50 transition-all active:scale-90">
+                                                <Button
+                                                    disabled={isPending}
+                                                    onClick={() => handleAudit(proof.id, 'REJECTED', proof.freelancer.id)}
+                                                    size="icon"
+                                                    variant="outline"
+                                                    className="h-10 w-10 md:h-11 md:w-11 rounded-xl border-slate-200 text-red-500 hover:bg-red-50 transition-all active:scale-90">
                                                     <XCircle size={20} />
                                                 </Button> : ""}
 
