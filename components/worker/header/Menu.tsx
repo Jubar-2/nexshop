@@ -1,5 +1,6 @@
 "use client"
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetProfile } from "@/hooks/use-freelancer";
@@ -57,10 +58,15 @@ export default function Menu() {
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <div className="flex items-center gap-2 cursor-pointer group">
-                    <div className="bg-[#4D5E66] p-1 rounded-full">
+                    {/* <div className="bg-[#4D5E66] p-1 rounded-full">
                         <Smile size={20} className="text-white" />
-                        
-                    </div>
+
+                    </div> */}
+                    <Avatar className="h-8 w-8 border-4 border-slate-50 shadow-md">
+                        <AvatarImage
+                            src={data?.avatar} />
+                        <AvatarFallback className="text-3xl font-bold bg-slate-100 text-slate-500">JR</AvatarFallback>
+                    </Avatar>
                     <span className="text-white font-medium text-sm max-w-25 truncate">{email}</span>
                     <ChevronDown size={14} className="text-white" />
                 </div>
@@ -71,7 +77,11 @@ export default function Menu() {
                         My Profile
                     </DropdownMenuItem>
                 </Link>
-                <DropdownMenuItem>Account Settings</DropdownMenuItem>
+                <Link href="/dashboard/account-settings">
+                    <DropdownMenuItem>
+                        Account Settings
+                    </DropdownMenuItem>
+                </Link>
                 <DropdownMenuItem className="text-red-600"
                     onClick={() => signOut({
                         callbackUrl: "/signin",

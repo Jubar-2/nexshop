@@ -1,3 +1,4 @@
+import { PasswordFormValues } from "@/lib/validations/changePassword";
 import { OTPValues } from "@/lib/validations/otpCode";
 import { ProfileSchemaInput } from "@/lib/validations/profile";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -133,5 +134,18 @@ export const useGetUnverified = () => {
         },
         staleTime: 1000 * 60,
         refetchOnWindowFocus: true,
+    });
+}
+
+export const useChangePassword = () => {
+    return useMutation({
+        mutationFn: async (passwordData: PasswordFormValues) => {
+            const { data } = await axios.patch("/api/freelancer/change-password", passwordData, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+            return data.data;
+        }
     });
 }

@@ -6,11 +6,11 @@ import Link from 'next/link';
 import { AuthBranding } from '@/components/auth/auth-branding';
 import { AuthHeader } from '@/components/auth/auth-header';
 import { SocialAuth } from '@/components/auth/social-auth';
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { SignUpInput, SignUpSchema } from "@/lib/validations/signup";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
@@ -79,7 +79,7 @@ export default function SignUp() {
 
             router.push("/verify");
         } catch (error: unknown) {
-            if (axios.isAxiosError(error)) {                
+            if (axios.isAxiosError(error)) {
                 if (error.response?.data?.errors?.email[0]) {
                     setError("email", { message: error.response?.data?.errors?.email[0] })
                 }

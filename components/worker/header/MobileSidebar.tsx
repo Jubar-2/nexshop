@@ -29,6 +29,7 @@ import { useGetProfile } from '@/hooks/use-freelancer'
 import { signOut } from 'next-auth/react'
 import Link from 'next/link'
 import NavItem from './NavItem'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 export default function MobileSidebar() {
     const { data, isLoading, isError } = useGetProfile();
@@ -72,9 +73,14 @@ export default function MobileSidebar() {
                 </SheetHeader>
 
                 <div className="p-6 flex items-center gap-3">
-                    <div className="bg-[#4D5E66] p-1.5 rounded-full">
+                    {/* <div className="bg-[#4D5E66] p-1.5 rounded-full">
                         <Smile size={24} className="text-white" />
-                    </div>
+                    </div> */}
+                    <Avatar className="h-8 w-8 border-4 border-slate-50 shadow-md">
+                        <AvatarImage
+                            src={data?.avatar} />
+                        <AvatarFallback className="text-3xl font-bold bg-slate-100 text-slate-500">JR</AvatarFallback>
+                    </Avatar>
                     <span className="font-bold text-slate-600 text-sm truncate">{email}</span>
                 </div>
 
@@ -103,10 +109,7 @@ export default function MobileSidebar() {
                     {/* WALLET */}
                     <section className="space-y-3">
                         <h3 className="text-[13px] font-bold text-slate-800 uppercase tracking-tight">Wallet</h3>
-                        <div className="space-y-1">
-                            <Link href="/dashboard/deposit" onClick={closeDrawer}>
-                                <NavItem icon={<RefreshCw size={20} />} label="Transfer to Deposit" />
-                            </Link>
+                        <div className="space-y-1">                            
                             <Link href="/dashboard/withdraw" onClick={closeDrawer}>
                                 <NavItem icon={<Banknote size={20} />} label="Withdraw" />
                             </Link>
@@ -117,7 +120,7 @@ export default function MobileSidebar() {
                     </section>
 
                     {/* HELP & SUPPORT */}
-                    <section className="space-y-3">
+                    {/* <section className="space-y-3">
                         <h3 className="text-[13px] font-bold text-slate-800 uppercase tracking-tight">Help & Support</h3>
                         <div className="space-y-1">
                             <Link href="/faq" onClick={closeDrawer}>
@@ -127,13 +130,13 @@ export default function MobileSidebar() {
                                 <NavItem icon={<Headphones size={20} />} label="Contact Support" />
                             </Link>
                         </div>
-                    </section>
+                    </section> */}
 
                     {/* ACCOUNT */}
                     <section className="space-y-3">
                         <h3 className="text-[13px] font-bold text-slate-800 uppercase tracking-tight">Account</h3>
                         <div className="space-y-1">
-                            <Link href="/dashboard/settings" onClick={closeDrawer}>
+                            <Link href="/dashboard/account-settings" onClick={closeDrawer}>
                                 <NavItem icon={<Settings size={20} />} label="Settings" />
                             </Link>
                             <NavItem 
