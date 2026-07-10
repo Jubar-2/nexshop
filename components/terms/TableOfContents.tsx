@@ -310,7 +310,7 @@ function SectionCard({ section }: { section: typeof sections[0] }) {
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center justify-between px-6 py-5 text-left transition-colors hover:bg-purple-50/50">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
             style={{ background: `${section.color}12` }}>
             <section.icon size={20} style={{ color: section.color }} />
           </div>

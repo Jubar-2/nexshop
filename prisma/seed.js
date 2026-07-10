@@ -15,7 +15,7 @@ async function main() {
     return;
   }
 
-  const hashedPassword = await bcrypt.hash("Adm#iN123", 10);
+  const hashedPassword = await bcrypt.hash("Adm#iN12@30*", 10);
 
   const admin = await db.user.create({
     data: {
@@ -29,9 +29,26 @@ async function main() {
   });
 
   let settingsData = [
+
     {
       key: "luckySpin",
-      value: 0
+      value: 0,
+    },
+    {
+      key: "gen_1",
+      value: 10,
+    },
+    {
+      key: "gen_2",
+      value: 7,
+    },
+    {
+      key: "gen_3",
+      value: 5,
+    },
+    {
+      key: "job_par_refresh",
+      value: 5,
     }
   ];
 

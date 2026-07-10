@@ -15,7 +15,7 @@ export default function Stats() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="rounded-3xl p-10"
           style={{ background: "linear-gradient(135deg, rgba(155,89,182,0.12) 0%, rgba(26,188,156,0.08) 100%)", border: "1px solid rgba(155,89,182,0.2)" }}>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {stats.map((s, i) => (
               <motion.div
                 key={s.label}

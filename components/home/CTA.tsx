@@ -9,7 +9,7 @@ export default function CTA() {
         <motion.div
           initial={{ opacity:0, y:40 }} whileInView={{ opacity:1, y:0 }}
           viewport={{ once:true }} transition={{ duration:0.6 }}
-          className="relative rounded-3xl p-12 text-center overflow-hidden"
+          className="relative rounded-3xl px-7.5 py-12 md:p-12 text-center overflow-hidden"
           style={{ background:"linear-gradient(135deg, #f8f2fe 0%, #f0fdfb 100%)", border:"1.5px solid rgba(155,89,182,0.2)", boxShadow:"0 20px 60px rgba(155,89,182,0.1)" }}>
           {/* Decorative */}
           <div className="absolute -top-12 -left-12 w-40 h-40 rounded-full"
