@@ -5,7 +5,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetProfile } from "@/hooks/use-freelancer";
 import { cn } from "@/lib/utils";
-import { AlertCircle, ChevronDown, RefreshCcw, Smile } from "lucide-react";
+import { AlertCircle, ChevronDown, RefreshCcw } from "lucide-react";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 
@@ -65,9 +65,9 @@ export default function Menu() {
                     <Avatar className="h-8 w-8 border-4 border-slate-50 shadow-md">
                         <AvatarImage
                             src={data?.avatar} />
-                        <AvatarFallback className="text-3xl font-bold bg-slate-100 text-slate-500">JR</AvatarFallback>
+                        <AvatarFallback className="text-[12px] font-bold bg-slate-100 text-slate-500">PIC</AvatarFallback>
                     </Avatar>
-                    <span className="text-white font-medium text-sm max-w-25 truncate">{email}</span>
+                    <span className="text-white font-bold text-sm max-w-25 truncate">{email}</span>
                     <ChevronDown size={14} className="text-white" />
                 </div>
             </DropdownMenuTrigger>
