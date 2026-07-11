@@ -4,16 +4,11 @@ import React, { useState } from 'react'
 import {
     LayoutGrid,
     Search,
-    ClipboardList,
     User,
-    RefreshCw,
     Banknote,
-    FileText,
-    HelpCircle,
-    Headphones,
+    FileText,    
     Settings,
-    LogOut,
-    Smile,
+    LogOut,    
     TextAlignJustify,
     AlertCircle,
 } from 'lucide-react'
@@ -79,7 +74,7 @@ export default function MobileSidebar() {
                     <Avatar className="h-8 w-8 border-4 border-slate-50 shadow-md">
                         <AvatarImage
                             src={data?.avatar} />
-                        <AvatarFallback className="text-3xl font-bold bg-slate-100 text-slate-500">JR</AvatarFallback>
+                        <AvatarFallback className="text-[10px] font-bold bg-slate-100 text-slate-500">PIC</AvatarFallback>
                     </Avatar>
                     <span className="font-bold text-slate-600 text-sm truncate">{email}</span>
                 </div>

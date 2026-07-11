@@ -40,22 +40,22 @@ export default function Header() {
                 <BalanceMenu />
 
                 {/* Notification Icon */}
-                <div className="relative cursor-pointer text-gray-400 hover:text-gray-600 hidden md:flex">
+                {/* <div className="relative cursor-pointer text-gray-400 hover:text-gray-600 hidden md:flex">
                     <NotificationBell />
-                </div>
+                </div> */}
 
-                <div className="relative cursor-pointer text-gray-400 hover:text-gray-600 flex1 md:hidden">
+                {/* <div className="relative cursor-pointer text-gray-400 hover:text-gray-600 flex1 md:hidden">
                     <Link href="/dashboard/notification">
                         <div className="relative cursor-pointer group outline-none">
-                            {/* Icon color changes based on Mobile/Desktop background automatically */}
+                            
                             <Bell size={22} color="white" />
-                            {/* The Red Badge (Hidden if count is 0) */}
+                            
                             <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white md:border-accent-500 text-[10px] text-white flex items-center justify-center font-bold">
                                 2
                             </span>
                         </div>
                     </Link>
-                </div>
+                </div>  */}
 
                 {/* User Profile Dropdown */}
                 <div className="hidden md:flex">
