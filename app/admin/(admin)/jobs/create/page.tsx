@@ -225,7 +225,7 @@ export default function AdminPostJob() {
                                                 <Label className="text-slate-400 font-black text-[10px] uppercase tracking-widest ml-1">Reward Per Task (৳)</Label>
                                                 <Input
                                                     {...register("reward")}
-                                                    type="number"
+                                                    type="text"
                                                     placeholder="0.00"
                                                     className="h-12 rounded-xl border-slate-200 font-black text-emerald-600 text-lg"
                                                 />
