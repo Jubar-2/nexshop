@@ -81,9 +81,9 @@ export default function MembershipUpgradePage() {
                                                 <div className="ml-12 p-5 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between group">
                                                     <div>
                                                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Receiver Number</p>
-                                                        <p className="text-lg font-black text-slate-800 tracking-tight italic">017XXXXXXXX</p>
+                                                        <p className="text-lg font-black text-slate-800 tracking-tight italic">{method === "BkASH" ? "01990142727" : "017XXXXXXXX"}</p>
                                                     </div>
-                                                    <Button onClick={() => copyNumber("017XXXXXXXX")} variant="ghost" className="h-10 w-10 bg-white shadow-sm hover:bg-slate-50 rounded-xl">
+                                                    <Button onClick={() => copyNumber(method === "BkASH" ? "01990142727" :"017XXXXXXXX")} variant="ghost" className="h-10 w-10 bg-white shadow-sm hover:bg-slate-50 rounded-xl">
                                                         <Copy size={16} className="text-slate-400" />
                                                     </Button>
                                                 </div>
