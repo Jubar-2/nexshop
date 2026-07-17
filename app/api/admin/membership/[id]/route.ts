@@ -16,8 +16,16 @@ export async function GET(
                 id: true,
                 membershipName: true,
                 jobsSubmitLimit: true,
+                price: true,
                 description: true,
                 planOrder: true,
+                badgeText:true,
+                title:true,
+                color:true,
+                icon:true,
+                period:true,
+                limitParDay:true,
+                isDefault:true,
                 offers: {
                     select: {
                         offer: {

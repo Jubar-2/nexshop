@@ -35,8 +35,14 @@ export async function PATCH(request: Request) {
             description,
             planOrder,
             offers,
+            price,
+            color,
+            icon,
+            title,
+            badgeText,
+            limitParDay,
             id,
-            limitParDay
+            period
         } = validation.data;
 
         // find the job
@@ -58,19 +64,36 @@ export async function PATCH(request: Request) {
                     jobsSubmitLimit,
                     limitParDay,
                     description: description?.trim(),
-                    planOrder
+                    planOrder,
+                    price,
+                    color,
+                    icon,
+                    title,
+                    badgeText,
+                    period
                 },
             });
 
-
             let offer = {}
             if (Array.isArray(offers) && offers.length > 0) {
-                const memberOffer = await tx.memberOffer.updateMany({
-                    where: { id },
-                    data: offers?.map((offerId) => ({
+                await tx.memberOffer.deleteMany({
+                    where: {
                         membershipPlanId: createMembership.id,
-                        offerId: offerId
-                    }))
+                    }
+                });
+
+                const memberOffer = await tx.memberOffer.createManyAndReturn({
+                    data: offers?.map((offerId: string) => ({
+                        membershipPlanId: createMembership.id,
+                        offerId: offerId,
+                    })),
+                    select: {
+                        offer: {
+                            select: {
+                                offerTitle: true
+                            }
+                        }
+                    }
                 });
 
                 offer = memberOffer;

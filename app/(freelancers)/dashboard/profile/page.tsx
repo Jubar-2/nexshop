@@ -359,7 +359,7 @@ const Profile = () => {
                     {data?.freelancer?.referKey}
                   </div>
                   <Button onClick={() => copyToClipboard(data?.freelancer?.referKey || "")} className="bg-emerald-600 hover:bg-emerald-700 rounded-xl gap-2 font-bold px-8 h-12 shadow-sm transition-all active:scale-95">
-                    <Copy size={18} /> Copy Link
+                    <Copy size={18} /> Copy Code
                   </Button>
                 </div>
               </div>

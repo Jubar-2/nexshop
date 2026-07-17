@@ -10,9 +10,29 @@ export const useUpdateMembershipStatus = () => useMutation({
 });
 
 export const useGetMembershipRequests = (page: number, filter: string, debouncedSearch: string) => useQuery({
-    queryKey: ["admin-submitted-jobs", page, filter, debouncedSearch],
+    queryKey: ["admin-requested-packages", page, filter, debouncedSearch],
     queryFn: async () => {
         const { data } = await axios.get(`/api/admin/membership/request?page=${page}&status=${filter}&search=${debouncedSearch}`);
+        return data.data;
+    },
+    staleTime: 1000 * 60,
+    refetchOnWindowFocus: true,
+});
+
+export const useGetMembershipList = (page: number, filter: string, debouncedSearch: string) => useQuery({
+    queryKey: ["admin-package-list", page, filter, debouncedSearch],
+    queryFn: async () => {
+        const { data } = await axios.get(`/api/admin/membership?page=${page}&status=${filter}&search=${debouncedSearch}`);
+        return data.data;
+    },
+    staleTime: 1000 * 60,
+    refetchOnWindowFocus: true,
+});
+
+export const useGetMembershipById = (id: string) => useQuery({
+    queryKey: ["admin-package-by-id", id],
+    queryFn: async () => {
+        const { data } = await axios.get(`/api/admin/membership/${id}`);
         return data.data;
     },
     staleTime: 1000 * 60,
