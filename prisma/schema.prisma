@@ -66,6 +66,11 @@ enum TransactionType {
   MEMBERSHIP_PAYMENT
 }
 
+enum MembershipStatus {
+  ACTIVE
+  INACTIVE
+}
+
 // --- User & Authentication ---
 model User {
   id               String     @id @default(cuid())
@@ -159,6 +164,7 @@ model MembershipPlan {
   planOrder                Int                        @unique // 1 for Diamond, 2 for Gold, etc.
   period                   Int                        @default(0)
   isDefault                Boolean                    @default(false)
+  status                   MembershipStatus           @default(ACTIVE)
   offers                   MemberOffer[]
   freelancers              Freelancer[]
   membershipUpgradeRequest MembershipUpgradeRequest[]
@@ -391,6 +397,15 @@ model Address {
   subDistrict  String
   postalCode   String
   addressLine1 String
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String   @db.Text
+  description String   @db.Text
+  read       Boolean  @default(false)
+  createdAt   DateTime @default(now())
 }
 
 model VerificationCode {

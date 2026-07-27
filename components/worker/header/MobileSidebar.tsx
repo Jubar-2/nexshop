@@ -4,11 +4,11 @@ import React, { useState } from 'react'
 import {
     LayoutGrid,
     Search,
-    User,
+    User,    
     Banknote,
     FileText,    
     Settings,
-    LogOut,    
+    LogOut,
     TextAlignJustify,
     AlertCircle,
 } from 'lucide-react'
