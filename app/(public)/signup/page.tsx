@@ -12,13 +12,16 @@ import { SignUpInput, SignUpSchema } from "@/lib/validations/signup";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
 import axios from "axios";
 import { Toaster } from "@/components/ui/sonner";
 
 export default function SignUp() {
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
     const router = useRouter();
     // const searchParams = useSearchParams();
 
@@ -54,8 +57,7 @@ export default function SignUp() {
 
             const result = response.data;
 
-            if (!result.success) {
-                console.log("Signup failed")
+            if (!result.success) {               
                 // Handle 409 Conflict or 400 Bad Request
                 throw new Error(result.data.message || "Signup failed");
             }
@@ -67,9 +69,7 @@ export default function SignUp() {
                 redirect: false, // important
             });
 
-            if (loginRes?.error) {
-
-                console.log("login error")
+            if (loginRes?.error) {                
                 throw new Error(loginRes.error);
             }
 
@@ -158,23 +158,45 @@ export default function SignUp() {
 
                         {/* Password Field */}
                         <div className="space-y-1">
-                            <Input
-                                {...register("password")}
-                                type="password"
-                                placeholder="Password"
-                                className="h-14 rounded-full border-2 border-slate-200 px-8 font-semibold focus-visible:ring-accent-500"
-                            />
+                            <div className="relative">
+                                <Input
+                                    {...register("password")}
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="Password"
+                                    disabled={isLoading}
+                                    className={`h-14 rounded-full border-2 px-8 font-semibold focus-visible:ring-accent-500 ${errors.password ? 'border-red-500' : 'border-slate-200'}`}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(prev => !prev)}
+                                    className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                                    tabIndex={-1}
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            </div>
                             {errors.password && <p className="text-[10px] text-red-500 font-bold ml-5 uppercase">{errors.password.message}</p>}
                         </div>
 
                         {/* Confirm Password Field */}
-                        <div className="space-y-1">
-                            <Input
-                                {...register("confirmPassword")}
-                                type="password"
-                                placeholder="Confirm Password"
-                                className="h-14 rounded-full border-2 border-slate-200 px-8 font-semibold focus-visible:ring-accent-500"
-                            />
+                        <div className="space-y-1">                            
+                             <div className="relative">
+                                <Input
+                                    {...register("confirmPassword")}
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    placeholder="Confirm Password"
+                                    disabled={isLoading}
+                                    className={`h-14 rounded-full border-2 px-8 font-semibold focus-visible:ring-accent-500 ${errors.confirmPassword ? 'border-red-500' : 'border-slate-200'}`}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowConfirmPassword(prev => !prev)}
+                                    className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                                    tabIndex={-1}
+                                >
+                                    {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            </div>
                             {errors.confirmPassword && <p className="text-[10px] text-red-500 font-bold ml-5 uppercase">{errors.confirmPassword.message}</p>}
                         </div>
 

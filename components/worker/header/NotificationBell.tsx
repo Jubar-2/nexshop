@@ -1,5 +1,5 @@
 "use client"
-import { Bell, CheckCircle2, MessageSquare, Briefcase, BellOff } from 'lucide-react';
+import { Bell, MessageSquare, BellOff } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -9,37 +9,25 @@ import {
     DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"; // Ensure this is installed
 import { useGetNotifications, useGetUnreadCount, useMarkAllAsRead, useNotifications } from '@/hooks/use-notifications';
-
-// --- SKELETON COMPONENT ---
-const NotificationSkeleton = () => (
-    <div className="flex items-start gap-3 p-4 border-b border-slate-50 last:border-0">
-        <Skeleton className="h-9 w-9 rounded-full shrink-0 bg-slate-100" />
-        <div className="flex flex-col gap-2 w-full">
-            <div className="flex justify-between items-center">
-                <Skeleton className="h-4 w-24 bg-slate-100" />
-                <Skeleton className="h-2 w-2 rounded-full bg-slate-100" />
-            </div>
-            <Skeleton className="h-3 w-full bg-slate-50" />
-            <Skeleton className="h-2 w-12 bg-slate-50" />
-        </div>
-    </div>
-);
+import { formatJobTime } from '@/hooks/utility';
+import { NotificationTypes } from '@/types/notification';
+import Link from 'next/link';
+import NotificationSkeleton from './NotificationSkeleton';
 
 export default function NotificationBell() {
+    useNotifications(); // Handles real-time updates
+
     const { data: unreadCount, isLoading: isLoadingCount } = useGetUnreadCount();
-    const { data: notifications, isLoading: isLoadingNotifs } = useGetNotifications();
-    useNotifications();
+    const { data: notifications, isLoading: isLoadingNotifs } = useGetNotifications(5);
 
     const { mutate: markAllAsRead } = useMarkAllAsRead();
 
     const handleMarkAllAsRead = () => {
-        
-        markAllAsRead();
-
+        if (unreadCount?.count > 0) {
+            markAllAsRead();
+        }
     }
-
 
     return (
         <DropdownMenu onOpenChange={handleMarkAllAsRead}>
@@ -80,10 +68,10 @@ export default function NotificationBell() {
                             <NotificationSkeleton />
                         </>
                     ) : notifications?.length > 0 ? (
-                        notifications.map((notif: any) => (
+                        notifications.map((notif: NotificationTypes) => (
                             <DropdownMenuItem
                                 key={notif.id}
-                                className={`flex items-start gap-3 p-4 cursor-pointer focus:bg-slate-50 border-b border-slate-50 last:border-0 ${notif.unread ? 'bg-blue-50/20' : ''}`}
+                                className={`flex items-start gap-3 p-4 cursor-pointer focus:bg-slate-50 border-b border-slate-50 last:border-0 ${!notif.read ? 'bg-blue-50/20' : ''}`}
                             >
                                 <div className="mt-1 bg-slate-100 p-2 rounded-full shrink-0">
                                     {/* Dynamically render icon based on type if available */}
@@ -91,16 +79,16 @@ export default function NotificationBell() {
                                 </div>
                                 <div className="flex flex-col gap-1 w-full">
                                     <div className="flex justify-between items-start w-full gap-2">
-                                        <p className={`text-sm leading-tight ${notif.unread ? 'font-bold text-slate-900' : 'font-semibold text-slate-700'}`}>
+                                        <p className={`text-sm leading-tight ${!notif.read ? 'font-bold text-slate-900' : 'font-semibold text-slate-700'}`}>
                                             {notif.title}
                                         </p>
-                                        {notif.unread && <div className="w-2 h-2 mt-1.5 bg-blue-500 rounded-full shrink-0"></div>}
+                                        {!notif.read && <div className="w-2 h-2 mt-1.5 bg-blue-500 rounded-full shrink-0"></div>}
                                     </div>
                                     <p className="text-xs text-slate-500 leading-tight line-clamp-2">
                                         {notif.description}
                                     </p>
                                     <span className="text-[10px] text-slate-400 font-medium mt-1">
-                                        {notif.time || "Just now"}
+                                        {formatJobTime(notif.createdAt)}
                                     </span>
                                 </div>
                             </DropdownMenuItem>
@@ -117,9 +105,11 @@ export default function NotificationBell() {
                 <DropdownMenuSeparator className="m-0" />
 
                 <div className="p-2">
-                    <Button variant="ghost" className="w-full text-accent-500 font-bold text-sm hover:bg-accent-50 rounded-lg h-10">
-                        See all notifications
-                    </Button>
+                    <Link href="/dashboard/notification">
+                        <Button variant="ghost" className="w-full text-accent-500 font-bold text-sm hover:bg-accent-50 rounded-lg h-10">
+                            See all notifications
+                        </Button>
+                    </Link>
                 </div>
             </DropdownMenuContent>
         </DropdownMenu>

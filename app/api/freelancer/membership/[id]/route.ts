@@ -1,5 +1,6 @@
 import { ApiResponse } from "@/lib/apiResponse";
 import db from "@/lib//db";
+import { cancelExpiredMemberships } from "@/lib/helper";
 
 
 export async function GET(
@@ -7,11 +8,33 @@ export async function GET(
     ctx: { params: Promise<{ id: string }> }
 ) {
     try {
+
+        const userId = request.headers.get('x-user-id');
+
+        if (!userId) {
+            return ApiResponse.error("User Id is missing", 409);
+        }
+
+        // Fetch freelancer details to get the freelancer ID
+        const freelancer = await db.freelancer.findUnique({
+            where: { userId },
+            select: {
+                id: true,
+            }
+        });
+
+        if (!freelancer) {
+            return ApiResponse.error("Freelancer not found", 404);
+        }
+
+        // Cancel expired memberships if any
+        cancelExpiredMemberships(freelancer.id);
+
         const { id } = await ctx.params;
 
         // Optimized Database Query
         const plan = await db.membershipPlan.findUnique({
-            where:{
+            where: {
                 id
             },
             select: {

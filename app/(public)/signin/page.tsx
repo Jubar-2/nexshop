@@ -15,7 +15,7 @@ import { AuthHeader } from "@/components/auth/auth-header";
 import { SocialAuth } from "@/components/auth/social-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { SignInSchema } from "@/lib/validations/signIn";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -24,7 +24,8 @@ type LoginFormValues = z.infer<typeof SignInSchema>;
 export default function LoginPage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
-
+    const [showPassword, setShowPassword] = useState(false);
+    
     // Initialize the Form
     const {
         register,
@@ -97,13 +98,23 @@ export default function LoginPage() {
                         </div>
 
                         <div className="space-y-1">
-                            <Input
-                                {...register("password")} // Register field
-                                type="password"
-                                placeholder="Password"
-                                disabled={isLoading}
-                                className={`h-14 rounded-full border-2 px-8 font-semibold focus-visible:ring-accent-500 ${errors.password ? 'border-red-500' : 'border-slate-200'}`}
-                            />
+                            <div className="relative">
+                                <Input
+                                    {...register("password")}
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="Password"
+                                    disabled={isLoading}
+                                    className={`h-14 rounded-full border-2 px-8 font-semibold focus-visible:ring-accent-500 ${errors.password ? 'border-red-500' : 'border-slate-200'}`}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(prev => !prev)}
+                                    className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                                    tabIndex={-1}
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            </div>
                             {errors.password && <p className="text-[10px] text-red-500 font-bold ml-5 uppercase">{errors.password.message}</p>}
                         </div>
 

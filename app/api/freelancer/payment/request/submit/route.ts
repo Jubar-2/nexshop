@@ -2,6 +2,7 @@ import { ApiResponse } from "@/lib/apiResponse";
 import db from "@/lib/db";
 import { checkUserId } from "@/lib/helper";
 import Settings from "@/lib/Settings";
+import { sseStore } from "@/lib/sse-store";
 import { WithdrawSchema } from "@/lib/validations/payment";
 
 /**
@@ -49,21 +50,21 @@ export async function POST(request: Request): Promise<Response> {
         const withdrawFee = await settingsData.withdrawFee();
         const feeValue = amount * withdrawFee.value / 100;
 
+        const freelancer = await db.freelancer.findUnique({
+            where: { userId: userId as string },
+            select: { id: true, currentBalance: true }
+        });
+
+        if (!freelancer) {
+            throw new Error("FREELANCER_NOT_FOUND");
+        }
+
+        if (Number(freelancer.currentBalance) < amount) {
+            throw new Error("INSUFFICIENT_BALANCE");
+        }
+
         // Execute the core financial logic within a database transaction.
         const result = await db.$transaction(async (tx) => {
-
-            const freelancer = await tx.freelancer.findUnique({
-                where: { userId: userId as string },
-                select: { id: true, currentBalance: true }
-            });
-
-            if (!freelancer) {
-                throw new Error("FREELANCER_NOT_FOUND");
-            }
-
-            if (Number(freelancer.currentBalance) < amount) {
-                throw new Error("INSUFFICIENT_BALANCE");
-            }
 
             await tx.freelancer.update({
                 where: { id: freelancer.id },
@@ -99,7 +100,27 @@ export async function POST(request: Request): Promise<Response> {
                 }
             });
 
-            return withdrawal;
+            const notification = await tx.notification.create({
+                data: {
+                    userId: userId as string,
+                    title: "Withdrawal Request Submitted",
+                    description: `প্রিয় ব্যবহারকারী,আপনার পেমেন্ট ৭ দিনের মধ্যে আপনার অ্যাকাউন্টে প্রদান করা হবে। অনুগ্রহ করে ধৈর্য ধরুন। নির্ধারিত সময়ের মধ্যে পেমেন্ট না পেলে সাপোর্ট টিমের সাথে যোগাযোগ করুন।ধন্যবাদ`
+                },
+                
+                select: {
+                    id: true,
+                    title: true,
+                    description: true,
+                    createdAt: true,
+                    read: true,
+                }
+            });
+
+            return { withdrawal, notification };
+        });
+
+        sseStore.send(userId as string, "notification", {
+            ...result.notification
         });
 
         return ApiResponse.success(result, "Withdrawal request submitted successfully", 201);

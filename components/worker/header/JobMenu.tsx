@@ -5,7 +5,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Briefcase, ChevronDown } from "lucide-react";
 
 
-export default function JobMenu() {
+export default function JobMenu() {    
     return (<DropdownMenu>
         <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="text-gray-500 hover:bg-primary-500 gap-2 font-medium data-[state=open]:bg-primary-500

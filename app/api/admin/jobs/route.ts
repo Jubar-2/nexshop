@@ -1,10 +1,16 @@
 import { ApiResponse } from "@/lib/apiResponse";
 import db from "@/lib/db";
+import { checkUserId } from "@/lib/helper";
 import { Pagination } from "@/lib/pagination";
 import { Prisma } from "@prisma/client";
 
 export async function GET(request: Request) {
     try {
+
+        const userId = checkUserId(request);
+        if (!userId) {
+            return ApiResponse.error("Authentication required", 401);
+        }
 
         const { searchParams } = new URL(request.url);
         const pagination = new Pagination(searchParams, 15);

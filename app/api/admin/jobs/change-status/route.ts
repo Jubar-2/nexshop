@@ -1,17 +1,16 @@
 import { ApiResponse } from "@/lib/apiResponse";
-import { ChangeStatusSchema, JobsUpdateInSchema } from "@/lib/validations/jobs";
+import { ChangeStatusSchema } from "@/lib/validations/jobs";
 import db from "@/lib/db";
-// import { getServerSession } from "next-auth";
-// import { authOptions } from "@/lib/auth";
 import { Prisma } from "@prisma/client";
+import { checkUserId } from "@/lib/helper";
 
 export async function PATCH(request: Request) {
     try {
-        // const session = await getServerSession(authOptions);
 
-        // if (!session || session.user.role !== "ADMIN" || !session.user.id) {
-        //     return ApiResponse.error("Forbidden: Admin access required", 403);
-        // }
+        const userId = checkUserId(request);
+        if (!userId) {
+            return ApiResponse.error("Authentication required", 401);
+        }
 
         // Safe JSON parsing with error handling
         const body = await request.json().catch(() => null);

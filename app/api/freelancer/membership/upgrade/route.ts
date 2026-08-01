@@ -1,7 +1,8 @@
 import { ApiResponse } from "@/lib/apiResponse";
 import db from "@/lib/db";
 import FreelancerService from "@/lib/freelancer/FreelancerService";
-import { checkUserId } from "@/lib/helper";
+import { cancelExpiredMemberships, checkUserId } from "@/lib/helper";
+import { sseStore } from "@/lib/sse-store";
 import { MemberShipUpgradeInSchema } from "@/lib/validations/membership";
 
 /**
@@ -80,22 +81,29 @@ export async function POST(request: Request): Promise<Response> {
 
         const packagePrice = membershipPlan.price.toNumber();
 
+
+        const freelancer = await db.freelancer.findUnique({
+            where: { userId: userId as string },
+            select: { id: true, currentBalance: true }
+        });
+
+
+        if (!freelancer) {
+            throw new Error("FREELANCER_NOT_FOUND");
+        }
+
+
+        // Cancel expired memberships if any
+        cancelExpiredMemberships(freelancer.id);
+
         // Execute the core financial logic within a database transaction.
         const result = await db.$transaction(async (tx) => {
 
-            const freelancer = await tx.freelancer.findUnique({
-                where: { userId: userId as string },
-                select: { id: true, currentBalance: true }
-            });
 
-
-            if (!freelancer) {
-                throw new Error("FREELANCER_NOT_FOUND");
-            }
 
             const membershipPlan = await tx.membershipPlan.findUnique({
                 where: { id: planId }
-            })
+            });
 
             if (!membershipPlan) throw new Error("PLAN_NOT_FOUND");
 
@@ -124,12 +132,32 @@ export async function POST(request: Request): Promise<Response> {
                     membershipPlanId: membershipPlan.id,
                     invoiceId: invoice.id,
                 }
-            })
+            });
 
-            return membershipRequest;
+            const notification = await tx.notification.create({
+                data: {
+                    userId: userId as string,
+                    title: "Membership Upgrade Request Submitted",
+                    description: `প্রিয় ব্যবহারকারী,আপনার মেম্বারশিপ আপগ্রেড রিকোয়েস্টটি প্রক্রিয়াধীন। অনুগ্রহ করে ধৈর্য ধরুন। নির্ধারিত সময়ের মধ্যে রিকোয়েস্টটি অনুমোদিত না হলে সাপোর্ট টিমের সাথে যোগাযোগ করুন।ধন্যবাদ`
+                },
+
+                select: {
+                    id: true,
+                    title: true,
+                    description: true,
+                    createdAt: true,
+                    read: true,
+                }
+            });
+
+            return { membershipRequest, notification };
         });
 
-        return ApiResponse.success(result, "Membership upgrade request submitted successfully", 201);
+        sseStore.send(userId as string, "notification", {
+            ...result.notification
+        });
+
+        return ApiResponse.success(result.membershipRequest, "Membership upgrade request submitted successfully", 201);
 
     } catch (error: unknown) {
         // Determine the error message safely without using 'any'.
@@ -142,6 +170,7 @@ export async function POST(request: Request): Promise<Response> {
         if (errorMessage === "FREELANCER_NOT_FOUND") {
             return ApiResponse.error("Freelancer profile not found", 404);
         }
+
         if (errorMessage === "INSUFFICIENT_BALANCE") {
             return ApiResponse.error("You do not have enough balance in your wallet", 400);
         }

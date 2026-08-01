@@ -1,4 +1,3 @@
-import { Bell } from 'lucide-react'
 import Image from 'next/image';
 import Logo from '@/public/image/logo.png';
 import NotificationBell from './header/NotificationBell';
@@ -7,8 +6,10 @@ import MobileSidebar from './header/MobileSidebar';
 import JobMenu from './header/JobMenu';
 import Menu from './header/Menu';
 import BalanceMenu from './header/BalanceMenu';
+import { NotificationBellMobile } from './header/NoticicationBellMobile';
 
 export default function Header() {
+
     return (
         <header className="w-full bg-accent-500 border-b border-gray-100 px-4 h-16 flex items-center justify-between font-sans fixed top-0 z-50">
 
@@ -45,16 +46,7 @@ export default function Header() {
                 </div>
 
                 <div className="relative cursor-pointer text-gray-400 hover:text-gray-600 flex1 md:hidden">
-                    <Link href="/dashboard/notification">
-                        <div className="relative cursor-pointer group outline-none">
-                            {/* Icon color changes based on Mobile/Desktop background automatically */}
-                            <Bell size={22} color="white" />
-                            {/* The Red Badge (Hidden if count is 0) */}
-                            <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white md:border-accent-500 text-[10px] text-white flex items-center justify-center font-bold">
-                                2
-                            </span>
-                        </div>
-                    </Link>
+                    <NotificationBellMobile />
                 </div>
 
                 {/* User Profile Dropdown */}

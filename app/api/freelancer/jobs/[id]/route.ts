@@ -2,6 +2,7 @@ import { ApiResponse } from "@/lib/apiResponse";
 import db from "@/lib/db";
 
 import FreelancerService from "@/lib/freelancer/FreelancerService";
+import { cancelExpiredMemberships } from "@/lib/helper";
 
 export async function GET(
     request: Request,
@@ -51,6 +52,9 @@ export async function GET(
         if (!freelancer) {
             return ApiResponse.error("Freelancer not found", 409);
         }
+
+        // Cancel expired memberships if any
+        cancelExpiredMemberships(freelancer.id);
 
         const permission: {
             limitParDay: boolean;

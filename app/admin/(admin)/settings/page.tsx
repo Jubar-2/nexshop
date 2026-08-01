@@ -91,8 +91,7 @@ export default function AdminSettingsPage() {
 
     }, [settingsData]);
 
-    const handelGen1 = () => {
-        console.log("gen one click")
+    const handelGen1 = () => {        
         if (gen1) {
             setGen1(false)
             setGen2(false);
@@ -104,8 +103,7 @@ export default function AdminSettingsPage() {
         }
     }
 
-    const handelGen2 = () => {
-        console.log("gen one click")
+    const handelGen2 = () => {        
         if (gen2) {
             setGen2(false);
             setGen3(false);

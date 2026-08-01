@@ -1,5 +1,6 @@
 import { ApiResponse } from "@/lib/apiResponse";
 import db from "@/lib/db";
+import { checkUserId } from "@/lib/helper";
 import { categorySchema } from "@/lib/validations/category";
 // import { getServerSession } from "next-auth"; 
 // import { authOptions } from "@/lib/auth"; 
@@ -11,6 +12,11 @@ export async function POST(request: Request) {
         // if (!session || session.user.role !== "ADMIN") {
         //     return ApiResponse.error("Unauthorized: Admin access required", 401);
         // }
+
+        const userId = checkUserId(request);
+        if (!userId) {
+            return ApiResponse.error("Authentication required", 401);
+        }
 
         // Safe JSON Parsing
         const body = await request.json().catch(() => null);

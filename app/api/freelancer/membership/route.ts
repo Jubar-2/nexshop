@@ -1,6 +1,6 @@
 import { ApiResponse } from "@/lib/apiResponse";
 import db from "@/lib/db";
-import { checkUserId } from "@/lib/helper";
+import { cancelExpiredMemberships } from "@/lib/helper";
 
 /**
  * Retrieves the list of available membership tiers for freelancers.
@@ -15,11 +15,27 @@ import { checkUserId } from "@/lib/helper";
  */
 export async function GET(request: Request): Promise<Response> {
   try {
-    // Identity Guard: Ensure user is logged in to view pricing
-    const userId = checkUserId(request);
+
+    const userId = request.headers.get('x-user-id');
+
     if (!userId) {
-      return ApiResponse.error("Authentication required", 401);
+      return ApiResponse.error("User Id is missing", 409);
     }
+
+    // Fetch freelancer details to get the freelancer ID
+    const freelancer = await db.freelancer.findUnique({
+      where: { userId },
+      select: {
+        id: true,
+      }
+    });
+
+    if (!freelancer) {
+      return ApiResponse.error("Freelancer not found", 404);
+    }
+
+    // Cancel expired memberships if any
+    cancelExpiredMemberships(freelancer.id);
 
     // Fetch Membership Plans
     // Pagination is usually not needed for plans (as there are only a few),

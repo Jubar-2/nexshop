@@ -82,7 +82,8 @@ export async function GET(request: Request): Promise<Response> {
                             user: {
                                 select: {
                                     fullName: true,
-                                    avatar: true
+                                    avatar: true,
+                                    email: true,
                                 }
                             }
                         }

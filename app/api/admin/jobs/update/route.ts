@@ -5,14 +5,14 @@ import db from "@/lib/db";
 // import { authOptions } from "@/lib/auth";
 import { Prisma } from "@prisma/client";
 import Validation from "@/lib/Validation";
+import { checkUserId } from "@/lib/helper";
 
 export async function PATCH(request: Request) {
     try {
-        // const session = await getServerSession(authOptions);
-
-        // if (!session || session.user.role !== "ADMIN" || !session.user.id) {
-        //     return ApiResponse.error("Forbidden: Admin access required", 403);
-        // }
+        const userId = checkUserId(request);
+        if (!userId) {
+            return ApiResponse.error("Authentication required", 401);
+        }
 
         // Safe JSON parsing with error handling
         const body = await request.json().catch(() => null);

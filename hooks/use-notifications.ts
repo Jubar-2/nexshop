@@ -1,8 +1,7 @@
 "use client";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useEffect } from "react";
-import { toast } from "sonner";
 
 interface Notification {
     type: string;
@@ -25,13 +24,21 @@ export function useNotifications() {
             try {
 
                 const notification: Notification = JSON.parse(e.data);
-                console.log("[SSE] Notification received:", notification);
+                // console.log("[SSE] Notification received:", notification);
 
                 queryClient.setQueryData(["get-unread-count"], (oldData: { count: number } | undefined) => {
                     if (oldData) {
                         return { ...oldData, count: oldData.count + 1 };
                     }
                     return { count: 1 };
+                });
+
+
+                queryClient.setQueryData(["get-notifications"], (oldData: Notification[] | undefined) => {
+                    if (oldData) {
+                        return [notification, ...oldData];
+                    }
+                    return [notification];
                 });
 
 
@@ -66,12 +73,12 @@ export const useGetUnreadCount = () => {
     });
 }
 
-export const useGetNotifications = () => {
+export const useGetNotifications = (limit: number) => {
     return useQuery({
-        queryKey: ["get-notifications"],
+        queryKey: ["get-notifications", limit],
         queryFn: async () => {
-            const { data } = await axios.get("/api/freelancer/notifications");
-            return data.data;
+            const { data } = await axios.get(`/api/freelancer/notifications?limit=${limit}`);
+            return data.data.data;
         },
         staleTime: 1000 * 60,
         refetchOnWindowFocus: true,
@@ -93,4 +100,18 @@ export const useMarkAllAsRead = () => {
             });
         }
     });
-}   
+}
+
+export const useNotificationsInfinite = () => {
+    return useInfiniteQuery({
+        queryKey: ['notifications-infinite'],
+        queryFn: async ({ pageParam = 1 }) => {
+            const response = await axios.get(`/api/freelancer/notifications?limit=${5}&page=${pageParam}`);
+            return response.data; // Expecting { data: [], meta: { hasNextPage: true, nextCursor: 2 } }
+        },
+        initialPageParam: 1,
+        getNextPageParam: (lastPage) =>
+            lastPage.data.meta.hasNextPage ? lastPage.data.meta.currentPage + 1 : undefined
+
+    });
+}

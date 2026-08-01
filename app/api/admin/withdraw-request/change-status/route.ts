@@ -1,5 +1,6 @@
 import { ApiResponse } from "@/lib/apiResponse";
 import db from "@/lib/db";
+import { sseStore } from "@/lib/sse-store";
 import { ChangeWithdrawStatusSchema } from "@/lib/validations/payment";
 
 /**
@@ -30,19 +31,29 @@ export async function PATCH(request: Request): Promise<Response> {
 
     const { id, status, trxID } = validation.data;
 
+    // Fetch current request and ensure it's PENDING
+    const currentRequest = await db.withdrawRequest.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        status: true,
+        amount: true,
+        freelancerId: true,
+        freelancer: {
+          select: {
+            userId: true
+          }
+        }
+      }
+    });
+
+    if (!currentRequest) throw new Error("NOT_FOUND");
+    if (currentRequest.status !== "PENDING") throw new Error("ALREADY_PROCESSED");
+
+    if (status === "APPROVED" && !trxID) throw new Error("TRXID_REQUIRED_FOR_APPROVAL");
+
     // Execute Transaction
     const result = await db.$transaction(async (tx) => {
-
-      // Fetch current request and ensure it's PENDING
-      const currentRequest = await tx.withdrawRequest.findUnique({
-        where: { id },
-        select: { id: true, status: true, amount: true, freelancerId: true }
-      });
-
-      if (!currentRequest) throw new Error("NOT_FOUND");
-      if (currentRequest.status !== "PENDING") throw new Error("ALREADY_PROCESSED");
-      console.log("trx id =",trxID)
-      if (status === "APPROVED" && !trxID) throw new Error("TRXID_REQUIRED_FOR_APPROVAL");
 
       // If REJECTED, Refund the money to the Freelancer
       if (status === "REJECTED") {
@@ -76,10 +87,51 @@ export async function PATCH(request: Request): Promise<Response> {
         },
       });
 
-      return updated;
+      let notification;
+      if (status === "APPROVED") {
+        notification = await tx.notification.create({
+          data: {
+            userId: currentRequest.freelancer.userId,
+            title: "Withdrawal Request Accepted",
+            description: `পরিয় ব্যবহারকারী,আপনার পেমেন্টটি অনুমোদিত হয়েছে। অনুগ্রহ করে আপনার অ্যাকাউন্ট চেক করুন। ${currentRequest.amount} টাকা আপনার অ্যাকাউন্টে জমা হয়েছে।`
+          },
+
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            createdAt: true,
+            read: true,
+          }
+        });
+      } else if (status === "REJECTED") {
+        notification = await tx.notification.create({
+          data: {
+            userId: currentRequest.freelancer.userId,
+            title: "Withdrawal Request Rejected",
+            description: `প্রিয় ব্যবহারকারী,আপনার পেমেন্টটি অনুমোদিত হয়নি। অনুগ্রহ করে আপনার তথ্য যাচাই করুন এবং পুনরায় চেষ্টা করুন।`
+          },
+
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            createdAt: true,
+            read: true,
+          }
+        });
+      }
+
+      return { updated, notification };
     });
 
-    return ApiResponse.success(result, `Withdrawal ${status.toLowerCase()} successfully`);
+    // Send real-time notification via SSE
+    sseStore.send(currentRequest.freelancer.userId, "notification", {
+      ...result.notification
+    });
+
+
+    return ApiResponse.success(result.updated, `Withdrawal ${status.toLowerCase()} successfully`);
 
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Internal Error";

@@ -7,7 +7,6 @@ export interface IApiResponse<T = unknown> {
   errors?: Record<string, string[]>;
 }
 
-// কুকি কনফিগারেশনের জন্য টাইপ ডিফাইন করে নেওয়া ভালো
 interface CookieOptions {
   name: string;
   value: string;
@@ -18,7 +17,6 @@ interface CookieOptions {
   maxAge?: number;
 }
 
-// NextResponse.json এর ২য় প্যারামিটারের টাইপ এক্সটেন্ড করা
 interface ResponseOptions extends ResponseInit {
   cookie?: CookieOptions;
   clearCookie?: {
@@ -34,7 +32,7 @@ export class ApiResponse {
     data: T,
     message: string = "Request successful",
     status: number = 200,
-    options?: ResponseOptions // নতুন প্যারামিটার যোগ করা হলো
+    options?: ResponseOptions
   ) {
     const response = NextResponse.json(
       {

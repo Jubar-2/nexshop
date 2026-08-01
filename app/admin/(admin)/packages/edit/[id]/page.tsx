@@ -157,7 +157,7 @@ export default function AdminUpdatePackage() {
 
         if (!result.success) {
             const fieldErrors: Record<string, string> = {};
-            console.log(result.error.issues)
+            
             result.error.issues.forEach((err) => {
                 const field = err.path[0]; // name, price, etc
                 if (field) {

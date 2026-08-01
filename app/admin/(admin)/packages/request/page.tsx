@@ -1,23 +1,21 @@
 "use client"
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
-    Search, CheckCircle2, XCircle, Clock,
-    Zap, Filter, MoreHorizontal, ChevronLeft,
-    ChevronRight, Loader2, Crown, CircleDollarSign,
-    ExternalLink, Wallet
+    Search, Clock,
+    ChevronLeft,
+    ChevronRight, Loader2, CircleDollarSign,
+    ExternalLink
 } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useDebounce } from 'use-debounce';
 import { useGetMembershipRequests, useUpdateMembershipStatus } from '@/hooks/admin/use-membership';
 import { cn } from '@/lib/utils';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import StatusBadge from '@/components/admin/package/StatusBadge';
 import RowSkeleton from '@/components/admin/package/RowSkeleton';
@@ -41,10 +39,10 @@ export default function AdminMembershipRequests() {
     const meta = response?.meta;
 
     const handleAction = (id: string, status: 'APPROVED' | 'REJECTED') => {
-        console.log(id)
+
         updateStatus({ id, status }, {
             onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: ["admin-submitted-jobs"] });
+                queryClient.invalidateQueries({ queryKey: ["admin-requested-packages"] });
                 toast.success(`Request ${status.toLowerCase()} successfully`)
             },
             onError: (error) => {
@@ -126,7 +124,7 @@ export default function AdminMembershipRequests() {
                             <tbody className="divide-y divide-slate-50">
                                 {isLoading ? (
                                     [1, 2, 3, 4, 5].map(i => <RowSkeleton key={i} />)
-                                ) : requests.map((req: any) => (
+                                ) : requests.map((req: MembershipRequest) => (
                                     <tr key={req.id} className="hover:bg-slate-50/50 transition-colors group">
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-4">

@@ -1,5 +1,6 @@
 import { ApiResponse } from "@/lib/apiResponse";
 import db from "@/lib//db";
+import { checkUserId } from "@/lib/helper";
 
 
 export async function GET(
@@ -7,6 +8,12 @@ export async function GET(
     ctx: { params: Promise<{ id: string }> }
 ) {
     try {
+
+        const userId = checkUserId(request);
+        if (!userId) {
+            return ApiResponse.error("Authentication required", 401);
+        }
+
         const { id } = await ctx.params;
 
         // Optimized Database Query

@@ -1,6 +1,6 @@
 import { ApiResponse } from "@/lib/apiResponse";
 import db from "@/lib/db";
-import { qstash } from "@/lib/qstash";
+import { sseStore } from "@/lib/sse-store";
 import { MemberShipUpgradeStatusChangeInSchema } from "@/lib/validations/membership";
 
 /**
@@ -40,6 +40,11 @@ export async function PATCH(request: Request): Promise<Response> {
                 freelancerId: true,
                 requestedPlanId: true,
                 requestedPlan: true,
+                freelancer: {
+                    select: {
+                        userId: true
+                    }
+                }
             }
         });
 
@@ -90,6 +95,8 @@ export async function PATCH(request: Request): Promise<Response> {
                 }
             });
 
+            let notification;
+
             if (status === "APPROVED") {
 
                 await tx.freelancer.update({
@@ -101,25 +108,52 @@ export async function PATCH(request: Request): Promise<Response> {
                     }
                 });
 
+                notification = await tx.notification.create({
+                    data: {
+                        userId: requestRecord.freelancer.userId,
+                        title: "Membership Request Approved",
+                        description: `প্রিয় ব্যবহারকারী,আপনার মেম্বারশিপ রিকোয়েস্টটি অনুমোদিত হয়েছে। আপনার নতুন মেম্বারশিপটি ${startDate.toLocaleDateString()} থেকে কার্যকর হবে এবং ${endDate.toLocaleDateString()} তারিখে শেষ হবে।`
+                    },
+
+                    select: {
+                        id: true,
+                        title: true,
+                        description: true,
+                        createdAt: true,
+                        read: true,
+                    }
+                });
+
+            } else if (status === "REJECTED") {
+                notification = await tx.notification.create({
+                    data: {
+                        userId: requestRecord.freelancer.userId,
+                        title: "Membership Request Rejected",
+                        description: `প্রিয় ব্যবহারকারী,আপনার মেম্বারশিপ রিকোয়েস্টটি অনুমোদিত হয়নি। অনুগ্রহ করে আপনার তথ্য যাচাই করুন এবং পুনরায় চেষ্টা করুন।`
+                    },
+
+                    select: {
+                        id: true,
+                        title: true,
+                        description: true,
+                        createdAt: true,
+                        read: true,
+                    }
+                });
             }
 
-            return updatedRequest;
+            return { updatedRequest, notification };
         });
 
-        if (status === "APPROVED") {
-            await qstash.publishJSON({
-                // url: `${process.env.NEXT_PUBLIC_APP_URL}/api/subscription/expire-webhook`,
-                url: `${process.env.APP_URL}/api/webhooks/expire-membership`,
-                body: {
-                    freelancerId: requestRecord.freelancerId,
-                },
-                notBefore: Math.floor(endDate.getTime() / 1000),
-            });
-        }
+        // Send real-time notification via SSE
+        sseStore.send(requestRecord.freelancer.userId, "notification", {
+            ...result.notification
+        });
 
         return ApiResponse.success(result, `Membership request ${status.toLowerCase()} successfully`);
 
     } catch (error: unknown) {
+        console.log(error)
         const msg = error instanceof Error ? error.message : "Internal Error";
         console.error("[ADMIN_MEMBERSHIP_PATCH_ERROR]:", msg);
 

@@ -5,7 +5,7 @@ import { useMemo } from "react";
 
 function HeaderBalance() {
     const { data, isLoading, isError } = useFreelancerProfile();
-    console.log(data)
+    
     // Memoize the formatted value to prevent recalculation on every render
     const formattedBalance = useMemo(() => {
         const value = data?.currentBalance ?? 0;

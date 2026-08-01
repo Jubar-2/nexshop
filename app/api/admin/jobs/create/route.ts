@@ -5,14 +5,14 @@ import db from "@/lib/db";
 // import { authOptions } from "@/lib/auth";
 import { Prisma } from "@prisma/client";
 import Validation from "@/lib/Validation";
+import { checkUserId } from "@/lib/helper";
 
 export async function POST(request: Request) {
     try {
-        // const session = await getServerSession(authOptions);
-
-        // if (!session || session.user.role !== "ADMIN" || !session.user.id) {
-        //     return ApiResponse.error("Forbidden: Admin access required", 403);
-        // }
+        const userId = checkUserId(request);
+        if (!userId) {
+            return ApiResponse.error("Authentication required", 401);
+        }
 
         // Safe JSON parsing with error handling
         const body = await request.json().catch(() => null);
@@ -60,11 +60,11 @@ export async function POST(request: Request) {
                 jobTitle: jobTitle.trim(),
                 workerRequired,
                 reward,
-                description:description.trim(),
+                description: description.trim(),
                 categoryId: category,
                 subCategoryId: subCategory,
-                targetLink:targetLink.trim(),
-                userId: "cmrf45b1g0000y87eia8xj99c",//Number(session.user.id),
+                targetLink: targetLink.trim(),
+                userId: userId as string,
             },
         });
 
