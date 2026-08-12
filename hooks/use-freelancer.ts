@@ -1,6 +1,7 @@
 import { PasswordFormValues } from "@/lib/validations/changePassword";
 import { OTPValues } from "@/lib/validations/otpCode";
 import { ProfileSchemaInput } from "@/lib/validations/profile";
+import { FreelancerProfile } from "@/types/profile";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
