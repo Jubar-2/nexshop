@@ -42,7 +42,7 @@ export default class Validation implements IValidation {
      * @param phoneNumber 
      */
     public async phoneNumberConflict(phoneNumber: string): Promise<void> {
-        const existingUser = await db.user.findUnique({
+        const existingUser = await db.user.findFirst({
             where: { phoneNumber },
             select: { phoneNumber: true }
         });

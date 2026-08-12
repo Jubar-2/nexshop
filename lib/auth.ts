@@ -69,9 +69,7 @@ export const authOptions: NextAuthOptions = {
                         where: { isDefault: true },
                         select: { id: true },
                     }),
-                ]);
-
-                console.log(defaultPlan)
+                ]);                
 
                 if (!existingUser) {
                     if (!defaultPlan) {
