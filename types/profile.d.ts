@@ -1,3 +1,5 @@
+import { userType } from "./jobs";
+
 type MembershipOffer = {
     id: string;
     membershipPlanId: string;
@@ -38,6 +40,7 @@ type freelancerType = {
     totalRejected: number;
     totalSubmitted: number;
     totalSuccessRate: number;
+    user: userType;
 }
 
 type FreelancerProfile = {

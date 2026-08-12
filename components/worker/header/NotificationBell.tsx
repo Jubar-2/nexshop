@@ -16,7 +16,7 @@ import Link from 'next/link';
 import NotificationSkeleton from './NotificationSkeleton';
 
 export default function NotificationBell() {
-    useNotifications(); // Handles real-time updates
+    // useNotifications(); // Handles real-time updates
 
     const { data: unreadCount, isLoading: isLoadingCount } = useGetUnreadCount();
     const { data: notifications, isLoading: isLoadingNotifs } = useGetNotifications(5);

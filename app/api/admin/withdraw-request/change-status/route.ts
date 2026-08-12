@@ -1,6 +1,6 @@
 import { ApiResponse } from "@/lib/apiResponse";
 import db from "@/lib/db";
-import { sseStore } from "@/lib/sse-store";
+// import { sseStore } from "@/lib/sse-store";
 import { ChangeWithdrawStatusSchema } from "@/lib/validations/payment";
 
 /**
@@ -126,9 +126,9 @@ export async function PATCH(request: Request): Promise<Response> {
     });
 
     // Send real-time notification via SSE
-    sseStore.send(currentRequest.freelancer.userId, "notification", {
-      ...result.notification
-    });
+    // sseStore.send(currentRequest.freelancer.userId, "notification", {
+    //   ...result.notification
+    // });
 
 
     return ApiResponse.success(result.updated, `Withdrawal ${status.toLowerCase()} successfully`);

@@ -125,6 +125,8 @@ model Freelancer {
   referralSender           Referral[]                 @relation("Receiver")
   referralReceiver         Referral[]                 @relation("Sender")
   luckySpin                LuckySpin[]
+
+  referralHistories ReferralHistory[]
 }
 
 model Referral {
@@ -404,7 +406,7 @@ model Notification {
   userId      String
   title       String   @db.Text
   description String   @db.Text
-  read       Boolean  @default(false)
+  read        Boolean  @default(false)
   createdAt   DateTime @default(now())
 }
 
@@ -424,4 +426,11 @@ model BlacklistedToken {
   id              String   @id @default(cuid())
   token           String
   blackListedDate DateTime @default(now())
+}
+
+model ReferralHistory {
+  id           String     @id @default(cuid())
+  receiverId   String     @unique
+  referralCode String
+  freelancer   Freelancer @relation(fields: [receiverId], references: [id])
 }

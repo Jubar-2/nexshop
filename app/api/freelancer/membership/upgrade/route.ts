@@ -2,7 +2,7 @@ import { ApiResponse } from "@/lib/apiResponse";
 import db from "@/lib/db";
 import FreelancerService from "@/lib/freelancer/FreelancerService";
 import { cancelExpiredMemberships, checkUserId } from "@/lib/helper";
-import { sseStore } from "@/lib/sse-store";
+// import { sseStore } from "@/lib/sse-store";
 import { MemberShipUpgradeInSchema } from "@/lib/validations/membership";
 
 /**
@@ -153,9 +153,9 @@ export async function POST(request: Request): Promise<Response> {
             return { membershipRequest, notification };
         });
 
-        sseStore.send(userId as string, "notification", {
-            ...result.notification
-        });
+        // sseStore.send(userId as string, "notification", {
+        //     ...result.notification
+        // });
 
         return ApiResponse.success(result.membershipRequest, "Membership upgrade request submitted successfully", 201);
 

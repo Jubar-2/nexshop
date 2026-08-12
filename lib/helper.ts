@@ -3,7 +3,7 @@ import db from "./db";
 import { signAccessToken, signRefreshToken } from "./tokens";
 import { ApiResponse } from "./apiResponse";
 import { Prisma } from "@prisma/client";
-import { sseStore } from "./sse-store";
+// import { sseStore } from "./sse-store";
 
 
 /**
@@ -259,9 +259,9 @@ export async function cancelExpiredMemberships(freelancerId: string) {
             }
         });
 
-        sseStore.send(freelancer.userId, "notification", {
-            ...notification
-        });
+        // sseStore.send(freelancer.userId, "notification", {
+        //     ...notification
+        // });
 
         return ApiResponse.success({}, "Subscription expiry processed");
 

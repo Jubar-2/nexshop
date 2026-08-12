@@ -5,7 +5,7 @@ import { Users, Briefcase, DollarSign, Globe } from "lucide-react";
 const stats = [
   { icon: Users, val: "500K+", label: "Registered Earners", sub: "from 120+ countries", color: "#9b59b6" },
   { icon: Briefcase, val: "2.5M+", label: "Tasks Completed", sub: "every month", color: "#1abc9c" },
-  { icon: DollarSign, val: "$8M+", label: "Total Paid Out", sub: "to workers globally", color: "#f39c12" },
+  { icon: DollarSign, val: "৳8M+", label: "Total Paid Out", sub: "to workers globally", color: "#f39c12" },
   { icon: Globe, val: "120+", label: "Countries Served", sub: "worldwide access", color: "#3498db" },
 ];
 

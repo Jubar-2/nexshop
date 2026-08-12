@@ -71,6 +71,8 @@ export const authOptions: NextAuthOptions = {
                     }),
                 ]);
 
+                console.log(defaultPlan)
+
                 if (!existingUser) {
                     if (!defaultPlan) {
                         console.error("[GOOGLE_SIGNIN] No default plan found");

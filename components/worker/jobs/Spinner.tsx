@@ -16,10 +16,12 @@ function Spinner() {
 
     const { data, isLoading } = useGetSpin();
 
+    console.log(data)
+
     const queryClient = useQueryClient();
 
     const { mutate } = useMutation({
-        mutationFn: async () => {
+        mutationFn: async () => {   
             const response = await axios.post("/api/freelancer/payment/request/submit");
             return response.data;
         },
@@ -72,8 +74,8 @@ function Spinner() {
 
         mutate()
 
-
     };
+
     return (
         <Card className="bg-white border-none shadow-sm rounded-3xl p-8 flex flex-col items-center justify-center relative overflow-hidden">
             <div className="absolute top-4 left-6">
@@ -115,12 +117,12 @@ function Spinner() {
                     {/* Center Spin Button */}
                     <button
                         onClick={startSpin}
-                        disabled={data?.spin || false /* isSpinning || hasSpun */}
+                        disabled={data?.spin && isSpinning && hasSpun}
                         className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-xl flex items-center justify-center font-black text-white text-sm md:text-base uppercase tracking-tighter transition-all active:scale-90 disabled:opacity-100
                         ${!data?.spin ? 'bg-slate-400' : 'bg-slate-900 hover:bg-black cursor-pointer animate-pulse-subtle'}
                     `}
                     >
-                        {data?.spin ? "..." : hasSpun ? "Used" : "Spin"}
+                        {data?.spin ? hasSpun ? "Used" : "Spin" : "Used"}
                     </button>
                 </>
 

@@ -1,8 +1,8 @@
 import { ApiResponse } from "@/lib/apiResponse";
 import db from "@/lib/db";
-import { checkUserId } from "@/lib/helper";
+import { checkUserId, giveReferralReward } from "@/lib/helper";
+import Settings from "@/lib/Settings";
 import { otpSchema } from "@/lib/validations/otpCode";
-
 
 export async function PATCH(request: Request) {
 
@@ -37,7 +37,12 @@ export async function PATCH(request: Request) {
             select: {
                 verifyCode: true,
                 verifyCodeExpiry: true,
-                status: true
+                status: true,
+                freelancer: {
+                    select: {
+                        id: true
+                    }
+                }
             }
         });
 
@@ -70,6 +75,44 @@ export async function PATCH(request: Request) {
                 status: "ACTIVE"
             }
         })
+
+        const referralHistory = await db.referralHistory.findUnique({
+            where: {
+                receiverId: user.freelancer?.id as string
+            }
+        });
+
+        if (!referralHistory) {
+            return ApiResponse.success(userUpdate, "Get profile data")
+        }
+
+        const referrer = await db.freelancer.findUnique({ where: { referKey: referralHistory.referralCode } });
+
+        if (!referrer) {
+            return ApiResponse.success(userUpdate, "Get profile data")
+        }
+
+        // Trigger Referral MLM Logic
+        if (referrer) {
+            const referralCreate = await db.referral.create({
+                data: {
+                    senderId: referrer.id,
+                    receiverId: user.freelancer?.id as string,
+                }
+            });
+
+            const settingsData = new Settings();
+
+            const [getOne, getTwo, getThree] = await Promise.all([
+                settingsData.genOneAmount(),
+                settingsData.genTwoAmount(),
+                settingsData.genThreeAmount()
+            ]);
+
+            // Distribute 3 generations of rewards
+            // await giveReferralReward(tx, referral.id, referrer.id, 1, 3, { getOne, getTwo, getThree });
+            giveReferralReward(db, referralCreate.id, referrer.id, 3, { getOne, getTwo, getThree });
+        }
 
         return ApiResponse.success(userUpdate, "Get profile data")
 

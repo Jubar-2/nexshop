@@ -2,7 +2,7 @@ import { ApiResponse } from "@/lib/apiResponse";
 import db from "@/lib/db";
 import { checkUserId } from "@/lib/helper";
 import Settings from "@/lib/Settings";
-import { sseStore } from "@/lib/sse-store";
+// import { sseStore } from "@/lib/sse-store";
 import { WithdrawSchema } from "@/lib/validations/payment";
 
 /**
@@ -119,9 +119,9 @@ export async function POST(request: Request): Promise<Response> {
             return { withdrawal, notification };
         });
 
-        sseStore.send(userId as string, "notification", {
-            ...result.notification
-        });
+        // sseStore.send(userId as string, "notification", {
+        //     ...result.notification
+        // });
 
         return ApiResponse.success(result, "Withdrawal request submitted successfully", 201);
 

@@ -163,7 +163,7 @@ export default function Hero() {
             <motion.div animate={{ y: [-5, 5, -5] }} transition={{ duration: 3.5, repeat: Infinity }}
               className="absolute top-4 right-0 bg-white rounded-xl px-3 py-2 flex items-center gap-2 shadow-lg border border-teal-100">
               <TrendingUp size={14} className="text-[#1abc9c]" />
-              <span className="text-xs font-semibold text-[#374151]">+$248 today</span>
+              <span className="text-xs font-semibold text-[#374151]">+৳248 today</span>
             </motion.div>
             <motion.div animate={{ y: [5, -5, 5] }} transition={{ duration: 4, repeat: Infinity, delay: 0.5 }}
               className="absolute bottom-8 left-0 bg-white rounded-xl px-3 py-2 flex items-center gap-2 shadow-lg border border-purple-100">

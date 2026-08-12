@@ -10,23 +10,22 @@ async function main() {
     where: { email },
   });
 
-  if (existingAdmin) {
-    console.log("Admin already exists");
+  if (existingAdmin) {    
     return;
   }
 
   const hashedPassword = await bcrypt.hash("Adm#iN12@30*", 10);
 
-  const admin = await db.user.create({
-    data: {
-      fullName: "System Admin",
-      email,
-      phoneNumber: "0000000000",
-      password: hashedPassword,
-      role: Role.ADMIN,
-      status: UserStatus.ACTIVE,
-    },
-  });
+  // const admin = await db.user.create({
+  //   data: {
+  //     fullName: "System Admin",
+  //     email,
+  //     phoneNumber: "0000000000",
+  //     password: hashedPassword,
+  //     role: Role.ADMIN,
+  //     status: UserStatus.ACTIVE,
+  //   },
+  // });
 
   let settingsData = [
 
@@ -49,7 +48,16 @@ async function main() {
     {
       key: "job_par_refresh",
       value: 5,
-    }
+    },
+    {
+      key: "withdraw_fee",
+      value: 5,
+    },
+    {
+      key: "withdraw_limit",
+      value: 5,
+    },
+
   ];
 
   const settings = await db.settings.createMany({

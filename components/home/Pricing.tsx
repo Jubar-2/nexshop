@@ -68,7 +68,7 @@ export default function Pricing() {
                             const cardBg = getCardBg(plan.color, plan.isDefault, isPopular);
                             const price = parseFloat(plan.price) === 0
                                 ? "Free"
-                                : `$${parseFloat(plan.price).toLocaleString()}`;
+                                : `৳${parseFloat(plan.price).toLocaleString()}`;
                             const period = plan.isDefault
                                 ? "forever"
                                 : plan.period > 0
