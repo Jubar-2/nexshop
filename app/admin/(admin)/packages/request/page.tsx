@@ -20,6 +20,7 @@ import axios from 'axios';
 import StatusBadge from '@/components/admin/package/StatusBadge';
 import RowSkeleton from '@/components/admin/package/RowSkeleton';
 import MetricCard from '@/components/admin/package/MetricCard';
+import { MembershipRequest } from '@/types/profile';
 
 export default function AdminMembershipRequests() {
     const queryClient = useQueryClient();
