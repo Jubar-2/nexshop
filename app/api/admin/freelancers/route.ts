@@ -34,6 +34,9 @@ export async function GET(request: Request) {
                     totalApproved: true,
                     totalRejected: true,
                     totalSubmitted: true,
+                },
+                orderBy: {
+                    createdAt: 'desc',
                 }
             }),
             db.freelancer.count(),
