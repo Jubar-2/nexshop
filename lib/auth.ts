@@ -77,8 +77,6 @@ export const authOptions: NextAuthOptions = {
                         return false; // block sign in — system misconfiguration
                     }
 
-                    const refreshToken = signRefreshToken({ userId: user.email! });
-
                     const result = await db.$transaction(async (tx) => {
                         const newUser = await tx.user.create({
                             data: {
@@ -89,8 +87,14 @@ export const authOptions: NextAuthOptions = {
                                 status: "ACTIVE",
                                 role: "FREELANCER",
                                 avatar: user.image,
-                                refreshToken,
                             },
+                        });
+
+                        const refreshToken = signRefreshToken({ userId: newUser.id! });
+
+                        await tx.user.update({
+                            where: { id: newUser.id },
+                            data: { refreshToken },
                         });
 
                         // ✅ Use newUser.id — not user.id which is the Google profile id
