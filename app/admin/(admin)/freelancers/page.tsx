@@ -1,6 +1,6 @@
 "use client"
 
-import React, { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import {
     Search, MoreHorizontal, UserCheck, Mail, TrendingUp,
     CheckCircle2, ExternalLink, Ban, Download, Users
@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
+// import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
     DropdownMenu, DropdownMenuContent,
@@ -69,19 +69,28 @@ const SkeletonRow = () => (
 
 // --- MAIN COMPONENT ---
 export default function AdminFreelancerList() {
-    const [filter, setFilter] = useState("All");
+    // const [filter, setFilter] = useState("All");
     const [page, setPage] = useState(1);
+    const [search, setSearch] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
 
-    const { data, isLoading, isError } = useGetFreelancers(page);
+    const { data, isLoading, isError } = useGetFreelancers(page, debouncedSearch);
 
     const freelancers: freelancerType[] = data?.data ?? [];
     const meta: Meta | undefined = data?.meta;
-    
+
     const handleAction = (key: string, action: string) => {
         toast.info(`User ${key} ${action}`, {
             description: "Account has been updated in the database.",
         });
     };
+
+    // Debounce search to avoid too many API calls
+    useEffect(() => {
+        const handler = setTimeout(() => setDebouncedSearch(search), 500);
+        return () => clearTimeout(handler);
+    }, [search]);
+
 
     return (
         <div className="min-h-screen bg-[#F0F2F5] pt-20 pb-12 font-poppins">
@@ -131,6 +140,8 @@ export default function AdminFreelancerList() {
                             <div className="relative grow md:w-72">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                                 <Input
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
                                     placeholder="Search by ref key..."
                                     className="h-11 pl-10 rounded-xl bg-slate-50 border-none focus-visible:ring-emerald-500"
                                 />
@@ -152,6 +163,7 @@ export default function AdminFreelancerList() {
                                     <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Financial</th>
                                     {/* <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Performance</th> */}
                                     <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Plan</th>
+                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
                                     <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
                                 </tr>
                             </thead>
@@ -241,7 +253,14 @@ export default function AdminFreelancerList() {
                                                 {user.membershipPlan.membershipName}
                                             </Badge>
                                         </td>
-
+                                        <td className="px-8 py-6 text-center">
+                                            <Badge
+                                                variant="outline"
+                                                className="border-purple-100 bg-purple-50 text-purple-600 font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-lg"
+                                            >
+                                                {user.user.status}
+                                            </Badge>
+                                        </td>
                                         {/* Actions */}
                                         <td className="px-8 py-6 text-right">
                                             <div className="flex items-center justify-end gap-2">

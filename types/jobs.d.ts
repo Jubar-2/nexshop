@@ -27,6 +27,7 @@ export type userType = {
   email: string;
   fullName: string;
   avatar: string | null;
+  status: "ACTIVE" | "BANNED" | "UNVERIFIED";
 }
 
 export type SubmittedJob = {

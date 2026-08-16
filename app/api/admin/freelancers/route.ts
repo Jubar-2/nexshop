@@ -1,14 +1,42 @@
 import { ApiResponse } from "@/lib/apiResponse";
 import db from "@/lib/db";
 import { Pagination } from "@/lib/pagination"; // adjust path to where your Pagination class lives
+import { Prisma } from "@prisma/client";
 
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
+
+        const search = searchParams.get("search");
+
         const pagination = new Pagination(searchParams, 10);
+
+        // Define the Where Clause with correct typing
+        const whereClause: Prisma.FreelancerWhereInput = {
+
+            // We search by ID (String) and FullName (String).
+            // We REMOVED 'createdAt' because you cannot use 'contains' on a Date.
+            ...(search && {
+                OR: [
+                    {
+                        user: {
+                            fullName: {
+                                contains: search,
+                                mode: 'insensitive' as Prisma.QueryMode
+                            },
+                            email: {
+                                contains: search,
+                                mode: 'insensitive' as Prisma.QueryMode
+                            }
+                        }
+                    }
+                ]
+            })
+        };
 
         const [userData, totalItems] = await Promise.all([
             db.freelancer.findMany({
+                where: whereClause,
                 ...pagination.prismaOptions,
                 select: {
                     membershipPlan: {
@@ -26,6 +54,7 @@ export async function GET(request: Request) {
                             fullName: true,
                             email: true,
                             avatar: true,
+                            status: true,
                         }
                     },
                     referKey: true,
